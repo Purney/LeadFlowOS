@@ -8,9 +8,17 @@ Phase 1 MVP foundation for an internal lead-flow, outreach, revenue, and deliver
 - Auth.js credentials authentication with an organisation-aware session.
 - First-owner signup flow that creates the initial organisation and owner user.
 - MongoDB/Mongoose connection layer and Phase 1 models: `Organisation`, `User`, and `ActivityLog`.
-- Dashboard shell with empty-state metrics for later phases.
 - Live-capable SendGrid, Stripe, and OpenAI service adapters that fail clearly when credentials are missing.
 - Vitest unit/integration test structure and a Playwright smoke spec.
+
+## Implemented in Phase 2
+
+- Lead model with organisation scoping, lifecycle status, source, tags, notes, custom fields, and unique email deduplication per organisation.
+- Lead CRUD APIs and UI at `/leads`.
+- CSV import through a paste-in importer with duplicate and invalid-row reporting.
+- Search and filtering by text, status, and tag.
+- Dashboard total-lead metric backed by real lead data.
+- Activity logging for lead create, update, delete, and import events.
 
 ## Getting Started
 
@@ -47,6 +55,6 @@ The E2E smoke test expects a running app and valid local environment.
 
 ## Roadmap
 
-Phase 2 adds lead CRUD, CSV import, deduplication, search, filters, tags, notes, and activity timeline.
+Phase 3 adds campaign builder foundations, multi-stage sequences, personalisation, scheduling, and A/B allocation.
 
-Later phases add campaigns, send batch approvals, SendGrid webhooks, suppression management, AI drafting, discovery forms, proposals, Stripe revenue tracking, client conversion, projects, time tracking, a client portal, onboarding automation, signatures, and PDF generation.
+Later phases add sending domains, deliverability, send batch approvals, SendGrid webhooks, suppression management, AI drafting, discovery forms, proposals, Stripe revenue tracking, client conversion, projects, time tracking, a client portal, onboarding automation, signatures, and PDF generation.
