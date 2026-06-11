@@ -41,6 +41,17 @@ Phase 1 MVP foundation for an internal lead-flow, outreach, revenue, and deliver
 - Approval gate for generated batches: batches start as `pending_approval` and can be approved or rejected manually.
 - Dashboard pending-approval metric backed by real send batch data.
 
+## Implemented in Phase 5
+
+- Suppression model and UI with reasons for unsubscribed, bounced, spam report, manual suppression, existing client, and competitor.
+- Email message and email event models for outbound attempts, inbound replies, and SendGrid event history.
+- SendGrid outbound processing for approved send batches, with dry-run support.
+- Event webhook route for delivery, open, click, bounce, unsubscribe, and spam report processing.
+- Inbound parse webhook route for reply capture.
+- Reply handling updates lead status to `replied` and pauses active campaign enrollments for that lead.
+- Bounce, unsubscribe, and spam report events automatically create suppressions.
+- Dashboard replies metric backed by inbound email messages.
+
 ## Getting Started
 
 Copy `.env.example` to `.env.local` and set at least:
@@ -76,6 +87,6 @@ The E2E smoke test expects a running app and valid local environment.
 
 ## Roadmap
 
-Phase 5 adds SendGrid outbound delivery, event webhooks, inbound reply processing, and suppression management.
+Phase 6 adds AI cold email generation and AI reply drafting.
 
-Later phases add AI drafting, discovery forms, proposals, Stripe revenue tracking, client conversion, projects, time tracking, a client portal, onboarding automation, signatures, and PDF generation.
+Later phases add discovery forms, proposals, Stripe revenue tracking, client conversion, projects, time tracking, a client portal, onboarding automation, signatures, and PDF generation.

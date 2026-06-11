@@ -18,10 +18,37 @@ export const sendBatchStatuses = [
   "failed",
 ] as const;
 
+export const suppressionReasons = [
+  "unsubscribed",
+  "bounced",
+  "spam_report",
+  "manual_suppression",
+  "existing_client",
+  "competitor",
+] as const;
+
+export const emailMessageDirections = ["outbound", "inbound"] as const;
+
+export const emailMessageStatuses = [
+  "queued",
+  "sent",
+  "delivered",
+  "opened",
+  "clicked",
+  "bounced",
+  "spam_report",
+  "unsubscribed",
+  "replied",
+  "failed",
+] as const;
+
 export type EmailProvider = (typeof emailProviders)[number];
 export type VerificationStatus = (typeof verificationStatuses)[number];
 export type WarmupStatus = (typeof warmupStatuses)[number];
 export type SendBatchStatus = (typeof sendBatchStatuses)[number];
+export type SuppressionReason = (typeof suppressionReasons)[number];
+export type EmailMessageDirection = (typeof emailMessageDirections)[number];
+export type EmailMessageStatus = (typeof emailMessageStatuses)[number];
 
 export type EmailHealth = {
   spfConfigured: boolean;

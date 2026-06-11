@@ -27,6 +27,24 @@ export function BatchActions({ batchId }: { batchId: string }) {
     });
   }
 
+  function processBatch(dryRun: boolean) {
+    setError(null);
+    startTransition(async () => {
+      const response = await fetch(`/api/send-batches/${batchId}/process`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dryRun }),
+      });
+
+      if (!response.ok) {
+        setError("Batch processing failed.");
+        return;
+      }
+
+      router.refresh();
+    });
+  }
+
   return (
     <div className="space-y-2">
       <div className="flex flex-wrap gap-2">
@@ -44,6 +62,12 @@ export function BatchActions({ batchId }: { batchId: string }) {
           variant="danger"
         >
           Reject
+        </Button>
+        <Button disabled={isPending} onClick={() => processBatch(true)} variant="secondary">
+          Dry run
+        </Button>
+        <Button disabled={isPending} onClick={() => processBatch(false)} variant="secondary">
+          Process
         </Button>
       </div>
       {error ? <p className="text-xs text-destructive">{error}</p> : null}

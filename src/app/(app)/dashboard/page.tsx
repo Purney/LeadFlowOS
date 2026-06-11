@@ -2,6 +2,7 @@ import { Activity, CheckCircle2, Clock, CreditCard, FileText, Inbox, Mail, Timer
 import { auth } from "@/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCampaignMetrics } from "@/services/campaign-service";
+import { getEmailMetrics } from "@/services/email-service";
 import { getLeadMetrics } from "@/services/lead-service";
 import { listRecentActivity } from "@/services/activity-service";
 import { getSendingMetrics } from "@/services/sending-service";
@@ -10,11 +11,12 @@ const metricCards = (
   leadTotal: number,
   activeCampaigns: number,
   pendingApprovals: number,
+  replies: number,
 ) => [
   { label: "Total leads", value: String(leadTotal), icon: Users },
   { label: "Active campaigns", value: String(activeCampaigns), icon: Mail },
   { label: "Pending approvals", value: String(pendingApprovals), icon: CheckCircle2 },
-  { label: "Replies received", value: "0", icon: Inbox },
+  { label: "Replies received", value: String(replies), icon: Inbox },
   { label: "Discovery forms awaiting completion", value: "0", icon: FileText },
   { label: "Proposal pipeline", value: "0", icon: Activity },
   { label: "Monthly revenue", value: "$0", icon: CreditCard },
@@ -23,18 +25,20 @@ const metricCards = (
 
 export default async function DashboardPage() {
   const session = await auth();
-  const [activity, leadMetrics, campaignMetrics, sendingMetrics] = session?.user.organisationId
+  const [activity, leadMetrics, campaignMetrics, sendingMetrics, emailMetrics] = session?.user.organisationId
     ? await Promise.all([
         listRecentActivity(session.user.organisationId),
         getLeadMetrics(session.user.organisationId),
         getCampaignMetrics(session.user.organisationId),
         getSendingMetrics(session.user.organisationId),
+        getEmailMetrics(session.user.organisationId),
       ])
     : [
         [],
         { total: 0, byStatus: {}, tags: [] },
         { total: 0, active: 0 },
         { accounts: 0, activeAccounts: 0, pendingApprovals: 0, averageHealth: 0 },
+        { messages: 0, replies: 0, events: 0 },
       ];
 
   return (
@@ -43,8 +47,8 @@ export default async function DashboardPage() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Stage 4 sending approvals are active. SendGrid, revenue, and
-            delivery metrics will populate as later modules come online.
+            Phase 5 SendGrid event and reply handling is active. Revenue and
+            delivery dashboards will deepen as later modules come online.
           </p>
         </div>
       </div>
@@ -54,6 +58,7 @@ export default async function DashboardPage() {
           leadMetrics.total,
           campaignMetrics.active,
           sendingMetrics.pendingApprovals,
+          emailMetrics.replies,
         ).map((metric) => (
           <Card key={metric.label}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">

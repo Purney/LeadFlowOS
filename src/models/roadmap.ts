@@ -1,8 +1,5 @@
 export const plannedModels = [
   "Lead",
-  "EmailMessage",
-  "EmailEvent",
-  "Suppression",
   "DiscoveryForm",
   "DiscoveryResponse",
   "Proposal",

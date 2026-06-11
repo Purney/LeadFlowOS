@@ -4,14 +4,17 @@ import { auth } from "@/auth";
 import { BatchActions } from "@/components/sending/batch-actions";
 import { AccountActions } from "@/components/sending/account-actions";
 import { CreateEmailAccountForm } from "@/components/sending/create-email-account-form";
+import { CreateSuppressionForm } from "@/components/sending/create-suppression-form";
 import { GenerateBatchForm } from "@/components/sending/generate-batch-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { listCampaigns } from "@/services/campaign-service";
+import { getEmailMetrics, listRecentEmailEvents } from "@/services/email-service";
 import {
   getSendingMetrics,
   listEmailAccounts,
   listSendBatches,
 } from "@/services/sending-service";
+import { listSuppressions } from "@/services/suppression-service";
 import type { SendBatchStatus, WarmupStatus } from "@/types/sending";
 
 type AccountView = {
@@ -60,6 +63,11 @@ export default async function SendingPage() {
     listSendBatches(session.user.organisationId),
     getSendingMetrics(session.user.organisationId),
     listCampaigns(session.user.organisationId),
+  ]);
+  const [suppressions, emailMetrics, emailEvents] = await Promise.all([
+    listSuppressions(session.user.organisationId),
+    getEmailMetrics(session.user.organisationId),
+    listRecentEmailEvents(session.user.organisationId),
   ]);
   const accountViews = accounts as AccountView[];
   const batchViews = batches as BatchView[];
@@ -123,6 +131,33 @@ export default async function SendingPage() {
         </Card>
       </section>
 
+      <section className="grid gap-4 md:grid-cols-3">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm text-muted-foreground">Messages</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-semibold">{emailMetrics.messages}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm text-muted-foreground">Replies</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-semibold">{emailMetrics.replies}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm text-muted-foreground">Suppressions</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-semibold">{suppressions.length}</p>
+          </CardContent>
+        </Card>
+      </section>
+
       <section className="grid gap-4 xl:grid-cols-[1fr_0.9fr]">
         <Card>
           <CardHeader>
@@ -138,6 +173,54 @@ export default async function SendingPage() {
           </CardHeader>
           <CardContent>
             <GenerateBatchForm campaigns={campaignOptions} accounts={accountOptions} />
+          </CardContent>
+        </Card>
+      </section>
+
+      <section className="grid gap-4 xl:grid-cols-[0.9fr_1fr]">
+        <Card>
+          <CardHeader>
+            <CardTitle>Suppression list</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <CreateSuppressionForm />
+            <div className="space-y-2">
+              {suppressions.slice(0, 8).map((suppression) => (
+                <div
+                  className="flex items-center justify-between gap-3 rounded-md border border-border p-3 text-sm"
+                  key={suppression._id.toString()}
+                >
+                  <span>{suppression.email}</span>
+                  <span className="text-muted-foreground">{suppression.reason}</span>
+                </div>
+              ))}
+              {suppressions.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  No suppressions recorded yet.
+                </p>
+              ) : null}
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent email events</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {emailEvents.map((event) => (
+              <div
+                className="flex items-center justify-between gap-3 rounded-md border border-border p-3 text-sm"
+                key={event._id.toString()}
+              >
+                <span>{event.eventType}</span>
+                <span className="text-muted-foreground">{event.email ?? "unknown"}</span>
+              </div>
+            ))}
+            {emailEvents.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                SendGrid events will appear after webhooks are received.
+              </p>
+            ) : null}
           </CardContent>
         </Card>
       </section>
@@ -221,7 +304,7 @@ export default async function SendingPage() {
                     {new Date(batch.scheduledSendTime).toLocaleString()}
                   </p>
                 </div>
-                {batch.status === "pending_approval" ? (
+                {batch.status === "pending_approval" || batch.status === "approved" ? (
                   <BatchActions batchId={batch._id.toString()} />
                 ) : null}
               </CardHeader>
