@@ -52,6 +52,17 @@ Phase 1 MVP foundation for an internal lead-flow, outreach, revenue, and deliver
 - Bounce, unsubscribe, and spam report events automatically create suppressions.
 - Dashboard replies metric backed by inbound email messages.
 
+## Implemented in Phase 6
+
+- AI draft model for cold email drafts and reply drafts.
+- OpenAI-backed generation service with structured prompt builders.
+- AI cold email generation from lead information, company, website, service offered, and campaign goal.
+- AI reply drafting from lead context and conversation history.
+- AI APIs at `/api/ai/cold-email` and `/api/ai/reply-draft`.
+- AI workspace UI at `/ai`.
+- Generated drafts are saved for manual review and are never sent automatically.
+- Dashboard AI draft metric.
+
 ## Getting Started
 
 Copy `.env.example` to `.env.local` and set at least:
@@ -87,6 +98,6 @@ The E2E smoke test expects a running app and valid local environment.
 
 ## Roadmap
 
-Phase 6 adds AI cold email generation and AI reply drafting.
+Phase 7 adds discovery forms and AI discovery summaries.
 
-Later phases add discovery forms, proposals, Stripe revenue tracking, client conversion, projects, time tracking, a client portal, onboarding automation, signatures, and PDF generation.
+Later phases add proposals, Stripe revenue tracking, client conversion, projects, time tracking, a client portal, onboarding automation, signatures, and PDF generation.

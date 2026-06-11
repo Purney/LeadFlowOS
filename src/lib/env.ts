@@ -17,6 +17,7 @@ export const envSchema = z
     STRIPE_SECRET_KEY: optionalSecret,
     STRIPE_WEBHOOK_SECRET: optionalSecret,
     OPENAI_API_KEY: optionalSecret,
+    OPENAI_MODEL: z.string().trim().default("gpt-4.1-mini"),
     ALLOW_ADDITIONAL_ORG_SIGNUPS: z
       .enum(["true", "false"])
       .default("false")

@@ -1,5 +1,5 @@
 import OpenAI from "openai";
-import { requireEnv } from "@/lib/env";
+import { getEnv, requireEnv } from "@/lib/env";
 
 let openAiClient: OpenAI | null = null;
 
@@ -9,4 +9,14 @@ export function getOpenAiClient() {
   }
 
   return openAiClient;
+}
+
+export async function generateTextWithOpenAI(prompt: string) {
+  const env = getEnv();
+  const response = await getOpenAiClient().responses.create({
+    model: env.OPENAI_MODEL,
+    input: prompt,
+  });
+
+  return response.output_text;
 }
