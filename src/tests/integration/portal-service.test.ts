@@ -9,6 +9,7 @@ import { OnboardingTask } from "@/models/onboarding-task";
 import { Organisation } from "@/models/organisation";
 import { PdfExport } from "@/models/pdf-export";
 import { PortalAccess } from "@/models/portal-access";
+import { PortalMessage } from "@/models/portal-message";
 import { Project } from "@/models/project";
 import { Proposal } from "@/models/proposal";
 import { SignatureRequest } from "@/models/signature-request";
@@ -20,9 +21,12 @@ import {
   createOnboardingTask,
   createPdfExport,
   createPortalAccess,
+  createPortalMessage,
+  createPublicPortalMessage,
   createSignatureRequest,
   getPortalMetrics,
   getPublicPortal,
+  runOnboardingAutomation,
   signPortalSignature,
 } from "@/services/portal-service";
 import { createProposal } from "@/services/proposal-service";
@@ -72,6 +76,7 @@ afterEach(async () => {
     PdfExport.deleteMany({}),
     SignatureRequest.deleteMany({}),
     OnboardingTask.deleteMany({}),
+    PortalMessage.deleteMany({}),
     PortalAccess.deleteMany({}),
     Proposal.deleteMany({}),
     Project.deleteMany({}),
@@ -198,6 +203,47 @@ describe("portal service", () => {
       pendingTasks: 1,
       signatures: 1,
       pdfExports: 1,
+      unreadMessages: 0,
     });
+  });
+
+  it("runs onboarding automation and captures internal and public portal messages", async () => {
+    await bootstrapOwner();
+    const client = await bootstrapClient();
+    const project = await createProject(context, {
+      clientId: client._id.toString(),
+      name: "Portal collaboration",
+      type: "consulting",
+      status: "active",
+      estimatedValue: 3000,
+      actualRevenue: 0,
+    });
+    const access = await createPortalAccess(context, {
+      clientId: client._id.toString(),
+      label: "Collaboration portal",
+    });
+
+    const tasks = await runOnboardingAutomation(context, {
+      clientId: client._id.toString(),
+      projectId: project!._id.toString(),
+    });
+    const internalMessage = await createPortalMessage(context, {
+      clientId: client._id.toString(),
+      projectId: project!._id.toString(),
+      authorName: "Team",
+      body: "Kickoff tasks are ready.",
+    });
+    const publicMessage = await createPublicPortalMessage(access!.token, {
+      projectId: project!._id.toString(),
+      authorName: "Client",
+      body: "We have uploaded the assets.",
+    });
+    const metrics = await getPortalMetrics(context.organisationId);
+
+    expect(tasks).toHaveLength(3);
+    expect(internalMessage?.authorType).toBe("internal");
+    expect(publicMessage?.authorType).toBe("client");
+    expect(metrics.pendingTasks).toBe(3);
+    expect(metrics.unreadMessages).toBe(1);
   });
 });

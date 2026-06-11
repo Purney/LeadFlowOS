@@ -4,23 +4,31 @@ import { Client } from "@/models/client";
 import { OnboardingTask } from "@/models/onboarding-task";
 import { PdfExport } from "@/models/pdf-export";
 import { PortalAccess } from "@/models/portal-access";
+import { PortalMessage } from "@/models/portal-message";
 import { Project } from "@/models/project";
 import { Proposal } from "@/models/proposal";
 import { SignatureRequest } from "@/models/signature-request";
 import { connectToDatabase } from "@/lib/db";
 import { createActivity } from "@/services/activity-service";
+import { createSignatureEnvelope } from "@/services/signature-provider-service";
 import {
+  onboardingAutomationInputSchema,
   onboardingTaskInputSchema,
   onboardingTaskUpdateSchema,
   pdfExportInputSchema,
   portalAccessInputSchema,
+  portalMessageInputSchema,
+  publicPortalMessageSchema,
   publicSignatureSchema,
   signatureRequestInputSchema,
   signatureRequestUpdateSchema,
+  type OnboardingAutomationInput,
   type OnboardingTaskInput,
   type OnboardingTaskUpdateInput,
   type PdfExportInput,
   type PortalAccessInput,
+  type PortalMessageInput,
+  type PublicPortalMessageInput,
   type PublicSignatureInput,
   type SignatureRequestInput,
   type SignatureRequestUpdateInput,
@@ -154,6 +162,50 @@ export async function createOnboardingTask(
   return task;
 }
 
+export async function runOnboardingAutomation(
+  context: ActorContext,
+  input: OnboardingAutomationInput,
+) {
+  const data = onboardingAutomationInputSchema.parse(input);
+  const templates = [
+    {
+      title: "Confirm kickoff stakeholders",
+      description: "Confirm the client-side owner, technical contact, and billing contact.",
+    },
+    {
+      title: "Collect access and assets",
+      description: "Gather brand assets, account access, API keys, and working documents.",
+    },
+    {
+      title: "Schedule delivery cadence",
+      description: "Agree on check-in rhythm, status reporting, and escalation paths.",
+    },
+  ];
+  const tasks = [];
+
+  for (const template of templates) {
+    const task = await createOnboardingTask(context, {
+      ...template,
+      clientId: data.clientId,
+      projectId: data.projectId,
+      status: "pending",
+    });
+    if (task) tasks.push(task);
+  }
+
+  if (tasks.length > 0) {
+    await createActivity({
+      organisationId: context.organisationId,
+      actorUserId: context.userId,
+      entityType: "onboarding_task",
+      action: "onboarding.automation_run",
+      metadata: { clientId: data.clientId, created: tasks.length },
+    });
+  }
+
+  return tasks;
+}
+
 export async function updateOnboardingTask(
   context: ActorContext,
   taskId: string,
@@ -222,8 +274,13 @@ export async function createSignatureRequest(
     if (!proposal) return null;
   }
 
+  const providerFields = data.useExternalProvider
+    ? await createSignatureEnvelope(data)
+    : undefined;
   const request = await SignatureRequest.create({
     ...data,
+    useExternalProvider: undefined,
+    ...providerFields,
     organisationId: toObjectId(context.organisationId),
     createdByUserId: toObjectId(context.userId),
     clientId: toObjectId(data.clientId),
@@ -240,6 +297,58 @@ export async function createSignatureRequest(
   });
 
   return request;
+}
+
+export async function listPortalMessages(organisationId: string) {
+  await connectToDatabase();
+
+  return PortalMessage.find({ organisationId: toObjectId(organisationId) })
+    .sort({ createdAt: -1 })
+    .lean();
+}
+
+export async function createPortalMessage(
+  context: ActorContext,
+  input: PortalMessageInput,
+) {
+  const data = portalMessageInputSchema.parse(input);
+  await connectToDatabase();
+
+  const client = await Client.exists({
+    _id: toObjectId(data.clientId),
+    organisationId: toObjectId(context.organisationId),
+  });
+  if (!client) return null;
+
+  if (data.projectId) {
+    const project = await Project.exists({
+      _id: toObjectId(data.projectId),
+      clientId: toObjectId(data.clientId),
+      organisationId: toObjectId(context.organisationId),
+    });
+    if (!project) return null;
+  }
+
+  const message = await PortalMessage.create({
+    ...data,
+    organisationId: toObjectId(context.organisationId),
+    createdByUserId: toObjectId(context.userId),
+    clientId: toObjectId(data.clientId),
+    projectId: data.projectId ? toObjectId(data.projectId) : undefined,
+    authorType: "internal",
+    authorName: data.authorName ?? "Team",
+  });
+
+  await createActivity({
+    organisationId: context.organisationId,
+    actorUserId: context.userId,
+    entityType: "portal_message",
+    entityId: message._id.toString(),
+    action: "portal_message.created",
+    metadata: { clientId: data.clientId },
+  });
+
+  return message;
 }
 
 export async function updateSignatureRequest(
@@ -284,6 +393,15 @@ export async function listPdfExports(organisationId: string) {
   return PdfExport.find({ organisationId: toObjectId(organisationId) })
     .sort({ createdAt: -1 })
     .lean();
+}
+
+export async function getPdfExport(organisationId: string, exportId: string) {
+  await connectToDatabase();
+
+  return PdfExport.findOne({
+    _id: toObjectId(exportId),
+    organisationId: toObjectId(organisationId),
+  }).lean();
 }
 
 export async function createPdfExport(context: ActorContext, input: PdfExportInput) {
@@ -350,7 +468,7 @@ export async function getPortalMetrics(organisationId: string) {
   await connectToDatabase();
   const orgId = toObjectId(organisationId);
 
-  const [accesses, pendingTasks, signatures, pdfExports] = await Promise.all([
+  const [accesses, pendingTasks, signatures, pdfExports, unreadMessages] = await Promise.all([
     PortalAccess.countDocuments({ organisationId: orgId, revokedAt: { $exists: false } }),
     OnboardingTask.countDocuments({
       organisationId: orgId,
@@ -361,9 +479,14 @@ export async function getPortalMetrics(organisationId: string) {
       status: { $in: ["sent", "draft"] },
     }),
     PdfExport.countDocuments({ organisationId: orgId, status: "generated" }),
+    PortalMessage.countDocuments({
+      organisationId: orgId,
+      authorType: "client",
+      readAt: { $exists: false },
+    }),
   ]);
 
-  return { accesses, pendingTasks, signatures, pdfExports };
+  return { accesses, pendingTasks, signatures, pdfExports, unreadMessages };
 }
 
 export async function getPublicPortal(token: string) {
@@ -383,7 +506,7 @@ export async function getPublicPortal(token: string) {
     { $set: { lastViewedAt: now } },
   );
 
-  const [client, projects, tasks, signatures, pdfExports] = await Promise.all([
+  const [client, projects, tasks, signatures, pdfExports, messages] = await Promise.all([
     Client.findById(access.clientId).lean(),
     Project.find({
       organisationId: access.organisationId,
@@ -411,11 +534,55 @@ export async function getPublicPortal(token: string) {
     })
       .sort({ createdAt: -1 })
       .lean(),
+    PortalMessage.find({
+      organisationId: access.organisationId,
+      clientId: access.clientId,
+    })
+      .sort({ createdAt: -1 })
+      .lean(),
   ]);
 
   if (!client) return null;
 
-  return { access, client, projects, tasks, signatures, pdfExports };
+  return { access, client, projects, tasks, signatures, pdfExports, messages };
+}
+
+export async function createPublicPortalMessage(
+  token: string,
+  input: PublicPortalMessageInput,
+) {
+  const data = publicPortalMessageSchema.parse(input);
+  const portal = await getPublicPortal(token);
+
+  if (!portal) return null;
+
+  if (data.projectId) {
+    const project = await Project.exists({
+      _id: toObjectId(data.projectId),
+      organisationId: portal.access.organisationId,
+      clientId: portal.access.clientId,
+    });
+    if (!project) return null;
+  }
+
+  const message = await PortalMessage.create({
+    organisationId: portal.access.organisationId,
+    clientId: portal.access.clientId,
+    projectId: data.projectId ? toObjectId(data.projectId) : undefined,
+    authorType: "client",
+    authorName: data.authorName,
+    body: data.body,
+  });
+
+  await createActivity({
+    organisationId: portal.access.organisationId.toString(),
+    entityType: "portal_message",
+    entityId: message._id.toString(),
+    action: "portal_message.client_created",
+    metadata: { authorName: data.authorName },
+  });
+
+  return message;
 }
 
 export async function signPortalSignature(

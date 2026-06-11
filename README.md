@@ -118,6 +118,17 @@ Phase 1 MVP foundation for an internal lead-flow, outreach, revenue, and deliver
 - Portal metrics for active links, open onboarding tasks, open signatures, and generated exports.
 - Dashboard open-signature metric backed by real signature requests.
 
+## Implemented in Phase 12
+
+- Portal message model for internal and client-authored collaboration.
+- Internal portal message workflow and public client message submission.
+- Kickoff onboarding automation that creates a standard client/project checklist.
+- Downloadable PDF route for internal exports and token-scoped public portal exports.
+- Lightweight binary PDF renderer for generated export snapshots.
+- External signature provider adapter shell with explicit credential validation.
+- Signature requests can be flagged for external provider delivery without changing the core workflow.
+- Dashboard client-message metric backed by real portal messages.
+
 ## Getting Started
 
 Copy `.env.example` to `.env.local` and set at least:
@@ -153,4 +164,4 @@ The E2E smoke test expects a running app and valid local environment.
 
 ## Roadmap
 
-Phase 12 adds deeper onboarding automation, client portal collaboration, binary PDF rendering, and signature-provider integrations.
+Future hardening can add provider-specific signature webhooks, richer PDF layout rendering, portal notifications, and client-authenticated accounts.

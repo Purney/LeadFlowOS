@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
   onboardingTaskInputSchema,
+  onboardingAutomationInputSchema,
   pdfExportInputSchema,
   portalAccessInputSchema,
+  portalMessageInputSchema,
+  publicPortalMessageSchema,
   publicSignatureSchema,
   signatureRequestInputSchema,
 } from "@/validation/portal";
@@ -53,5 +56,22 @@ describe("portal validation", () => {
 
     expect(signature.signatureText).toBe("Grace Hopper");
     expect(pdfExport.title).toBe("Proposal PDF");
+  });
+
+  it("validates portal messages and onboarding automation", () => {
+    const internalMessage = portalMessageInputSchema.parse({
+      clientId,
+      authorName: "Team",
+      body: "Kickoff is scheduled.",
+    });
+    const publicMessage = publicPortalMessageSchema.parse({
+      authorName: "Grace Hopper",
+      body: "Looks good.",
+    });
+    const automation = onboardingAutomationInputSchema.parse({ clientId });
+
+    expect(internalMessage.authorType).toBe("internal");
+    expect(publicMessage.body).toBe("Looks good.");
+    expect(automation.clientId).toBe(clientId);
   });
 });

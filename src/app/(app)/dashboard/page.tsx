@@ -1,4 +1,4 @@
-import { Activity, Bot, CheckCircle2, Clock, CreditCard, FileSignature, FileText, Inbox, Mail, Timer, Users } from "lucide-react";
+import { Activity, Bot, CheckCircle2, Clock, CreditCard, FileSignature, FileText, Inbox, Mail, MessageSquare, Timer, Users } from "lucide-react";
 import { auth } from "@/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { listAiDrafts } from "@/services/ai-service";
@@ -32,6 +32,7 @@ const metricCards = (
   monthlyRevenue: number,
   timeHours: number,
   openSignatures: number,
+  clientMessages: number,
 ) => [
   { label: "Total leads", value: String(leadTotal), icon: Users },
   { label: "Active campaigns", value: String(activeCampaigns), icon: Mail },
@@ -43,6 +44,7 @@ const metricCards = (
   { label: "Monthly revenue", value: money(monthlyRevenue), icon: CreditCard },
   { label: "Time logged", value: `${timeHours}h`, icon: Timer },
   { label: "Open signatures", value: String(openSignatures), icon: FileSignature },
+  { label: "Client messages", value: String(clientMessages), icon: MessageSquare },
 ];
 
 export default async function DashboardPage() {
@@ -89,7 +91,7 @@ export default async function DashboardPage() {
           timeByClient: [],
           timeByProject: [],
         },
-        { accesses: 0, pendingTasks: 0, signatures: 0, pdfExports: 0 },
+        { accesses: 0, pendingTasks: 0, signatures: 0, pdfExports: 0, unreadMessages: 0 },
       ];
 
   return (
@@ -98,7 +100,7 @@ export default async function DashboardPage() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Phase 11 client portal foundations are active. Client delivery,
+            Phase 12 portal collaboration is active. Client delivery, messages,
             signatures, onboarding, revenue, and time share one operating view.
           </p>
         </div>
@@ -116,6 +118,7 @@ export default async function DashboardPage() {
           revenueMetrics.monthlyRevenue,
           clientMetrics.totalHours,
           portalMetrics.signatures,
+          portalMetrics.unreadMessages,
         ).map((metric) => (
           <Card key={metric.label}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">

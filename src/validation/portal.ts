@@ -1,6 +1,7 @@
 import { z } from "zod";
 import {
   onboardingTaskStatuses,
+  portalMessageAuthors,
   signatureRequestStatuses,
 } from "@/types/portal";
 
@@ -35,6 +36,7 @@ export const signatureRequestInputSchema = z.object({
   signerEmail: z.string().trim().email(),
   termsMarkdown: z.string().trim().min(1).max(20_000),
   status: z.enum(signatureRequestStatuses).default("sent"),
+  useExternalProvider: z.coerce.boolean().default(false),
 });
 
 export const signatureRequestUpdateSchema = z.object({
@@ -52,6 +54,25 @@ export const pdfExportInputSchema = z.object({
   title: z.string().trim().min(1).max(160),
 });
 
+export const portalMessageInputSchema = z.object({
+  clientId: objectId,
+  projectId: objectId.optional(),
+  body: z.string().trim().min(1).max(4_000),
+  authorType: z.enum(portalMessageAuthors).default("internal"),
+  authorName: z.string().trim().min(1).max(120).optional(),
+});
+
+export const publicPortalMessageSchema = z.object({
+  projectId: objectId.optional(),
+  body: z.string().trim().min(1).max(4_000),
+  authorName: z.string().trim().min(1).max(120),
+});
+
+export const onboardingAutomationInputSchema = z.object({
+  clientId: objectId,
+  projectId: objectId.optional(),
+});
+
 export type PortalAccessInput = z.infer<typeof portalAccessInputSchema>;
 export type OnboardingTaskInput = z.infer<typeof onboardingTaskInputSchema>;
 export type OnboardingTaskUpdateInput = z.infer<typeof onboardingTaskUpdateSchema>;
@@ -59,3 +80,8 @@ export type SignatureRequestInput = z.infer<typeof signatureRequestInputSchema>;
 export type SignatureRequestUpdateInput = z.infer<typeof signatureRequestUpdateSchema>;
 export type PublicSignatureInput = z.infer<typeof publicSignatureSchema>;
 export type PdfExportInput = z.infer<typeof pdfExportInputSchema>;
+export type PortalMessageInput = z.infer<typeof portalMessageInputSchema>;
+export type PublicPortalMessageInput = z.infer<typeof publicPortalMessageSchema>;
+export type OnboardingAutomationInput = z.infer<
+  typeof onboardingAutomationInputSchema
+>;

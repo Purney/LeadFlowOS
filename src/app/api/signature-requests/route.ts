@@ -47,6 +47,13 @@ export async function POST(request: Request) {
       );
     }
 
-    return NextResponse.json({ error: "Signature request failed." }, { status: 500 });
+    const message =
+      error instanceof Error &&
+      (error.message.includes("SIGNATURE_PROVIDER_API_KEY") ||
+        error.message.includes("Signature provider"))
+        ? error.message
+        : "Signature request failed.";
+
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

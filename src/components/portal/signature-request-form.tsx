@@ -37,6 +37,7 @@ export function SignatureRequestForm({
           signerEmail: form.get("signerEmail") || client?.email,
           termsMarkdown: form.get("termsMarkdown"),
           status: "sent",
+          useExternalProvider: form.get("useExternalProvider") === "on",
         }),
       });
       const body = (await response.json().catch(() => null)) as { error?: string } | null;
@@ -99,6 +100,10 @@ export function SignatureRequestForm({
           defaultValue="I approve this scope and authorize work to begin."
         />
       </div>
+      <label className="flex items-center gap-2 text-sm text-muted-foreground">
+        <input name="useExternalProvider" type="checkbox" />
+        Send through external signature provider
+      </label>
       {message ? <p className="text-sm text-muted-foreground">{message}</p> : null}
       <Button disabled={isPending || clients.length === 0} type="submit">
         {isPending ? "Creating..." : "Create signature request"}

@@ -1,8 +1,10 @@
-import { FileSignature, FileText, ListTodo, Share2 } from "lucide-react";
+import { FileSignature, FileText, ListTodo, MessageSquare, Share2 } from "lucide-react";
 import { auth } from "@/auth";
+import { OnboardingAutomationForm } from "@/components/portal/onboarding-automation-form";
 import { OnboardingTaskForm } from "@/components/portal/onboarding-task-form";
 import { PdfExportForm } from "@/components/portal/pdf-export-form";
 import { PortalAccessForm } from "@/components/portal/portal-access-form";
+import { PortalMessageForm } from "@/components/portal/portal-message-form";
 import { SignatureRequestForm } from "@/components/portal/signature-request-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { listClients, listProjects } from "@/services/client-service";
@@ -12,6 +14,7 @@ import {
   listOnboardingTasks,
   listPdfExports,
   listPortalAccesses,
+  listPortalMessages,
   listSignatureRequests,
 } from "@/services/portal-service";
 
@@ -66,6 +69,15 @@ type PdfExportView = {
   createdAt: Date | string;
 };
 
+type PortalMessageView = {
+  _id: unknown;
+  clientId: unknown;
+  authorType: string;
+  authorName: string;
+  body: string;
+  createdAt: Date | string;
+};
+
 function id(value: unknown) {
   return String(value);
 }
@@ -90,6 +102,7 @@ export default async function PortalPage() {
     tasks,
     signatures,
     pdfExports,
+    messages,
     metrics,
   ] = await Promise.all([
     listClients(organisationId),
@@ -99,6 +112,7 @@ export default async function PortalPage() {
     listOnboardingTasks(organisationId),
     listSignatureRequests(organisationId),
     listPdfExports(organisationId),
+    listPortalMessages(organisationId),
     getPortalMetrics(organisationId),
   ]);
 
@@ -109,6 +123,7 @@ export default async function PortalPage() {
   const taskRows = tasks as OnboardingTaskView[];
   const signatureRows = signatures as SignatureRequestView[];
   const exportRows = pdfExports as PdfExportView[];
+  const messageRows = messages as PortalMessageView[];
   const clientById = new Map(clientRows.map((client) => [id(client._id), client]));
   const clientOptions = clientRows.map((client) => ({
     id: id(client._id),
@@ -130,6 +145,7 @@ export default async function PortalPage() {
     { label: "Open tasks", value: String(metrics.pendingTasks), icon: ListTodo },
     { label: "Open signatures", value: String(metrics.signatures), icon: FileSignature },
     { label: "PDF exports", value: String(metrics.pdfExports), icon: FileText },
+    { label: "Client messages", value: String(metrics.unreadMessages), icon: MessageSquare },
   ];
 
   return (
@@ -138,11 +154,11 @@ export default async function PortalPage() {
         <h1 className="text-2xl font-semibold tracking-tight">Client portal</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Provision secure portal links, coordinate onboarding, collect signatures,
-          and generate PDF-ready proposal exports.
+          exchange client messages, and generate downloadable proposal PDFs.
         </p>
       </div>
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         {metricCards.map((metric) => (
           <Card key={metric.label}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
@@ -170,6 +186,15 @@ export default async function PortalPage() {
 
         <Card>
           <CardHeader>
+            <CardTitle>Kickoff automation</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <OnboardingAutomationForm clients={clientOptions} projects={projectOptions} />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
             <CardTitle>Onboarding task</CardTitle>
           </CardHeader>
           <CardContent>
@@ -192,6 +217,15 @@ export default async function PortalPage() {
           </CardHeader>
           <CardContent>
             <PdfExportForm clients={clientOptions} proposals={proposalOptions} />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Portal message</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <PortalMessageForm clients={clientOptions} projects={projectOptions} />
           </CardContent>
         </Card>
       </section>
@@ -324,12 +358,53 @@ export default async function PortalPage() {
                     <p className="mt-2 text-xs text-muted-foreground">
                       Generated {date(pdfExport.createdAt)}
                     </p>
+                    <a
+                      className="mt-3 inline-flex rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+                      href={`/api/pdf-exports/${id(pdfExport._id)}/download`}
+                    >
+                      Download PDF
+                    </a>
                   </div>
                 ))}
               </div>
             ) : (
               <p className="text-sm text-muted-foreground">
                 Generated exports will appear here.
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Portal messages</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {messageRows.length > 0 ? (
+              <div className="space-y-3">
+                {messageRows.slice(0, 8).map((message) => (
+                  <div className="rounded-md border border-border p-3" key={id(message._id)}>
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="font-medium">{message.authorName}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {clientById.get(id(message.clientId))?.company ?? "Client"}
+                        </p>
+                      </div>
+                      <span className="rounded-md bg-muted px-2 py-1 text-xs text-muted-foreground">
+                        {message.authorType}
+                      </span>
+                    </div>
+                    <p className="mt-2 whitespace-pre-wrap text-sm">{message.body}</p>
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      {date(message.createdAt)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Portal messages will appear here.
               </p>
             )}
           </CardContent>

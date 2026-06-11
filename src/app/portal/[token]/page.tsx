@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { PublicMessageForm } from "@/components/portal/public-message-form";
 import { PublicSignatureForm } from "@/components/portal/public-signature-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getPublicPortal } from "@/services/portal-service";
@@ -38,6 +39,14 @@ type PdfExportView = {
   html: string;
 };
 
+type MessageView = {
+  _id: unknown;
+  authorType: string;
+  authorName: string;
+  body: string;
+  createdAt: Date | string;
+};
+
 function id(value: unknown) {
   return String(value);
 }
@@ -58,6 +67,11 @@ export default async function PublicPortalPage({ params }: PortalPageProps) {
   const tasks = portal.tasks as TaskView[];
   const signatures = portal.signatures as SignatureView[];
   const pdfExports = portal.pdfExports as PdfExportView[];
+  const messages = portal.messages as MessageView[];
+  const projectOptions = projects.map((project) => ({
+    id: id(project._id),
+    label: project.name,
+  }));
 
   return (
     <main className="min-h-screen bg-background px-4 py-10">
@@ -226,6 +240,12 @@ export default async function PublicPortalPage({ params }: PortalPageProps) {
                       className="prose prose-sm mt-3 max-w-none text-sm"
                       dangerouslySetInnerHTML={{ __html: pdfExport.html }}
                     />
+                    <a
+                      className="mt-3 inline-flex rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+                      href={`/api/public/portal/${token}/pdf-exports/${id(pdfExport._id)}/download`}
+                    >
+                      Download PDF
+                    </a>
                   </details>
                 ))}
               </div>
@@ -234,6 +254,33 @@ export default async function PublicPortalPage({ params }: PortalPageProps) {
                 Shared PDF-ready documents will appear here.
               </p>
             )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Messages</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <PublicMessageForm token={token} projects={projectOptions} />
+            {messages.length > 0 ? (
+              <div className="mt-6 space-y-3">
+                {messages.map((message) => (
+                  <div className="rounded-md border border-border p-3" key={id(message._id)}>
+                    <div className="flex items-start justify-between gap-3">
+                      <p className="font-medium">{message.authorName}</p>
+                      <span className="rounded-md bg-muted px-2 py-1 text-xs text-muted-foreground">
+                        {message.authorType}
+                      </span>
+                    </div>
+                    <p className="mt-2 whitespace-pre-wrap text-sm">{message.body}</p>
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      {date(message.createdAt)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            ) : null}
           </CardContent>
         </Card>
       </div>
