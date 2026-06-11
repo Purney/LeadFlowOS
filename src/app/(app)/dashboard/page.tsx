@@ -9,6 +9,15 @@ import { getLeadMetrics } from "@/services/lead-service";
 import { listRecentActivity } from "@/services/activity-service";
 import { getSendingMetrics } from "@/services/sending-service";
 import { getProposalMetrics } from "@/services/proposal-service";
+import { getRevenueMetrics } from "@/services/revenue-service";
+
+function money(amount: number) {
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(amount / 100);
+}
 
 const metricCards = (
   leadTotal: number,
@@ -18,6 +27,7 @@ const metricCards = (
   aiDrafts: number,
   discoveryResponses: number,
   proposals: number,
+  monthlyRevenue: number,
 ) => [
   { label: "Total leads", value: String(leadTotal), icon: Users },
   { label: "Active campaigns", value: String(activeCampaigns), icon: Mail },
@@ -26,13 +36,13 @@ const metricCards = (
   { label: "AI drafts", value: String(aiDrafts), icon: Bot },
   { label: "Discovery responses", value: String(discoveryResponses), icon: FileText },
   { label: "Proposal pipeline", value: String(proposals), icon: Activity },
-  { label: "Monthly revenue", value: "$0", icon: CreditCard },
+  { label: "Monthly revenue", value: money(monthlyRevenue), icon: CreditCard },
   { label: "Time logged", value: "0h", icon: Timer },
 ];
 
 export default async function DashboardPage() {
   const session = await auth();
-  const [activity, leadMetrics, campaignMetrics, sendingMetrics, emailMetrics, aiDrafts, discoveryMetrics, proposalMetrics] = session?.user.organisationId
+  const [activity, leadMetrics, campaignMetrics, sendingMetrics, emailMetrics, aiDrafts, discoveryMetrics, proposalMetrics, revenueMetrics] = session?.user.organisationId
     ? await Promise.all([
         listRecentActivity(session.user.organisationId),
         getLeadMetrics(session.user.organisationId),
@@ -42,6 +52,7 @@ export default async function DashboardPage() {
         listAiDrafts(session.user.organisationId),
         getDiscoveryMetrics(session.user.organisationId),
         getProposalMetrics(session.user.organisationId),
+        getRevenueMetrics(session.user.organisationId),
       ])
     : [
         [],
@@ -52,6 +63,15 @@ export default async function DashboardPage() {
         [],
         { forms: 0, responses: 0 },
         { total: 0, byStatus: {} },
+        {
+          monthlyRevenue: 0,
+          lifetimeValue: 0,
+          paidCount: 0,
+          unpaidCount: 0,
+          paidVsUnpaid: { paid: 0, unpaid: 0 },
+          revenueByCustomer: [],
+          revenueTrend: [],
+        },
       ];
 
   return (
@@ -60,8 +80,8 @@ export default async function DashboardPage() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Phase 8 proposal management is active. Revenue and
-            delivery dashboards will deepen as later modules come online.
+            Phase 9 Stripe revenue tracking is active. Delivery dashboards will
+            deepen as later modules come online.
           </p>
         </div>
       </div>
@@ -75,6 +95,7 @@ export default async function DashboardPage() {
           aiDrafts.length,
           discoveryMetrics.responses,
           proposalMetrics.total,
+          revenueMetrics.monthlyRevenue,
         ).map((metric) => (
           <Card key={metric.label}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
@@ -96,9 +117,23 @@ export default async function DashboardPage() {
             <CardTitle>Revenue trend</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex h-72 items-center justify-center rounded-md border border-dashed border-border bg-muted/45 text-sm text-muted-foreground">
-              Stripe revenue data starts in Phase 9.
-            </div>
+            {revenueMetrics.revenueTrend.length > 0 ? (
+              <div className="space-y-3">
+                {revenueMetrics.revenueTrend.map((point) => (
+                  <div
+                    className="flex items-center justify-between rounded-md border border-border p-3 text-sm"
+                    key={point.month}
+                  >
+                    <span>{point.month}</span>
+                    <span className="font-medium">{money(point.amount)}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex h-72 items-center justify-center rounded-md border border-dashed border-border bg-muted/45 text-sm text-muted-foreground">
+                Paid Stripe invoices will appear here.
+              </div>
+            )}
           </CardContent>
         </Card>
 

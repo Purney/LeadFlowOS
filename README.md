@@ -86,6 +86,16 @@ Phase 1 MVP foundation for an internal lead-flow, outreach, revenue, and deliver
 - Dashboard proposal pipeline metric.
 - Architecture prepared for future PDF export and electronic signatures.
 
+## Implemented in Phase 9
+
+- Stripe customer, invoice, checkout session, and payment intent models.
+- Stripe webhook verification route at `/api/webhooks/stripe`.
+- Webhook processing for `customer.created`, `invoice.created`, `invoice.paid`, `invoice.payment_failed`, `checkout.session.completed`, and `payment_intent.succeeded`.
+- Revenue dashboard UI at `/revenue`.
+- Monthly revenue, lifetime value, paid vs unpaid invoices, revenue trend, and revenue by customer metrics.
+- Dashboard monthly revenue and revenue trend backed by Stripe invoice data.
+- Payment received activity logging for paid invoices.
+
 ## Getting Started
 
 Copy `.env.example` to `.env.local` and set at least:
@@ -121,6 +131,6 @@ The E2E smoke test expects a running app and valid local environment.
 
 ## Roadmap
 
-Phase 9 adds Stripe integration and revenue dashboards.
+Phase 10 adds client conversion, project management, and manual time tracking.
 
-Later phases add client conversion, projects, time tracking, a client portal, onboarding automation, signatures, and PDF generation.
+Later phases add a client portal, onboarding automation, signatures, and PDF generation.

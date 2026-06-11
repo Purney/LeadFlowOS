@@ -14,3 +14,11 @@ export function getStripeClient() {
 export function requireStripeWebhookSecret() {
   return requireEnv("STRIPE_WEBHOOK_SECRET");
 }
+
+export async function constructStripeWebhookEvent(payload: string, signature: string) {
+  return getStripeClient().webhooks.constructEventAsync(
+    payload,
+    signature,
+    requireStripeWebhookSecret(),
+  );
+}

@@ -3,6 +3,4 @@ export const plannedModels = [
   "Client",
   "Project",
   "TimeEntry",
-  "StripeCustomer",
-  "StripeInvoice",
 ] as const;
