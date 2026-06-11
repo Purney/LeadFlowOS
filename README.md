@@ -133,9 +133,18 @@ Phase 1 MVP foundation for an internal lead-flow, outreach, revenue, and deliver
 
 - Internal notification model and unread dashboard metric.
 - Notification fanout for pending send approvals, replies, discovery submissions, accepted proposals, payments, and webhook failures.
-- In-memory rate limiting for public form, portal, signing, and webhook ingress routes.
+- MongoDB-backed rate limiting for public form, portal, signing, and webhook ingress routes.
 - Scheduled job helper for due approved send batches in `src/jobs/send-batch-jobs.ts`.
 - Send-batch generation guards for suppressed leads, replied/won/lost leads, existing clients, inactive accounts, and warm-up/daily volume limits.
+
+## Implemented in Phase 13
+
+- Vercel cron configuration in `vercel.json` for due approved send batches.
+- Protected `/api/cron/send-batches` endpoint using `CRON_SECRET`.
+- MongoDB-backed persistent rate limiting for public and webhook ingress routes.
+- Security headers configured in `next.config.ts`.
+- Cron route runtime, duration, and preferred-region hints for Vercel Functions.
+- Persistent rate-limit bucket model with TTL cleanup.
 
 ## Getting Started
 
@@ -145,6 +154,7 @@ Copy `.env.example` to `.env.local` and set at least:
 - `AUTH_SECRET`
 - `AUTH_URL=http://localhost:3000`
 - `NEXT_PUBLIC_APP_URL=http://localhost:3000`
+- `CRON_SECRET`
 
 Then run:
 
@@ -172,4 +182,4 @@ The E2E smoke test expects a running app and valid local environment.
 
 ## Roadmap
 
-Future hardening can add provider-specific signature webhooks, richer PDF layout rendering, portal notifications, and client-authenticated accounts.
+Future hardening can add provider-specific signature webhooks, richer PDF layout rendering, portal notifications, client-authenticated accounts, and a dedicated queue if send volume grows beyond Vercel Cron batches.

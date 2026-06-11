@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { checkRateLimit, rateLimitKey } from "@/lib/rate-limit";
+import { checkPersistentRateLimit, rateLimitKey } from "@/lib/rate-limit";
 import { createActivity } from "@/services/activity-service";
 import { processStripeEvent } from "@/services/revenue-service";
 import { constructStripeWebhookEvent } from "@/services/stripe-service";
 
 export async function POST(request: Request) {
-  const rateLimit = checkRateLimit(rateLimitKey(request, "stripe-webhook"), {
+  const rateLimit = await checkPersistentRateLimit(rateLimitKey(request, "stripe-webhook"), {
     limit: 120,
     windowMs: 60_000,
   });

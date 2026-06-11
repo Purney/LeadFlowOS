@@ -2,11 +2,13 @@ import mongoose from "mongoose";
 import { MongoMemoryServer } from "mongodb-memory-server";
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { disconnectFromDatabase } from "@/lib/db";
+import { processDueApprovedSendBatches } from "@/jobs/send-batch-jobs";
 import { ActivityLog } from "@/models/activity-log";
 import { Campaign } from "@/models/campaign";
 import { CampaignEnrollment } from "@/models/campaign-enrollment";
 import { Client } from "@/models/client";
 import { EmailAccount } from "@/models/email-account";
+import { EmailMessage } from "@/models/email-message";
 import { Lead } from "@/models/lead";
 import { Notification } from "@/models/notification";
 import { Organisation } from "@/models/organisation";
@@ -98,6 +100,7 @@ afterEach(async () => {
     ActivityLog.deleteMany({}),
     Notification.deleteMany({}),
     Suppression.deleteMany({}),
+    EmailMessage.deleteMany({}),
     SendBatch.deleteMany({}),
     Client.deleteMany({}),
     EmailAccount.deleteMany({}),
@@ -187,5 +190,31 @@ describe("sending service", () => {
 
     expect(clientResult?.batch).toBeNull();
     expect(clientResult?.created).toBe(0);
+  });
+
+  it("processes due approved send batches from the scheduled job helper", async () => {
+    vi.setSystemTime(new Date("2026-06-11T12:00:00.000Z"));
+    const { campaign, account } = await bootstrapScenario();
+    const result = await generateSendBatch(context, {
+      campaignId: campaign._id.toString(),
+      sendingAccountId: account._id.toString(),
+      limit: 10,
+      scheduledSendTime: new Date("2026-06-11T11:55:00.000Z"),
+    });
+    await updateSendBatch(context, result?.batch?._id.toString() ?? "", {
+      status: "approved",
+    });
+
+    const jobResult = await processDueApprovedSendBatches(context.organisationId, {
+      userId: context.userId,
+      dryRun: true,
+    });
+
+    expect(jobResult.processed).toBe(1);
+    expect(jobResult.results[0].result).toEqual({
+      sent: 0,
+      queued: 1,
+      suppressed: 0,
+    });
   });
 });

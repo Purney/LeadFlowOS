@@ -1,3 +1,6 @@
+import { RateLimitBucket } from "@/models/rate-limit-bucket";
+import { connectToDatabase } from "@/lib/db";
+
 type Bucket = {
   count: number;
   resetAt: number;
@@ -34,4 +37,37 @@ export function rateLimitKey(request: Request, scope: string) {
   const ip = forwardedFor || request.headers.get("x-real-ip") || "local";
 
   return `${scope}:${ip}`;
+}
+
+export async function checkPersistentRateLimit(
+  key: string,
+  options: { limit: number; windowMs: number },
+) {
+  await connectToDatabase();
+  const now = new Date();
+  const resetAt = new Date(now.getTime() + options.windowMs);
+  const existing = await RateLimitBucket.findOne({ key });
+
+  if (!existing || existing.resetAt <= now) {
+    await RateLimitBucket.findOneAndUpdate(
+      { key },
+      { $set: { count: 1, resetAt } },
+      { upsert: true },
+    );
+
+    return { allowed: true, remaining: options.limit - 1, resetAt };
+  }
+
+  if (existing.count >= options.limit) {
+    return { allowed: false, remaining: 0, resetAt: existing.resetAt };
+  }
+
+  existing.count += 1;
+  await existing.save();
+
+  return {
+    allowed: true,
+    remaining: options.limit - existing.count,
+    resetAt: existing.resetAt,
+  };
 }

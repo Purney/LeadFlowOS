@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
-import { checkRateLimit, rateLimitKey } from "@/lib/rate-limit";
+import { checkPersistentRateLimit, rateLimitKey } from "@/lib/rate-limit";
 import { submitDiscoveryResponse } from "@/services/discovery-service";
 import { discoveryResponseInputSchema } from "@/validation/discovery";
 
@@ -10,7 +10,7 @@ type Params = {
 
 export async function POST(request: Request, { params }: Params) {
   const { publicSlug } = await params;
-  const rateLimit = checkRateLimit(
+  const rateLimit = await checkPersistentRateLimit(
     rateLimitKey(request, `public-discovery:${publicSlug}`),
     { limit: 20, windowMs: 60_000 },
   );

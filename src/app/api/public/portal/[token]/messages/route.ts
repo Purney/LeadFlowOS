@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
-import { checkRateLimit, rateLimitKey } from "@/lib/rate-limit";
+import { checkPersistentRateLimit, rateLimitKey } from "@/lib/rate-limit";
 import { createPublicPortalMessage } from "@/services/portal-service";
 import { publicPortalMessageSchema } from "@/validation/portal";
 
@@ -11,7 +11,7 @@ type RouteContext = {
 export async function POST(request: Request, context: RouteContext) {
   try {
     const { token } = await context.params;
-    const rateLimit = checkRateLimit(rateLimitKey(request, `portal-message:${token}`), {
+    const rateLimit = await checkPersistentRateLimit(rateLimitKey(request, `portal-message:${token}`), {
       limit: 20,
       windowMs: 60_000,
     });

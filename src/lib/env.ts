@@ -20,6 +20,7 @@ export const envSchema = z
     OPENAI_MODEL: z.string().trim().default("gpt-4.1-mini"),
     SIGNATURE_PROVIDER_API_KEY: optionalSecret,
     SIGNATURE_PROVIDER_WEBHOOK_SECRET: optionalSecret,
+    CRON_SECRET: optionalSecret,
     ALLOW_ADDITIONAL_ORG_SIGNUPS: z
       .enum(["true", "false"])
       .default("false")
@@ -27,7 +28,7 @@ export const envSchema = z
   })
   .superRefine((env, ctx) => {
     if (env.NODE_ENV === "production") {
-      for (const key of ["MONGODB_URI", "AUTH_SECRET", "AUTH_URL"] as const) {
+      for (const key of ["MONGODB_URI", "AUTH_SECRET", "AUTH_URL", "CRON_SECRET"] as const) {
         if (!env[key]) {
           ctx.addIssue({
             code: "custom",

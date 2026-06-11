@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { checkRateLimit, rateLimitKey } from "@/lib/rate-limit";
+import { checkPersistentRateLimit, rateLimitKey } from "@/lib/rate-limit";
 import { createActivity } from "@/services/activity-service";
 import { processSendGridEvents } from "@/services/email-service";
 import { requireSendGridWebhookSecret } from "@/services/sendgrid-service";
 
 export async function POST(request: Request) {
-  const rateLimit = checkRateLimit(rateLimitKey(request, "sendgrid-events"), {
+  const rateLimit = await checkPersistentRateLimit(rateLimitKey(request, "sendgrid-events"), {
     limit: 120,
     windowMs: 60_000,
   });
