@@ -1,8 +1,19 @@
 import { NextResponse } from "next/server";
+import { checkRateLimit, rateLimitKey } from "@/lib/rate-limit";
+import { createActivity } from "@/services/activity-service";
 import { processStripeEvent } from "@/services/revenue-service";
 import { constructStripeWebhookEvent } from "@/services/stripe-service";
 
 export async function POST(request: Request) {
+  const rateLimit = checkRateLimit(rateLimitKey(request, "stripe-webhook"), {
+    limit: 120,
+    windowMs: 60_000,
+  });
+
+  if (!rateLimit.allowed) {
+    return NextResponse.json({ error: "Too many requests." }, { status: 429 });
+  }
+
   const signature = request.headers.get("stripe-signature");
   const organisationId = request.headers.get("x-leadflow-organisation-id");
 
@@ -23,7 +34,13 @@ export async function POST(request: Request) {
     await processStripeEvent(organisationId, event);
 
     return NextResponse.json({ received: true });
-  } catch {
+  } catch (error) {
+    await createActivity({
+      organisationId,
+      entityType: "webhook",
+      action: "webhook.failed",
+      metadata: { provider: "stripe", error: error instanceof Error ? error.message : "unknown" },
+    });
     return NextResponse.json(
       { error: "Stripe webhook verification failed." },
       { status: 400 },

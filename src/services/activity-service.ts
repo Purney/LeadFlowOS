@@ -1,5 +1,6 @@
 import { connectToDatabase } from "@/lib/db";
 import { ActivityLog } from "@/models/activity-log";
+import { createNotification } from "@/services/notification-service";
 
 type ActivityInput = {
   organisationId: string;
@@ -12,7 +13,21 @@ type ActivityInput = {
 
 export async function createActivity(input: ActivityInput) {
   await connectToDatabase();
-  return ActivityLog.create(input);
+  const activity = await ActivityLog.create(input);
+  const notification = notificationForAction(input.action);
+
+  if (notification) {
+    await createNotification({
+      organisationId: input.organisationId,
+      actorUserId: input.actorUserId,
+      entityType: input.entityType,
+      entityId: input.entityId,
+      metadata: input.metadata,
+      ...notification,
+    });
+  }
+
+  return activity;
 }
 
 export async function listRecentActivity(organisationId: string, limit = 8) {
@@ -22,4 +37,37 @@ export async function listRecentActivity(organisationId: string, limit = 8) {
     .sort({ createdAt: -1 })
     .limit(limit)
     .lean();
+}
+
+function notificationForAction(action: string) {
+  const map: Record<string, { type: string; title: string; body?: string }> = {
+    "send_batch.generated": {
+      type: "pending_send_approval",
+      title: "Send batch awaiting approval",
+      body: "A generated send batch needs manual approval before processing.",
+    },
+    "email.reply_received": {
+      type: "reply_received",
+      title: "Reply received",
+      body: "A lead replied and the related campaign enrollment was paused.",
+    },
+    "discovery_response.submitted": {
+      type: "discovery_submitted",
+      title: "Discovery response submitted",
+    },
+    "proposal.accepted": {
+      type: "proposal_accepted",
+      title: "Proposal accepted",
+    },
+    "payment.received": {
+      type: "payment_received",
+      title: "Payment received",
+    },
+    "webhook.failed": {
+      type: "webhook_failure",
+      title: "Webhook failed",
+    },
+  };
+
+  return map[action];
 }

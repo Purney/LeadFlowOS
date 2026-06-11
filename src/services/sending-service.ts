@@ -2,10 +2,12 @@ import mongoose from "mongoose";
 import { connectToDatabase } from "@/lib/db";
 import { Campaign } from "@/models/campaign";
 import { CampaignEnrollment } from "@/models/campaign-enrollment";
+import { Client } from "@/models/client";
 import { EmailAccount } from "@/models/email-account";
 import { Lead } from "@/models/lead";
 import { SendBatch } from "@/models/send-batch";
 import { createActivity } from "@/services/activity-service";
+import { getSuppressedEmailSet } from "@/services/suppression-service";
 import { applyPersonalisation } from "@/utils/personalisation";
 import {
   buildDeliverabilityWarnings,
@@ -188,8 +190,24 @@ export async function generateSendBatch(
     }),
   ]);
 
-  if (!campaign || !account || campaign.steps.length === 0) {
+  if (!campaign || !account || campaign.steps.length === 0 || !account.active) {
     return null;
+  }
+
+  const recommendedVolume = recommendedSendVolume({
+    dailySendLimit: account.dailySendLimit,
+    warmupStatus: account.warmupStatus,
+    warmupStartedAt: account.warmupStartedAt,
+    health: account.health,
+  });
+  const batchLimit = Math.max(0, Math.min(data.limit, account.dailySendLimit, recommendedVolume));
+
+  if (batchLimit === 0) {
+    return {
+      batch: null,
+      created: 0,
+      skipped: data.limit,
+    };
   }
 
   const enrollments = await CampaignEnrollment.find({
@@ -207,7 +225,35 @@ export async function generateSendBatch(
     organisationId: toObjectId(context.organisationId),
     status: { $nin: ["replied", "won", "lost"] },
   }).lean();
-  const leadById = new Map(leads.map((lead) => [String(lead._id), lead]));
+  const suppressed = await getSuppressedEmailSet(
+    context.organisationId,
+    leads.map((lead) => lead.email),
+  );
+  const clientMatches = await Client.find({
+    organisationId: toObjectId(context.organisationId),
+    $or: [
+      { leadId: { $in: leads.map((lead) => lead._id) } },
+      { "contacts.email": { $in: leads.map((lead) => lead.email) } },
+    ],
+  })
+    .select("leadId contacts.email")
+    .lean();
+  const clientLeadIds = new Set(
+    clientMatches
+      .map((client) => client.leadId?.toString())
+      .filter((value): value is string => Boolean(value)),
+  );
+  const clientEmails = new Set(
+    clientMatches.flatMap((client) =>
+      ((client.contacts ?? []) as { email: string }[]).map((contact) => contact.email),
+    ),
+  );
+  const sendableLeads = leads
+    .filter((lead) => !suppressed.has(lead.email))
+    .filter((lead) => !clientLeadIds.has(String(lead._id)))
+    .filter((lead) => !clientEmails.has(lead.email))
+    .slice(0, batchLimit);
+  const leadById = new Map(sendableLeads.map((lead) => [String(lead._id), lead]));
   const firstEnrollment = enrollments.find((enrollment) =>
     leadById.has(String(enrollment.leadId)),
   );
@@ -239,12 +285,6 @@ export async function generateSendBatch(
     }));
   const sampleLead = recipients[0];
   const estimatedVolume = recipients.length;
-  const recommendedVolume = recommendedSendVolume({
-    dailySendLimit: account.dailySendLimit,
-    warmupStatus: account.warmupStatus,
-    warmupStartedAt: account.warmupStartedAt,
-    health: account.health,
-  });
   const riskWarnings = buildDeliverabilityWarnings({
     dailySendLimit: account.dailySendLimit,
     estimatedVolume,

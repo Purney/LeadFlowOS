@@ -5,10 +5,13 @@ import { disconnectFromDatabase } from "@/lib/db";
 import { ActivityLog } from "@/models/activity-log";
 import { Campaign } from "@/models/campaign";
 import { CampaignEnrollment } from "@/models/campaign-enrollment";
+import { Client } from "@/models/client";
 import { EmailAccount } from "@/models/email-account";
 import { Lead } from "@/models/lead";
+import { Notification } from "@/models/notification";
 import { Organisation } from "@/models/organisation";
 import { SendBatch } from "@/models/send-batch";
+import { Suppression } from "@/models/suppression";
 import { User } from "@/models/user";
 import { createFirstOwner } from "@/services/auth-service";
 import {
@@ -22,6 +25,7 @@ import {
   getSendingMetrics,
   updateSendBatch,
 } from "@/services/sending-service";
+import { createSuppression } from "@/services/suppression-service";
 
 let mongo: MongoMemoryServer;
 let context: { organisationId: string; userId: string };
@@ -92,7 +96,10 @@ afterEach(async () => {
   vi.useRealTimers();
   await Promise.all([
     ActivityLog.deleteMany({}),
+    Notification.deleteMany({}),
+    Suppression.deleteMany({}),
     SendBatch.deleteMany({}),
+    Client.deleteMany({}),
     EmailAccount.deleteMany({}),
     CampaignEnrollment.deleteMany({}),
     Campaign.deleteMany({}),
@@ -134,6 +141,9 @@ describe("sending service", () => {
     expect(result?.batch?.status).toBe("pending_approval");
     expect(result?.batch?.subject).toBe("Idea for Compiler Labs");
     expect(result?.batch?.body).toBe("Hi Grace");
+    await expect(
+      Notification.countDocuments({ type: "pending_send_approval" }),
+    ).resolves.toBe(1);
 
     const approved = await updateSendBatch(
       context,
@@ -143,5 +153,39 @@ describe("sending service", () => {
 
     expect(approved?.status).toBe("approved");
     expect(approved?.approvedByUserId?.toString()).toBe(context.userId);
+  });
+
+  it("skips suppressed leads and leads already converted to clients", async () => {
+    const { campaign, account } = await bootstrapScenario();
+    await createSuppression(context, {
+      email: "grace@example.com",
+      reason: "manual_suppression",
+    });
+
+    const suppressedResult = await generateSendBatch(context, {
+      campaignId: campaign._id.toString(),
+      sendingAccountId: account._id.toString(),
+      limit: 10,
+    });
+
+    expect(suppressedResult?.batch).toBeNull();
+    expect(suppressedResult?.created).toBe(0);
+
+    await Suppression.deleteMany({});
+    await Client.create({
+      organisationId: new mongoose.Types.ObjectId(context.organisationId),
+      createdByUserId: new mongoose.Types.ObjectId(context.userId),
+      company: "Compiler Labs",
+      contacts: [{ email: "grace@example.com" }],
+    });
+
+    const clientResult = await generateSendBatch(context, {
+      campaignId: campaign._id.toString(),
+      sendingAccountId: account._id.toString(),
+      limit: 10,
+    });
+
+    expect(clientResult?.batch).toBeNull();
+    expect(clientResult?.created).toBe(0);
   });
 });

@@ -129,6 +129,14 @@ Phase 1 MVP foundation for an internal lead-flow, outreach, revenue, and deliver
 - Signature requests can be flagged for external provider delivery without changing the core workflow.
 - Dashboard client-message metric backed by real portal messages.
 
+## Prompt Audit Hardening
+
+- Internal notification model and unread dashboard metric.
+- Notification fanout for pending send approvals, replies, discovery submissions, accepted proposals, payments, and webhook failures.
+- In-memory rate limiting for public form, portal, signing, and webhook ingress routes.
+- Scheduled job helper for due approved send batches in `src/jobs/send-batch-jobs.ts`.
+- Send-batch generation guards for suppressed leads, replied/won/lost leads, existing clients, inactive accounts, and warm-up/daily volume limits.
+
 ## Getting Started
 
 Copy `.env.example` to `.env.local` and set at least:

@@ -1,4 +1,4 @@
-import { Activity, Bot, CheckCircle2, Clock, CreditCard, FileSignature, FileText, Inbox, Mail, MessageSquare, Timer, Users } from "lucide-react";
+import { Activity, Bell, Bot, CheckCircle2, Clock, CreditCard, FileSignature, FileText, Inbox, Mail, MessageSquare, Timer, Users } from "lucide-react";
 import { auth } from "@/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { listAiDrafts } from "@/services/ai-service";
@@ -12,6 +12,7 @@ import { getSendingMetrics } from "@/services/sending-service";
 import { getProposalMetrics } from "@/services/proposal-service";
 import { getRevenueMetrics } from "@/services/revenue-service";
 import { getPortalMetrics } from "@/services/portal-service";
+import { getNotificationMetrics } from "@/services/notification-service";
 
 function money(amount: number) {
   return new Intl.NumberFormat("en-US", {
@@ -33,6 +34,7 @@ const metricCards = (
   timeHours: number,
   openSignatures: number,
   clientMessages: number,
+  unreadNotifications: number,
 ) => [
   { label: "Total leads", value: String(leadTotal), icon: Users },
   { label: "Active campaigns", value: String(activeCampaigns), icon: Mail },
@@ -45,11 +47,12 @@ const metricCards = (
   { label: "Time logged", value: `${timeHours}h`, icon: Timer },
   { label: "Open signatures", value: String(openSignatures), icon: FileSignature },
   { label: "Client messages", value: String(clientMessages), icon: MessageSquare },
+  { label: "Notifications", value: String(unreadNotifications), icon: Bell },
 ];
 
 export default async function DashboardPage() {
   const session = await auth();
-  const [activity, leadMetrics, campaignMetrics, sendingMetrics, emailMetrics, aiDrafts, discoveryMetrics, proposalMetrics, revenueMetrics, clientMetrics, portalMetrics] = session?.user.organisationId
+  const [activity, leadMetrics, campaignMetrics, sendingMetrics, emailMetrics, aiDrafts, discoveryMetrics, proposalMetrics, revenueMetrics, clientMetrics, portalMetrics, notificationMetrics] = session?.user.organisationId
     ? await Promise.all([
         listRecentActivity(session.user.organisationId),
         getLeadMetrics(session.user.organisationId),
@@ -62,6 +65,7 @@ export default async function DashboardPage() {
         getRevenueMetrics(session.user.organisationId),
         getClientProjectMetrics(session.user.organisationId),
         getPortalMetrics(session.user.organisationId),
+        getNotificationMetrics(session.user.organisationId),
       ])
     : [
         [],
@@ -92,6 +96,7 @@ export default async function DashboardPage() {
           timeByProject: [],
         },
         { accesses: 0, pendingTasks: 0, signatures: 0, pdfExports: 0, unreadMessages: 0 },
+        { total: 0, unread: 0 },
       ];
 
   return (
@@ -119,6 +124,7 @@ export default async function DashboardPage() {
           clientMetrics.totalHours,
           portalMetrics.signatures,
           portalMetrics.unreadMessages,
+          notificationMetrics.unread,
         ).map((metric) => (
           <Card key={metric.label}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">

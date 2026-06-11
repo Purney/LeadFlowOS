@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
+import { checkRateLimit, rateLimitKey } from "@/lib/rate-limit";
 import { signPortalSignature } from "@/services/portal-service";
 import { publicSignatureSchema } from "@/validation/portal";
 
@@ -10,6 +11,15 @@ type RouteContext = {
 export async function POST(request: Request, context: RouteContext) {
   try {
     const { token, requestId } = await context.params;
+    const rateLimit = checkRateLimit(rateLimitKey(request, `portal-sign:${token}`), {
+      limit: 10,
+      windowMs: 60_000,
+    });
+
+    if (!rateLimit.allowed) {
+      return NextResponse.json({ error: "Too many requests." }, { status: 429 });
+    }
+
     const signature = await signPortalSignature(
       token,
       requestId,
