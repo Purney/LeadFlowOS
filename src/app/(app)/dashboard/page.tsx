@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { listAiDrafts } from "@/services/ai-service";
 import { getCampaignMetrics } from "@/services/campaign-service";
+import { getDiscoveryMetrics } from "@/services/discovery-service";
 import { getEmailMetrics } from "@/services/email-service";
 import { getLeadMetrics } from "@/services/lead-service";
 import { listRecentActivity } from "@/services/activity-service";
@@ -14,13 +15,14 @@ const metricCards = (
   pendingApprovals: number,
   replies: number,
   aiDrafts: number,
+  discoveryResponses: number,
 ) => [
   { label: "Total leads", value: String(leadTotal), icon: Users },
   { label: "Active campaigns", value: String(activeCampaigns), icon: Mail },
   { label: "Pending approvals", value: String(pendingApprovals), icon: CheckCircle2 },
   { label: "Replies received", value: String(replies), icon: Inbox },
   { label: "AI drafts", value: String(aiDrafts), icon: Bot },
-  { label: "Discovery forms awaiting completion", value: "0", icon: FileText },
+  { label: "Discovery responses", value: String(discoveryResponses), icon: FileText },
   { label: "Proposal pipeline", value: "0", icon: Activity },
   { label: "Monthly revenue", value: "$0", icon: CreditCard },
   { label: "Time logged", value: "0h", icon: Timer },
@@ -28,7 +30,7 @@ const metricCards = (
 
 export default async function DashboardPage() {
   const session = await auth();
-  const [activity, leadMetrics, campaignMetrics, sendingMetrics, emailMetrics, aiDrafts] = session?.user.organisationId
+  const [activity, leadMetrics, campaignMetrics, sendingMetrics, emailMetrics, aiDrafts, discoveryMetrics] = session?.user.organisationId
     ? await Promise.all([
         listRecentActivity(session.user.organisationId),
         getLeadMetrics(session.user.organisationId),
@@ -36,6 +38,7 @@ export default async function DashboardPage() {
         getSendingMetrics(session.user.organisationId),
         getEmailMetrics(session.user.organisationId),
         listAiDrafts(session.user.organisationId),
+        getDiscoveryMetrics(session.user.organisationId),
       ])
     : [
         [],
@@ -44,6 +47,7 @@ export default async function DashboardPage() {
         { accounts: 0, activeAccounts: 0, pendingApprovals: 0, averageHealth: 0 },
         { messages: 0, replies: 0, events: 0 },
         [],
+        { forms: 0, responses: 0 },
       ];
 
   return (
@@ -52,7 +56,7 @@ export default async function DashboardPage() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Phase 6 AI drafting is active. Revenue and
+            Phase 7 discovery forms are active. Revenue and
             delivery dashboards will deepen as later modules come online.
           </p>
         </div>
@@ -65,6 +69,7 @@ export default async function DashboardPage() {
           sendingMetrics.pendingApprovals,
           emailMetrics.replies,
           aiDrafts.length,
+          discoveryMetrics.responses,
         ).map((metric) => (
           <Card key={metric.label}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">

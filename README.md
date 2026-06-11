@@ -63,6 +63,18 @@ Phase 1 MVP foundation for an internal lead-flow, outreach, revenue, and deliver
 - Generated drafts are saved for manual review and are never sent automatically.
 - Dashboard AI draft metric.
 
+## Implemented in Phase 7
+
+- Discovery form and discovery response models.
+- Internal discovery workspace at `/discovery`.
+- Public discovery form links at `/d/[publicSlug]`.
+- Form builder supporting short text, long text, number, date, single select, multi select, URL, and file metadata fields.
+- Public response submission API with server-side answer validation.
+- Responses can be linked to leads and update lead status to `qualified`.
+- AI discovery summary generation from submitted answers.
+- Discovery summaries are saved as AI drafts for manual review.
+- Dashboard discovery response metric.
+
 ## Getting Started
 
 Copy `.env.example` to `.env.local` and set at least:
@@ -98,6 +110,6 @@ The E2E smoke test expects a running app and valid local environment.
 
 ## Roadmap
 
-Phase 7 adds discovery forms and AI discovery summaries.
+Phase 8 adds proposal drafting, editing, statuses, and versioning.
 
-Later phases add proposals, Stripe revenue tracking, client conversion, projects, time tracking, a client portal, onboarding automation, signatures, and PDF generation.
+Later phases add Stripe revenue tracking, client conversion, projects, time tracking, a client portal, onboarding automation, signatures, and PDF generation.
