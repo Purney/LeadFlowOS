@@ -1,12 +1,13 @@
 import { Activity, CheckCircle2, Clock, CreditCard, FileText, Inbox, Mail, Timer, Users } from "lucide-react";
 import { auth } from "@/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getCampaignMetrics } from "@/services/campaign-service";
 import { getLeadMetrics } from "@/services/lead-service";
 import { listRecentActivity } from "@/services/activity-service";
 
-const metricCards = (leadTotal: number) => [
+const metricCards = (leadTotal: number, activeCampaigns: number) => [
   { label: "Total leads", value: String(leadTotal), icon: Users },
-  { label: "Active campaigns", value: "0", icon: Mail },
+  { label: "Active campaigns", value: String(activeCampaigns), icon: Mail },
   { label: "Pending approvals", value: "0", icon: CheckCircle2 },
   { label: "Replies received", value: "0", icon: Inbox },
   { label: "Discovery forms awaiting completion", value: "0", icon: FileText },
@@ -17,12 +18,13 @@ const metricCards = (leadTotal: number) => [
 
 export default async function DashboardPage() {
   const session = await auth();
-  const [activity, leadMetrics] = session?.user.organisationId
+  const [activity, leadMetrics, campaignMetrics] = session?.user.organisationId
     ? await Promise.all([
         listRecentActivity(session.user.organisationId),
         getLeadMetrics(session.user.organisationId),
+        getCampaignMetrics(session.user.organisationId),
       ])
-    : [[], { total: 0, byStatus: {}, tags: [] }];
+    : [[], { total: 0, byStatus: {}, tags: [] }, { total: 0, active: 0 }];
 
   return (
     <div className="space-y-6">
@@ -30,14 +32,14 @@ export default async function DashboardPage() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Phase 2 lead management is active. Campaign, revenue, and delivery
-            metrics will populate as later modules come online.
+            Phase 3 campaign building is active. Send approvals, revenue, and
+            delivery metrics will populate as later modules come online.
           </p>
         </div>
       </div>
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {metricCards(leadMetrics.total).map((metric) => (
+        {metricCards(leadMetrics.total, campaignMetrics.active).map((metric) => (
           <Card key={metric.label}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
               <CardTitle className="text-sm font-medium text-muted-foreground">

@@ -20,6 +20,16 @@ Phase 1 MVP foundation for an internal lead-flow, outreach, revenue, and deliver
 - Dashboard total-lead metric backed by real lead data.
 - Activity logging for lead create, update, delete, and import events.
 
+## Implemented in Phase 3
+
+- Campaign model with organisation scoping, draft/active/paused/completed/archived statuses, service offer, goal, and ordered stages.
+- Campaign enrollment model linking campaigns to leads with current step, next scheduled time, and deterministic A/B variant selection.
+- Campaign APIs and UI at `/campaigns`.
+- Multi-stage sequence builder with configurable delays, subject variants, body variants, and supported placeholders: `{{firstName}}`, `{{lastName}}`, `{{company}}`, and `{{website}}`.
+- Personalisation preview against the current lead pool.
+- Dashboard active-campaign metric backed by real campaign data.
+- Activity logging for campaign create, update, and lead enrollment events.
+
 ## Getting Started
 
 Copy `.env.example` to `.env.local` and set at least:
@@ -55,6 +65,6 @@ The E2E smoke test expects a running app and valid local environment.
 
 ## Roadmap
 
-Phase 3 adds campaign builder foundations, multi-stage sequences, personalisation, scheduling, and A/B allocation.
+Phase 4 adds sending accounts, multiple domains, deliverability health, warm-up tracking, and manual send batch approval.
 
-Later phases add sending domains, deliverability, send batch approvals, SendGrid webhooks, suppression management, AI drafting, discovery forms, proposals, Stripe revenue tracking, client conversion, projects, time tracking, a client portal, onboarding automation, signatures, and PDF generation.
+Later phases add SendGrid webhooks, suppression management, AI drafting, discovery forms, proposals, Stripe revenue tracking, client conversion, projects, time tracking, a client portal, onboarding automation, signatures, and PDF generation.

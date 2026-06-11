@@ -1,0 +1,29 @@
+import type { CampaignVariantSelection } from "@/types/campaign";
+
+export function scheduleCampaignStep(startAt: Date, delayDays: number) {
+  const scheduled = new Date(startAt);
+  scheduled.setUTCDate(scheduled.getUTCDate() + delayDays);
+  return scheduled;
+}
+
+function hashString(value: string) {
+  let hash = 0;
+
+  for (let index = 0; index < value.length; index += 1) {
+    hash = (hash << 5) - hash + value.charCodeAt(index);
+    hash |= 0;
+  }
+
+  return Math.abs(hash);
+}
+
+export function allocateVariant(
+  seed: string,
+  subjectVariantCount: number,
+  bodyVariantCount: number,
+): CampaignVariantSelection {
+  return {
+    subjectIndex: hashString(`${seed}:subject`) % subjectVariantCount,
+    bodyIndex: hashString(`${seed}:body`) % bodyVariantCount,
+  };
+}
