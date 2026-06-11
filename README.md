@@ -107,6 +107,17 @@ Phase 1 MVP foundation for an internal lead-flow, outreach, revenue, and deliver
 - Delivery metrics for clients, active projects, time by client/project, and effective hourly revenue.
 - Dashboard time-logged metric backed by real time entries.
 
+## Implemented in Phase 11
+
+- Secure client portal access model using hashed public tokens.
+- Internal client portal workspace at `/portal`.
+- Public client portal pages at `/portal/[token]`.
+- Onboarding task model and creation workflow.
+- Signature request model, internal request workflow, and public signing endpoint.
+- PDF-ready export model that generates proposal/client HTML snapshots for later binary PDF rendering.
+- Portal metrics for active links, open onboarding tasks, open signatures, and generated exports.
+- Dashboard open-signature metric backed by real signature requests.
+
 ## Getting Started
 
 Copy `.env.example` to `.env.local` and set at least:
@@ -142,4 +153,4 @@ The E2E smoke test expects a running app and valid local environment.
 
 ## Roadmap
 
-Phase 11 adds the client portal, onboarding automation, signatures, and PDF generation.
+Phase 12 adds deeper onboarding automation, client portal collaboration, binary PDF rendering, and signature-provider integrations.

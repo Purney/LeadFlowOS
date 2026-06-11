@@ -1,4 +1,4 @@
-import { Activity, Bot, CheckCircle2, Clock, CreditCard, FileText, Inbox, Mail, Timer, Users } from "lucide-react";
+import { Activity, Bot, CheckCircle2, Clock, CreditCard, FileSignature, FileText, Inbox, Mail, Timer, Users } from "lucide-react";
 import { auth } from "@/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { listAiDrafts } from "@/services/ai-service";
@@ -11,6 +11,7 @@ import { listRecentActivity } from "@/services/activity-service";
 import { getSendingMetrics } from "@/services/sending-service";
 import { getProposalMetrics } from "@/services/proposal-service";
 import { getRevenueMetrics } from "@/services/revenue-service";
+import { getPortalMetrics } from "@/services/portal-service";
 
 function money(amount: number) {
   return new Intl.NumberFormat("en-US", {
@@ -30,6 +31,7 @@ const metricCards = (
   proposals: number,
   monthlyRevenue: number,
   timeHours: number,
+  openSignatures: number,
 ) => [
   { label: "Total leads", value: String(leadTotal), icon: Users },
   { label: "Active campaigns", value: String(activeCampaigns), icon: Mail },
@@ -40,11 +42,12 @@ const metricCards = (
   { label: "Proposal pipeline", value: String(proposals), icon: Activity },
   { label: "Monthly revenue", value: money(monthlyRevenue), icon: CreditCard },
   { label: "Time logged", value: `${timeHours}h`, icon: Timer },
+  { label: "Open signatures", value: String(openSignatures), icon: FileSignature },
 ];
 
 export default async function DashboardPage() {
   const session = await auth();
-  const [activity, leadMetrics, campaignMetrics, sendingMetrics, emailMetrics, aiDrafts, discoveryMetrics, proposalMetrics, revenueMetrics, clientMetrics] = session?.user.organisationId
+  const [activity, leadMetrics, campaignMetrics, sendingMetrics, emailMetrics, aiDrafts, discoveryMetrics, proposalMetrics, revenueMetrics, clientMetrics, portalMetrics] = session?.user.organisationId
     ? await Promise.all([
         listRecentActivity(session.user.organisationId),
         getLeadMetrics(session.user.organisationId),
@@ -56,6 +59,7 @@ export default async function DashboardPage() {
         getProposalMetrics(session.user.organisationId),
         getRevenueMetrics(session.user.organisationId),
         getClientProjectMetrics(session.user.organisationId),
+        getPortalMetrics(session.user.organisationId),
       ])
     : [
         [],
@@ -85,6 +89,7 @@ export default async function DashboardPage() {
           timeByClient: [],
           timeByProject: [],
         },
+        { accesses: 0, pendingTasks: 0, signatures: 0, pdfExports: 0 },
       ];
 
   return (
@@ -93,8 +98,8 @@ export default async function DashboardPage() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Phase 10 delivery tracking is active. Client, project, revenue, and
-            time signals now share the same operating view.
+            Phase 11 client portal foundations are active. Client delivery,
+            signatures, onboarding, revenue, and time share one operating view.
           </p>
         </div>
       </div>
@@ -110,6 +115,7 @@ export default async function DashboardPage() {
           proposalMetrics.total,
           revenueMetrics.monthlyRevenue,
           clientMetrics.totalHours,
+          portalMetrics.signatures,
         ).map((metric) => (
           <Card key={metric.label}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">

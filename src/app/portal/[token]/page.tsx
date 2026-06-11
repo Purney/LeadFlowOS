@@ -1,0 +1,242 @@
+import { notFound } from "next/navigation";
+import { PublicSignatureForm } from "@/components/portal/public-signature-form";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getPublicPortal } from "@/services/portal-service";
+
+type PortalPageProps = {
+  params: Promise<{ token: string }>;
+};
+
+type ProjectView = {
+  _id: unknown;
+  name: string;
+  type: string;
+  status: string;
+};
+
+type TaskView = {
+  _id: unknown;
+  title: string;
+  description?: string;
+  status: string;
+  dueDate?: Date | string;
+};
+
+type SignatureView = {
+  _id: unknown;
+  title: string;
+  signerName: string;
+  signerEmail: string;
+  termsMarkdown: string;
+  status: string;
+  signedAt?: Date | string;
+};
+
+type PdfExportView = {
+  _id: unknown;
+  title: string;
+  html: string;
+};
+
+function id(value: unknown) {
+  return String(value);
+}
+
+function date(value?: Date | string) {
+  return value ? new Date(value).toLocaleDateString() : "No date";
+}
+
+export default async function PublicPortalPage({ params }: PortalPageProps) {
+  const { token } = await params;
+  const portal = await getPublicPortal(token);
+
+  if (!portal) {
+    notFound();
+  }
+
+  const projects = portal.projects as ProjectView[];
+  const tasks = portal.tasks as TaskView[];
+  const signatures = portal.signatures as SignatureView[];
+  const pdfExports = portal.pdfExports as PdfExportView[];
+
+  return (
+    <main className="min-h-screen bg-background px-4 py-10">
+      <div className="mx-auto w-full max-w-5xl space-y-6">
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">LeadFlow OS</p>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {portal.client.company} portal
+          </h1>
+        </div>
+
+        <section className="grid gap-4 md:grid-cols-3">
+          <Card>
+            <CardHeader>
+              <CardTitle>Projects</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-semibold">{projects.length}</p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Open tasks</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-semibold">
+                {tasks.filter((task) => task.status !== "completed").length}
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle>Signatures</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-2xl font-semibold">
+                {signatures.filter((signature) => signature.status === "sent").length}
+              </p>
+            </CardContent>
+          </Card>
+        </section>
+
+        <section className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
+          <Card>
+            <CardHeader>
+              <CardTitle>Projects</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {projects.length > 0 ? (
+                <div className="space-y-3">
+                  {projects.map((project) => (
+                    <div className="rounded-md border border-border p-3" key={id(project._id)}>
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="font-medium">{project.name}</p>
+                          <p className="text-sm text-muted-foreground">{project.type}</p>
+                        </div>
+                        <span className="rounded-md bg-muted px-2 py-1 text-xs text-muted-foreground">
+                          {project.status}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Project updates will appear here.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Onboarding</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {tasks.length > 0 ? (
+                <div className="space-y-3">
+                  {tasks.map((task) => (
+                    <div className="rounded-md border border-border p-3" key={id(task._id)}>
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="font-medium">{task.title}</p>
+                          {task.description ? (
+                            <p className="mt-1 text-sm text-muted-foreground">
+                              {task.description}
+                            </p>
+                          ) : null}
+                        </div>
+                        <span className="rounded-md bg-muted px-2 py-1 text-xs text-muted-foreground">
+                          {task.status}
+                        </span>
+                      </div>
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        Due {date(task.dueDate)}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Onboarding tasks will appear here.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        </section>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Signature requests</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {signatures.length > 0 ? (
+              <div className="space-y-4">
+                {signatures.map((signature) => (
+                  <div className="rounded-md border border-border p-4" key={id(signature._id)}>
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="font-medium">{signature.title}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {signature.signerEmail}
+                        </p>
+                      </div>
+                      <span className="rounded-md bg-muted px-2 py-1 text-xs text-muted-foreground">
+                        {signature.status}
+                      </span>
+                    </div>
+                    <p className="mt-3 whitespace-pre-wrap text-sm">
+                      {signature.termsMarkdown}
+                    </p>
+                    {signature.status === "sent" ? (
+                      <PublicSignatureForm
+                        token={token}
+                        requestId={id(signature._id)}
+                        signerName={signature.signerName}
+                      />
+                    ) : (
+                      <p className="mt-3 text-sm text-muted-foreground">
+                        Signed {date(signature.signedAt)}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Signature requests will appear here.
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Documents</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {pdfExports.length > 0 ? (
+              <div className="space-y-3">
+                {pdfExports.map((pdfExport) => (
+                  <details className="rounded-md border border-border p-3" key={id(pdfExport._id)}>
+                    <summary className="cursor-pointer font-medium">{pdfExport.title}</summary>
+                    <div
+                      className="prose prose-sm mt-3 max-w-none text-sm"
+                      dangerouslySetInnerHTML={{ __html: pdfExport.html }}
+                    />
+                  </details>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                Shared PDF-ready documents will appear here.
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </main>
+  );
+}
