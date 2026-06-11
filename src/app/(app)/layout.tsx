@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { BarChart3, Clock3, FileText, Inbox, Settings, Users } from "lucide-react";
+import { BarChart3, Clock3, FileText, Inbox, Send, Settings, Users } from "lucide-react";
 import { auth, signOut } from "@/auth";
 import { Button } from "@/components/ui/button";
 
@@ -8,6 +8,7 @@ const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: BarChart3 },
   { href: "/leads", label: "Leads", icon: Users },
   { href: "/campaigns", label: "Campaigns", icon: Inbox },
+  { href: "/sending", label: "Sending", icon: Send },
   { href: "/dashboard", label: "Proposals", icon: FileText },
   { href: "/dashboard", label: "Time", icon: Clock3 },
   { href: "/dashboard", label: "Settings", icon: Settings },

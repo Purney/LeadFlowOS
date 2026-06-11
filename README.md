@@ -30,6 +30,17 @@ Phase 1 MVP foundation for an internal lead-flow, outreach, revenue, and deliver
 - Dashboard active-campaign metric backed by real campaign data.
 - Activity logging for campaign create, update, and lead enrollment events.
 
+## Implemented in Stage 4
+
+- Sending account model with provider, SendGrid sender ID, verification status, daily limit, warm-up status, active flag, and deliverability health fields.
+- Send batch model with campaign, sending account, recipients, subject/body, A/B variant label, scheduled time, estimated volume, risk warnings, and approval statuses.
+- Sending APIs and UI at `/sending`.
+- Deliverability health scoring for SPF, DKIM, DMARC, tracking domain, unsubscribe support, bounce rate, and spam complaint rate.
+- Warm-up recommendation logic for safe send volume.
+- Manual send batch generation from enrolled campaign leads.
+- Approval gate for generated batches: batches start as `pending_approval` and can be approved or rejected manually.
+- Dashboard pending-approval metric backed by real send batch data.
+
 ## Getting Started
 
 Copy `.env.example` to `.env.local` and set at least:
@@ -65,6 +76,6 @@ The E2E smoke test expects a running app and valid local environment.
 
 ## Roadmap
 
-Phase 4 adds sending accounts, multiple domains, deliverability health, warm-up tracking, and manual send batch approval.
+Phase 5 adds SendGrid outbound delivery, event webhooks, inbound reply processing, and suppression management.
 
-Later phases add SendGrid webhooks, suppression management, AI drafting, discovery forms, proposals, Stripe revenue tracking, client conversion, projects, time tracking, a client portal, onboarding automation, signatures, and PDF generation.
+Later phases add AI drafting, discovery forms, proposals, Stripe revenue tracking, client conversion, projects, time tracking, a client portal, onboarding automation, signatures, and PDF generation.
