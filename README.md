@@ -96,6 +96,17 @@ Phase 1 MVP foundation for an internal lead-flow, outreach, revenue, and deliver
 - Dashboard monthly revenue and revenue trend backed by Stripe invoice data.
 - Payment received activity logging for paid invoices.
 
+## Implemented in Phase 10
+
+- Client model with organisation scoping, lead conversion linkage, contacts, notes, and optional Stripe customer linkage.
+- Project model with client linkage, type, status, estimated value, actual revenue, and delivery dates.
+- Manual time entry model linked to client and project.
+- Client conversion from existing leads marks the source lead as `won`.
+- Client delivery workspace UI at `/clients`.
+- Project creation and manual time logging workflows.
+- Delivery metrics for clients, active projects, time by client/project, and effective hourly revenue.
+- Dashboard time-logged metric backed by real time entries.
+
 ## Getting Started
 
 Copy `.env.example` to `.env.local` and set at least:
@@ -131,6 +142,4 @@ The E2E smoke test expects a running app and valid local environment.
 
 ## Roadmap
 
-Phase 10 adds client conversion, project management, and manual time tracking.
-
-Later phases add a client portal, onboarding automation, signatures, and PDF generation.
+Phase 11 adds the client portal, onboarding automation, signatures, and PDF generation.

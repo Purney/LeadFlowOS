@@ -1,6 +1,1 @@
-export const plannedModels = [
-  "Lead",
-  "Client",
-  "Project",
-  "TimeEntry",
-] as const;
+export const plannedModels = [] as const;

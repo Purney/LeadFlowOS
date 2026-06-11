@@ -13,7 +13,8 @@ const navItems = [
   { href: "/discovery", label: "Discovery", icon: FileQuestion },
   { href: "/proposals", label: "Proposals", icon: FileText },
   { href: "/revenue", label: "Revenue", icon: CreditCard },
-  { href: "/dashboard", label: "Time", icon: Clock3 },
+  { href: "/clients", label: "Clients", icon: Users },
+  { href: "/clients", label: "Time", icon: Clock3 },
   { href: "/dashboard", label: "Settings", icon: Settings },
 ];
 

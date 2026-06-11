@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { listAiDrafts } from "@/services/ai-service";
 import { getCampaignMetrics } from "@/services/campaign-service";
+import { getClientProjectMetrics } from "@/services/client-service";
 import { getDiscoveryMetrics } from "@/services/discovery-service";
 import { getEmailMetrics } from "@/services/email-service";
 import { getLeadMetrics } from "@/services/lead-service";
@@ -28,6 +29,7 @@ const metricCards = (
   discoveryResponses: number,
   proposals: number,
   monthlyRevenue: number,
+  timeHours: number,
 ) => [
   { label: "Total leads", value: String(leadTotal), icon: Users },
   { label: "Active campaigns", value: String(activeCampaigns), icon: Mail },
@@ -37,12 +39,12 @@ const metricCards = (
   { label: "Discovery responses", value: String(discoveryResponses), icon: FileText },
   { label: "Proposal pipeline", value: String(proposals), icon: Activity },
   { label: "Monthly revenue", value: money(monthlyRevenue), icon: CreditCard },
-  { label: "Time logged", value: "0h", icon: Timer },
+  { label: "Time logged", value: `${timeHours}h`, icon: Timer },
 ];
 
 export default async function DashboardPage() {
   const session = await auth();
-  const [activity, leadMetrics, campaignMetrics, sendingMetrics, emailMetrics, aiDrafts, discoveryMetrics, proposalMetrics, revenueMetrics] = session?.user.organisationId
+  const [activity, leadMetrics, campaignMetrics, sendingMetrics, emailMetrics, aiDrafts, discoveryMetrics, proposalMetrics, revenueMetrics, clientMetrics] = session?.user.organisationId
     ? await Promise.all([
         listRecentActivity(session.user.organisationId),
         getLeadMetrics(session.user.organisationId),
@@ -53,6 +55,7 @@ export default async function DashboardPage() {
         getDiscoveryMetrics(session.user.organisationId),
         getProposalMetrics(session.user.organisationId),
         getRevenueMetrics(session.user.organisationId),
+        getClientProjectMetrics(session.user.organisationId),
       ])
     : [
         [],
@@ -72,6 +75,16 @@ export default async function DashboardPage() {
           revenueByCustomer: [],
           revenueTrend: [],
         },
+        {
+          clients: 0,
+          projects: 0,
+          activeProjects: 0,
+          totalMinutes: 0,
+          totalHours: 0,
+          effectiveHourlyRevenue: 0,
+          timeByClient: [],
+          timeByProject: [],
+        },
       ];
 
   return (
@@ -80,8 +93,8 @@ export default async function DashboardPage() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Phase 9 Stripe revenue tracking is active. Delivery dashboards will
-            deepen as later modules come online.
+            Phase 10 delivery tracking is active. Client, project, revenue, and
+            time signals now share the same operating view.
           </p>
         </div>
       </div>
@@ -96,6 +109,7 @@ export default async function DashboardPage() {
           discoveryMetrics.responses,
           proposalMetrics.total,
           revenueMetrics.monthlyRevenue,
+          clientMetrics.totalHours,
         ).map((metric) => (
           <Card key={metric.label}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
