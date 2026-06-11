@@ -1,6 +1,5 @@
 export const plannedModels = [
   "Lead",
-  "Proposal",
   "Client",
   "Project",
   "TimeEntry",

@@ -75,6 +75,17 @@ Phase 1 MVP foundation for an internal lead-flow, outreach, revenue, and deliver
 - Discovery summaries are saved as AI drafts for manual review.
 - Dashboard discovery response metric.
 
+## Implemented in Phase 8
+
+- Proposal model with draft, sent, accepted, and rejected statuses.
+- Structured proposal content for executive summary, identified problem, proposed solution, deliverables, assumptions, estimated timeline, and optional enhancements.
+- Proposal versioning with content snapshots on edits.
+- Proposal APIs and workspace UI at `/proposals`.
+- Manual proposal creation and status tracking.
+- AI proposal drafting from discovery responses.
+- Dashboard proposal pipeline metric.
+- Architecture prepared for future PDF export and electronic signatures.
+
 ## Getting Started
 
 Copy `.env.example` to `.env.local` and set at least:
@@ -110,6 +121,6 @@ The E2E smoke test expects a running app and valid local environment.
 
 ## Roadmap
 
-Phase 8 adds proposal drafting, editing, statuses, and versioning.
+Phase 9 adds Stripe integration and revenue dashboards.
 
-Later phases add Stripe revenue tracking, client conversion, projects, time tracking, a client portal, onboarding automation, signatures, and PDF generation.
+Later phases add client conversion, projects, time tracking, a client portal, onboarding automation, signatures, and PDF generation.

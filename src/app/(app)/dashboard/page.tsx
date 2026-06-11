@@ -8,6 +8,7 @@ import { getEmailMetrics } from "@/services/email-service";
 import { getLeadMetrics } from "@/services/lead-service";
 import { listRecentActivity } from "@/services/activity-service";
 import { getSendingMetrics } from "@/services/sending-service";
+import { getProposalMetrics } from "@/services/proposal-service";
 
 const metricCards = (
   leadTotal: number,
@@ -16,6 +17,7 @@ const metricCards = (
   replies: number,
   aiDrafts: number,
   discoveryResponses: number,
+  proposals: number,
 ) => [
   { label: "Total leads", value: String(leadTotal), icon: Users },
   { label: "Active campaigns", value: String(activeCampaigns), icon: Mail },
@@ -23,14 +25,14 @@ const metricCards = (
   { label: "Replies received", value: String(replies), icon: Inbox },
   { label: "AI drafts", value: String(aiDrafts), icon: Bot },
   { label: "Discovery responses", value: String(discoveryResponses), icon: FileText },
-  { label: "Proposal pipeline", value: "0", icon: Activity },
+  { label: "Proposal pipeline", value: String(proposals), icon: Activity },
   { label: "Monthly revenue", value: "$0", icon: CreditCard },
   { label: "Time logged", value: "0h", icon: Timer },
 ];
 
 export default async function DashboardPage() {
   const session = await auth();
-  const [activity, leadMetrics, campaignMetrics, sendingMetrics, emailMetrics, aiDrafts, discoveryMetrics] = session?.user.organisationId
+  const [activity, leadMetrics, campaignMetrics, sendingMetrics, emailMetrics, aiDrafts, discoveryMetrics, proposalMetrics] = session?.user.organisationId
     ? await Promise.all([
         listRecentActivity(session.user.organisationId),
         getLeadMetrics(session.user.organisationId),
@@ -39,6 +41,7 @@ export default async function DashboardPage() {
         getEmailMetrics(session.user.organisationId),
         listAiDrafts(session.user.organisationId),
         getDiscoveryMetrics(session.user.organisationId),
+        getProposalMetrics(session.user.organisationId),
       ])
     : [
         [],
@@ -48,6 +51,7 @@ export default async function DashboardPage() {
         { messages: 0, replies: 0, events: 0 },
         [],
         { forms: 0, responses: 0 },
+        { total: 0, byStatus: {} },
       ];
 
   return (
@@ -56,7 +60,7 @@ export default async function DashboardPage() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Phase 7 discovery forms are active. Revenue and
+            Phase 8 proposal management is active. Revenue and
             delivery dashboards will deepen as later modules come online.
           </p>
         </div>
@@ -70,6 +74,7 @@ export default async function DashboardPage() {
           emailMetrics.replies,
           aiDrafts.length,
           discoveryMetrics.responses,
+          proposalMetrics.total,
         ).map((metric) => (
           <Card key={metric.label}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">

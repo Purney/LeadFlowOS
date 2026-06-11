@@ -92,6 +92,29 @@ export function buildDiscoverySummaryPrompt(input: {
   ].join("\n");
 }
 
+export function buildProposalDraftPrompt(input: {
+  title: string;
+  lead?: LeadPromptData;
+  answers: { label: string; answer: unknown }[];
+}) {
+  const answers = input.answers
+    .map((answer) => `${answer.label}: ${Array.isArray(answer.answer) ? answer.answer.join(", ") : String(answer.answer ?? "")}`)
+    .join("\n");
+
+  return [
+    "Draft an editable client proposal for a freelance software engineering, AI, and automation business.",
+    "Return JSON only with keys: executiveSummary, identifiedProblem, proposedSolution, deliverables, assumptions, estimatedTimeline, optionalEnhancements.",
+    "deliverables, assumptions, and optionalEnhancements must be arrays of concise strings.",
+    "Keep claims grounded in the discovery answers. Do not include pricing or legal terms.",
+    "",
+    `Proposal title: ${input.title}`,
+    input.lead ? `Lead:\n${leadBlock(input.lead)}` : "Lead: Unknown",
+    "",
+    "Discovery answers:",
+    answers || "No answers submitted.",
+  ].join("\n");
+}
+
 export function parseJsonObject<T>(value: string, fallback: T): T {
   try {
     const match = value.match(/\{[\s\S]*\}/);

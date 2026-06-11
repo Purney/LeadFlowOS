@@ -11,7 +11,7 @@ const navItems = [
   { href: "/sending", label: "Sending", icon: Send },
   { href: "/ai", label: "AI", icon: Bot },
   { href: "/discovery", label: "Discovery", icon: FileQuestion },
-  { href: "/dashboard", label: "Proposals", icon: FileText },
+  { href: "/proposals", label: "Proposals", icon: FileText },
   { href: "/dashboard", label: "Time", icon: Clock3 },
   { href: "/dashboard", label: "Settings", icon: Settings },
 ];
