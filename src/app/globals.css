@@ -13,6 +13,8 @@
   --accent: #dfe8c6;
   --accent-foreground: #25341d;
   --destructive: #b42318;
+  --font-geist-sans: Arial, Helvetica, sans-serif;
+  --font-geist-mono: "Courier New", Courier, monospace;
 }
 
 @theme inline {

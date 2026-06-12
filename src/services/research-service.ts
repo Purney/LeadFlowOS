@@ -33,6 +33,13 @@ type GenerateOptions = {
   model?: string;
 };
 
+type ChecklistItem = {
+  itemId: string;
+  label: string;
+  completed: boolean;
+  completedAt?: Date;
+};
+
 function toObjectId(value: string | mongoose.Types.ObjectId) {
   return typeof value === "string" ? new mongoose.Types.ObjectId(value) : value;
 }
@@ -284,7 +291,8 @@ export async function updateResearchChecklistItem(
 
   if (!research) return null;
 
-  const item = research.checklist.find(
+  const checklist = research.checklist as ChecklistItem[];
+  const item = checklist.find(
     (checklistItem) => checklistItem.itemId === data.itemId,
   );
 

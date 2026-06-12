@@ -70,7 +70,7 @@ export function ResearchChecklistToggle({
       disabled={isPending}
       onClick={toggle}
       type="button"
-      variant={completed ? "secondary" : "outline"}
+      variant={completed ? "secondary" : "ghost"}
     >
       {completed ? (
         <RotateCcw aria-hidden className="h-4 w-4" />
