@@ -201,12 +201,15 @@ describe("sending service", () => {
       limit: 10,
       scheduledSendTime: new Date("2026-06-11T11:55:00.000Z"),
     });
+    expect(result?.batch).toBeTruthy();
     await updateSendBatch(context, result?.batch?._id.toString() ?? "", {
       status: "approved",
+      scheduledSendTime: new Date("2026-06-11T11:55:00.000Z"),
     });
 
     const jobResult = await processDueApprovedSendBatches(context.organisationId, {
       userId: context.userId,
+      now: new Date("2026-06-11T12:00:00.000Z"),
       dryRun: true,
     });
 
