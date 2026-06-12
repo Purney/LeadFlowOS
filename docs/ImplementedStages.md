@@ -147,3 +147,14 @@ This document records what has been implemented so far. Keep this as history; us
 - Persistent rate-limit bucket model with TTL cleanup.
 - Follow-up hardening for rich HTML sanitization, atomic rate limits, first-owner setup locking, cross-tenant reference validation, bounded cron processing, and aggregation-backed metrics.
 
+## Phase 14
+
+- Unified account lifecycle vocabulary for `client_research`, `cold_outreach`, `proposal_sales`, `onboarding_payment`, `solution_execution`, and `maintenance`.
+- `LifecycleAccount` model that can link leads, clients, proposals, Stripe customer IDs, ownership, next actions, stage, status, tags, and activity timestamps.
+- `LifecycleTimelineEvent` model for cross-module account history.
+- `lifecycle-service` for account creation, stage movement, metrics, recent timeline, lead sync, client sync, and project-driven execution advancement.
+- Leads now create/update lifecycle accounts during create, update, and import workflows.
+- Client creation/conversion links accounts into onboarding/payment, and project creation advances linked accounts into solution execution.
+- Authenticated account APIs at `/api/accounts` and `/api/accounts/[accountId]/stage`.
+- Account lifecycle command center at `/accounts`, plus dashboard lifecycle metric and sidebar navigation.
+- Unit and integration coverage for lifecycle helpers, lifecycle account service behavior, lead sync, client conversion, and project advancement.

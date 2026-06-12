@@ -40,17 +40,30 @@ Queries should generally include `organisationId` unless the model is infrastruc
 
 ## CRM
 
+`LifecycleAccount`
+
+- Unified account spine for the whole business lifecycle.
+- Stages: client research, cold outreach, proposal and sales, onboarding and payment, solution execution, and maintenance.
+- Can link to lead, client, proposal, Stripe customer, owner, next action, fit score, tags, and timestamps.
+
+`LifecycleTimelineEvent`
+
+- Cross-module timeline for lifecycle accounts.
+- Records stage, entity reference, action, title/body, metadata, and occurrence time.
+
 `Lead`
 
 - Prospect record.
 - Unique email per organisation.
 - Tracks lifecycle status, source, tags, notes, and custom fields.
+- Lead create, update, and import workflows sync into `LifecycleAccount`.
 
 `Client`
 
 - Converted customer record.
 - May reference original `leadId`.
 - Stores contacts, notes, and optional Stripe customer ID.
+- Client creation/conversion links or advances the lifecycle account into onboarding and payment.
 
 ## Campaigns And Sending
 
@@ -140,6 +153,7 @@ Queries should generally include `organisationId` unless the model is infrastruc
 
 - Linked to client.
 - Tracks type, status, estimated value, actual revenue, and dates.
+- Project creation advances the linked lifecycle account into solution execution.
 
 `TimeEntry`
 
@@ -199,4 +213,3 @@ Avoid loading all documents for:
 - Time/project metrics.
 - Notification counts.
 - Campaign/send metrics.
-

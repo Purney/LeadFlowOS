@@ -5,6 +5,8 @@ import { disconnectFromDatabase } from "@/lib/db";
 import { ActivityLog } from "@/models/activity-log";
 import { Client } from "@/models/client";
 import { Lead } from "@/models/lead";
+import { LifecycleAccount } from "@/models/lifecycle-account";
+import { LifecycleTimelineEvent } from "@/models/lifecycle-timeline-event";
 import { Organisation } from "@/models/organisation";
 import { Project } from "@/models/project";
 import { SetupLock } from "@/models/setup-lock";
@@ -46,6 +48,8 @@ beforeAll(async () => {
 afterEach(async () => {
   await Promise.all([
     ActivityLog.deleteMany({}),
+    LifecycleTimelineEvent.deleteMany({}),
+    LifecycleAccount.deleteMany({}),
     TimeEntry.deleteMany({}),
     Project.deleteMany({}),
     SetupLock.deleteMany({}),
@@ -88,6 +92,9 @@ describe("client service", () => {
     expect(client?.company).toBe("Compiler Labs");
     expect(client?.stripeCustomerId).toBe("cus_123");
     expect(updatedLead?.status).toBe("won");
+    const account = await LifecycleAccount.findOne({ clientId: client!._id }).lean();
+    expect(account?.stage).toBe("onboarding_payment");
+    expect(account?.status).toBe("won");
     expect(clients).toHaveLength(1);
     await expect(
       ActivityLog.countDocuments({ action: "client.converted_from_lead" }),
@@ -119,6 +126,10 @@ describe("client service", () => {
     });
 
     expect(project?.status).toBe("active");
+    const executionAccount = await LifecycleAccount.findOne({
+      clientId: client!._id,
+    }).lean();
+    expect(executionAccount?.stage).toBe("solution_execution");
 
     const entry = await createTimeEntry(context, {
       clientId: client!._id.toString(),

@@ -4,7 +4,7 @@ This document describes the current architecture of LeadFlow OS so future change
 
 ## System Overview
 
-LeadFlow OS is a Next.js App Router application for managing the lifecycle from lead capture through outreach, discovery, proposals, revenue, client delivery, and portal collaboration.
+LeadFlow OS is a Next.js App Router application for managing the lifecycle from client research through cold outreach, proposal and sales work, onboarding and payment, solution execution, maintenance, and portal collaboration.
 
 The app is built as a server-first internal tool:
 
@@ -84,6 +84,7 @@ MongoDB access uses Mongoose through `src/lib/db.ts`. The connection helper cach
 Core model groups:
 
 - Identity and audit: `Organisation`, `User`, `SetupLock`, `ActivityLog`, `Notification`
+- Account lifecycle: `LifecycleAccount`, `LifecycleTimelineEvent`
 - CRM: `Lead`, `Client`
 - Outreach: `Campaign`, `CampaignEnrollment`, `EmailAccount`, `SendBatch`, `Suppression`
 - Email history: `EmailMessage`, `EmailEvent`
@@ -109,6 +110,7 @@ Important services:
 
 - `auth-service`: first owner creation, credentials auth.
 - `lead-service`: lead CRUD, import, dedupe, search/filter.
+- `lifecycle-service`: unified account lifecycle, stage movement, account metrics, timeline events, and cross-module sync.
 - `campaign-service`: campaign CRUD, enrollment, A/B allocation.
 - `sending-service`: email accounts, deliverability metrics, send batch generation and approval.
 - `email-service`: approved batch processing, SendGrid events, inbound replies.
@@ -158,11 +160,12 @@ Route conventions:
 Authenticated app shell:
 
 - `src/app/(app)/layout.tsx`
-- Sidebar navigation for dashboard, leads, campaigns, sending, AI, discovery, proposals, revenue, clients, portal, and time.
+- Sidebar navigation for dashboard, accounts, leads, campaigns, sending, AI, discovery, proposals, revenue, clients, portal, and time.
 
 Workspace pages:
 
 - `/dashboard`
+- `/accounts`
 - `/leads`
 - `/campaigns`
 - `/sending`
@@ -179,6 +182,8 @@ Public pages:
 - `/portal/[token]`
 
 Most pages are server components that load service data directly. Forms are client components in `src/components/*` and submit to API routes.
+
+The `/accounts` workspace is the Phase 14 lifecycle command center. It presents the account spine across `client_research`, `cold_outreach`, `proposal_sales`, `onboarding_payment`, `solution_execution`, and `maintenance`.
 
 UI style:
 

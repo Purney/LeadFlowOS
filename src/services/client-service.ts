@@ -6,6 +6,10 @@ import { TimeEntry } from "@/models/time-entry";
 import { connectToDatabase } from "@/lib/db";
 import { createActivity } from "@/services/activity-service";
 import {
+  advanceLifecycleAccountForProject,
+  ensureLifecycleAccountForClient,
+} from "@/services/lifecycle-service";
+import {
   clientInputSchema,
   convertLeadSchema,
   projectInputSchema,
@@ -53,6 +57,8 @@ export async function createClient(context: ActorContext, input: ClientInput) {
     action: "client.created",
     metadata: { company: client.company },
   });
+
+  await ensureLifecycleAccountForClient(context, client);
 
   return client;
 }
@@ -106,6 +112,8 @@ export async function convertLeadToClient(
     metadata: { leadId: lead._id.toString(), company: client.company },
   });
 
+  await ensureLifecycleAccountForClient(context, client);
+
   return client;
 }
 
@@ -142,6 +150,12 @@ export async function createProject(context: ActorContext, input: ProjectInput) 
     entityId: project._id.toString(),
     action: "project.created",
     metadata: { name: project.name, type: project.type },
+  });
+
+  await advanceLifecycleAccountForProject(context, {
+    clientId: project.clientId.toString(),
+    projectId: project._id.toString(),
+    projectName: project.name,
   });
 
   return project;

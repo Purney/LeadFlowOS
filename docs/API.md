@@ -23,6 +23,12 @@ This is a high-level route map. For exact schemas, read `src/validation`.
 - `PATCH /api/leads/[leadId]`: Update scoped lead.
 - `DELETE /api/leads/[leadId]`: Delete scoped lead.
 
+## Account Lifecycle
+
+- `GET /api/accounts`: List/search/filter unified lifecycle accounts.
+- `POST /api/accounts`: Create a manually researched lifecycle account.
+- `PATCH /api/accounts/[accountId]/stage`: Move a scoped account to another business lifecycle stage.
+
 ## Campaigns
 
 - `GET /api/campaigns`: List campaigns.
@@ -113,4 +119,3 @@ This is a high-level route map. For exact schemas, read `src/validation`.
 ## Cron
 
 - `GET /api/cron/send-batches`: Vercel Cron endpoint. Requires bearer `CRON_SECRET`.
-

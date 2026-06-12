@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { connectToDatabase } from "@/lib/db";
 import { Lead } from "@/models/lead";
 import { createActivity } from "@/services/activity-service";
+import { ensureLifecycleAccountForLead } from "@/services/lifecycle-service";
 import type { LeadListFilters } from "@/types/lead";
 import { parseLeadCsv } from "@/utils/lead-import";
 import {
@@ -100,6 +101,8 @@ export async function createLead(context: ActorContext, input: LeadInput) {
     metadata: { email: lead.email, source: lead.source },
   });
 
+  await ensureLifecycleAccountForLead(context, lead);
+
   return lead;
 }
 
@@ -135,6 +138,8 @@ export async function updateLead(
     entityId: lead._id.toString(),
     action: "lead.updated",
   });
+
+  await ensureLifecycleAccountForLead(context, lead);
 
   return lead;
 }
@@ -216,6 +221,10 @@ export async function importLeads(context: ActorContext, input: LeadImportInput)
       skippedDuplicates: skippedDuplicates.length,
     },
   });
+
+  await Promise.all(
+    created.map((lead) => ensureLifecycleAccountForLead(context, lead)),
+  );
 
   return {
     parsed: parsed.length,

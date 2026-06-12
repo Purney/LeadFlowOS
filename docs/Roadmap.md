@@ -4,7 +4,7 @@ This document captures future work and technical debt beyond the current MVP fou
 
 ## Current State
 
-Phases 1-13 are implemented as MVP/foundation slices:
+Phases 1-14 are implemented as MVP/foundation slices:
 
 - Foundation/auth/org/dashboard.
 - Leads and CSV import.
@@ -19,6 +19,7 @@ Phases 1-13 are implemented as MVP/foundation slices:
 - Client portal, onboarding, signatures, and PDF-ready exports.
 - Portal collaboration, PDF downloads, and signature adapter shell.
 - Vercel cron, persistent rate limiting, security headers, and deployment hardening.
+- Unified account lifecycle across client research, cold outreach, proposal and sales, onboarding and payment, solution execution, and maintenance.
 
 ## High-Priority Future Work
 
@@ -49,6 +50,11 @@ Phases 1-13 are implemented as MVP/foundation slices:
 
 ## Product Roadmap
 
+- Dedicated client research workspace with enrichment, ICP scoring, research checklists, and AI research summaries.
+- Formal deal/opportunity pipeline between outreach, discovery, proposals, and won/lost sales outcomes.
+- Payment-gated onboarding templates and automated handoff workflows.
+- Richer solution execution boards with milestones, deliverables, internal assignments, and client-facing progress.
+- Maintenance plans, support tickets, renewal tracking, health scores, and expansion opportunities.
 - Client portal accounts and login.
 - Portal notifications and email alerts.
 - Kanban/task boards.
@@ -71,4 +77,3 @@ Phases 1-13 are implemented as MVP/foundation slices:
 - Add screenshots or diagrams for onboarding new contributors.
 - Add decision records for major future architectural changes.
 - Keep `menu.md` updated whenever new documentation files are added.
-

@@ -4,6 +4,8 @@ import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { disconnectFromDatabase } from "@/lib/db";
 import { ActivityLog } from "@/models/activity-log";
 import { Lead } from "@/models/lead";
+import { LifecycleAccount } from "@/models/lifecycle-account";
+import { LifecycleTimelineEvent } from "@/models/lifecycle-timeline-event";
 import { Organisation } from "@/models/organisation";
 import { SetupLock } from "@/models/setup-lock";
 import { User } from "@/models/user";
@@ -42,6 +44,8 @@ beforeAll(async () => {
 afterEach(async () => {
   await Promise.all([
     ActivityLog.deleteMany({}),
+    LifecycleTimelineEvent.deleteMany({}),
+    LifecycleAccount.deleteMany({}),
     Lead.deleteMany({}),
     SetupLock.deleteMany({}),
     Organisation.deleteMany({}),
@@ -77,6 +81,8 @@ describe("lead service", () => {
       status: "qualified",
     });
     expect(updated?.status).toBe("qualified");
+    const account = await LifecycleAccount.findOne({ leadId: lead._id }).lean();
+    expect(account?.stage).toBe("proposal_sales");
 
     const metrics = await getLeadMetrics(context.organisationId);
     expect(metrics.total).toBe(1);
