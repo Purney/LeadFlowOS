@@ -115,6 +115,48 @@ export function buildProposalDraftPrompt(input: {
   ].join("\n");
 }
 
+export function buildResearchSummaryPrompt(input: {
+  companyName: string;
+  website?: string;
+  industry?: string;
+  companySize?: string;
+  region?: string;
+  decisionMakerName?: string;
+  decisionMakerRole?: string;
+  currentProvider?: string;
+  competitors: string[];
+  painHypotheses: string[];
+  opportunityIdeas: string[];
+  positiveSignals: string[];
+  negativeSignals: string[];
+  notes?: string;
+  outreachAngle?: string;
+  fitScore: number;
+}) {
+  return [
+    "Summarise client research for a freelance software engineering, AI, and automation business.",
+    "Return JSON only with keys: fitSummary (string), likelyPainPoints (array), outreachAngles (array), risks (array), recommendedNextSteps (array).",
+    "Use only the supplied research notes. Do not invent revenue, headcount, technologies, or relationships.",
+    "",
+    `Company: ${input.companyName}`,
+    `Website: ${input.website ?? "Unknown"}`,
+    `Industry: ${input.industry ?? "Unknown"}`,
+    `Company size: ${input.companySize ?? "Unknown"}`,
+    `Region: ${input.region ?? "Unknown"}`,
+    `Decision maker: ${[input.decisionMakerName, input.decisionMakerRole].filter(Boolean).join(", ") || "Unknown"}`,
+    `Current provider: ${input.currentProvider ?? "Unknown"}`,
+    `Competitors: ${input.competitors.join(", ") || "Unknown"}`,
+    `Fit score: ${input.fitScore}/100`,
+    "",
+    `Positive signals: ${input.positiveSignals.join("; ") || "None"}`,
+    `Negative signals: ${input.negativeSignals.join("; ") || "None"}`,
+    `Pain hypotheses: ${input.painHypotheses.join("; ") || "None"}`,
+    `Opportunity ideas: ${input.opportunityIdeas.join("; ") || "None"}`,
+    `Outreach angle: ${input.outreachAngle ?? "None"}`,
+    `Notes: ${input.notes ?? "None"}`,
+  ].join("\n");
+}
+
 export function parseJsonObject<T>(value: string, fallback: T): T {
   try {
     const match = value.match(/\{[\s\S]*\}/);

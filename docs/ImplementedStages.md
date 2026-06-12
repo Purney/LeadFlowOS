@@ -158,3 +158,16 @@ This document records what has been implemented so far. Keep this as history; us
 - Authenticated account APIs at `/api/accounts` and `/api/accounts/[accountId]/stage`.
 - Account lifecycle command center at `/accounts`, plus dashboard lifecycle metric and sidebar navigation.
 - Unit and integration coverage for lifecycle helpers, lifecycle account service behavior, lead sync, client conversion, and project advancement.
+
+## Phase 15
+
+- Dedicated client research stage before cold outreach.
+- `ClientResearch` model for target account research, ICP fit score, priority, status, firmographics, decision-maker notes, current provider, competitors, pain hypotheses, opportunity ideas, positive/negative signals, outreach angle, next action, checklist, and AI summary.
+- Research creation syncs into a Phase 14 lifecycle account at `client_research`.
+- Research updates keep linked lifecycle account fit score, next action, status, notes, and tags current.
+- Checklist updates create lifecycle timeline events.
+- AI research summary generation stores a `research_summary` AI draft and writes the summary back onto the research record.
+- Authenticated research APIs at `/api/research`, `/api/research/[researchId]`, `/api/research/[researchId]/checklist`, and `/api/research/[researchId]/summary`.
+- Client research workspace at `/research` with creation form, research metrics, fit scoring, checklist controls, and AI summary actions.
+- Dashboard research metric and sidebar navigation.
+- Unit and integration coverage for research validation, prompts, lifecycle sync, checklist updates, metrics, and AI summary persistence.

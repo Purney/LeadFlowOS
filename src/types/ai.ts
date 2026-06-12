@@ -1,4 +1,9 @@
-export const aiDraftTypes = ["cold_email", "reply", "discovery_summary"] as const;
+export const aiDraftTypes = [
+  "cold_email",
+  "reply",
+  "discovery_summary",
+  "research_summary",
+] as const;
 export const aiDraftStatuses = ["draft", "reviewed", "discarded"] as const;
 
 export type AiDraftType = (typeof aiDraftTypes)[number];
@@ -21,4 +26,12 @@ export type DiscoverySummaryContent = {
   risks: string[];
   opportunities: string[];
   recommendedScope: string[];
+};
+
+export type ResearchSummaryContent = {
+  fitSummary: string;
+  likelyPainPoints: string[];
+  outreachAngles: string[];
+  risks: string[];
+  recommendedNextSteps: string[];
 };

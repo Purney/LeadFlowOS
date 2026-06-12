@@ -40,6 +40,12 @@ Queries should generally include `organisationId` unless the model is infrastruc
 
 ## CRM
 
+`ClientResearch`
+
+- Target account research before cold outreach.
+- Stores firmographics, decision-maker notes, current provider, competitors, ICP fit score, priority, status, positive/negative signals, pain hypotheses, opportunity ideas, outreach angle, checklist progress, and AI summary.
+- Links to `LifecycleAccount` so research appears in the unified account timeline.
+
 `LifecycleAccount`
 
 - Unified account spine for the whole business lifecycle.
@@ -109,6 +115,7 @@ Queries should generally include `organisationId` unless the model is infrastruc
 `AiDraft`
 
 - Stores AI-generated cold emails, replies, discovery summaries, and proposal-related drafts.
+- Also stores client research summaries.
 - Drafts require manual review and are not automatically sent.
 
 ## Discovery And Proposals

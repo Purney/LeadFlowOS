@@ -29,6 +29,14 @@ This is a high-level route map. For exact schemas, read `src/validation`.
 - `POST /api/accounts`: Create a manually researched lifecycle account.
 - `PATCH /api/accounts/[accountId]/stage`: Move a scoped account to another business lifecycle stage.
 
+## Client Research
+
+- `GET /api/research`: List target account research records.
+- `POST /api/research`: Create a research record and linked lifecycle account.
+- `PATCH /api/research/[researchId]`: Update scoped research and sync lifecycle account fields.
+- `PATCH /api/research/[researchId]/checklist`: Complete or reopen a research checklist item.
+- `POST /api/research/[researchId]/summary`: Generate and store an AI research summary.
+
 ## Campaigns
 
 - `GET /api/campaigns`: List campaigns.

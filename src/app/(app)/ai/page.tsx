@@ -6,12 +6,21 @@ import { ReplyDraftForm } from "@/components/ai/reply-draft-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { listAiDrafts } from "@/services/ai-service";
 import { listLeads } from "@/services/lead-service";
-import type { ColdEmailDraftContent, ReplyDraftContent } from "@/types/ai";
+import type {
+  ColdEmailDraftContent,
+  DiscoverySummaryContent,
+  ReplyDraftContent,
+  ResearchSummaryContent,
+} from "@/types/ai";
 
 type DraftView = {
   _id: { toString(): string };
-  type: "cold_email" | "reply";
-  content: ColdEmailDraftContent | ReplyDraftContent;
+  type: "cold_email" | "reply" | "discovery_summary" | "research_summary";
+  content:
+    | ColdEmailDraftContent
+    | ReplyDraftContent
+    | DiscoverySummaryContent
+    | ResearchSummaryContent;
   createdAt: Date;
 };
 
@@ -103,7 +112,15 @@ export default async function AiPage() {
           draftViews.map((draft) => (
             <Card key={draft._id.toString()}>
               <CardHeader>
-                <CardTitle>{draft.type === "cold_email" ? "Cold email" : "Reply draft"}</CardTitle>
+                <CardTitle>
+                  {draft.type === "cold_email"
+                    ? "Cold email"
+                    : draft.type === "reply"
+                      ? "Reply draft"
+                      : draft.type === "research_summary"
+                        ? "Research summary"
+                        : "Discovery summary"}
+                </CardTitle>
                 <p className="text-sm text-muted-foreground">
                   {new Date(draft.createdAt).toLocaleString()}
                 </p>
@@ -123,7 +140,7 @@ export default async function AiPage() {
                       {(draft.content as ColdEmailDraftContent).body}
                     </p>
                   </>
-                ) : (
+                ) : draft.type === "reply" ? (
                   <>
                     <p className="rounded-md bg-muted p-4 text-sm">
                       {(draft.content as ReplyDraftContent).summary}
@@ -132,6 +149,15 @@ export default async function AiPage() {
                       {(draft.content as ReplyDraftContent).suggestedResponse}
                     </p>
                   </>
+                ) : draft.type === "research_summary" ? (
+                  <p className="rounded-md bg-muted p-4 text-sm">
+                    {(draft.content as ResearchSummaryContent).fitSummary}
+                  </p>
+                ) : (
+                  <p className="rounded-md bg-muted p-4 text-sm">
+                    {(draft.content as DiscoverySummaryContent).objectives.join(", ") ||
+                      "Discovery summary generated."}
+                  </p>
                 )}
               </CardContent>
             </Card>

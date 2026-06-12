@@ -85,6 +85,7 @@ Core model groups:
 
 - Identity and audit: `Organisation`, `User`, `SetupLock`, `ActivityLog`, `Notification`
 - Account lifecycle: `LifecycleAccount`, `LifecycleTimelineEvent`
+- Research: `ClientResearch`
 - CRM: `Lead`, `Client`
 - Outreach: `Campaign`, `CampaignEnrollment`, `EmailAccount`, `SendBatch`, `Suppression`
 - Email history: `EmailMessage`, `EmailEvent`
@@ -111,6 +112,7 @@ Important services:
 - `auth-service`: first owner creation, credentials auth.
 - `lead-service`: lead CRUD, import, dedupe, search/filter.
 - `lifecycle-service`: unified account lifecycle, stage movement, account metrics, timeline events, and cross-module sync.
+- `research-service`: target account research, ICP scoring, checklist progress, lifecycle sync, and AI research summaries.
 - `campaign-service`: campaign CRUD, enrollment, A/B allocation.
 - `sending-service`: email accounts, deliverability metrics, send batch generation and approval.
 - `email-service`: approved batch processing, SendGrid events, inbound replies.
@@ -160,12 +162,13 @@ Route conventions:
 Authenticated app shell:
 
 - `src/app/(app)/layout.tsx`
-- Sidebar navigation for dashboard, accounts, leads, campaigns, sending, AI, discovery, proposals, revenue, clients, portal, and time.
+- Sidebar navigation for dashboard, accounts, research, leads, campaigns, sending, AI, discovery, proposals, revenue, clients, portal, and time.
 
 Workspace pages:
 
 - `/dashboard`
 - `/accounts`
+- `/research`
 - `/leads`
 - `/campaigns`
 - `/sending`
@@ -184,6 +187,8 @@ Public pages:
 Most pages are server components that load service data directly. Forms are client components in `src/components/*` and submit to API routes.
 
 The `/accounts` workspace is the Phase 14 lifecycle command center. It presents the account spine across `client_research`, `cold_outreach`, `proposal_sales`, `onboarding_payment`, `solution_execution`, and `maintenance`.
+
+The `/research` workspace is the Phase 15 client research stage. It captures target account context before outreach, including ICP fit score, checklist progress, pain hypotheses, opportunity ideas, outreach angle, and AI-generated research summaries.
 
 UI style:
 

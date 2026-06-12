@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { BarChart3, Bot, Clock3, CreditCard, FileQuestion, FileText, Inbox, Route, Send, Settings, Share2, Users } from "lucide-react";
+import { BarChart3, Bot, Clock3, CreditCard, FileQuestion, FileText, Inbox, Route, Search, Send, Settings, Share2, Users } from "lucide-react";
 import { auth, signOut } from "@/auth";
 import { Button } from "@/components/ui/button";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: BarChart3 },
   { href: "/accounts", label: "Accounts", icon: Route },
+  { href: "/research", label: "Research", icon: Search },
   { href: "/leads", label: "Leads", icon: Users },
   { href: "/campaigns", label: "Campaigns", icon: Inbox },
   { href: "/sending", label: "Sending", icon: Send },
