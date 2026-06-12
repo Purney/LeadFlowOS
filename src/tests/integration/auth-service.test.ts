@@ -4,6 +4,7 @@ import { afterAll, afterEach, beforeAll, describe, expect, it } from "vitest";
 import { disconnectFromDatabase } from "@/lib/db";
 import { ActivityLog } from "@/models/activity-log";
 import { Organisation } from "@/models/organisation";
+import { SetupLock } from "@/models/setup-lock";
 import { User } from "@/models/user";
 import {
   SignupClosedError,
@@ -28,6 +29,7 @@ beforeAll(async () => {
 afterEach(async () => {
   await Promise.all([
     ActivityLog.deleteMany({}),
+    SetupLock.deleteMany({}),
     Organisation.deleteMany({}),
     User.deleteMany({}),
   ]);

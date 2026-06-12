@@ -41,3 +41,36 @@ export async function processDueApprovedSendBatches(
 
   return { processed: results.length, results };
 }
+
+export async function processDueApprovedSendBatchesGlobally(
+  options: { now?: Date; limit?: number; dryRun?: boolean } = {},
+) {
+  await connectToDatabase();
+
+  const dueBatches = await SendBatch.find({
+    status: "approved",
+    scheduledSendTime: { $lte: options.now ?? new Date() },
+  })
+    .sort({ scheduledSendTime: 1 })
+    .limit(options.limit ?? 50)
+    .lean();
+  const results = [];
+
+  for (const batch of dueBatches) {
+    const organisationId = batch.organisationId.toString();
+    const result = await processApprovedSendBatch(
+      {
+        organisationId,
+        userId:
+          batch.approvedByUserId?.toString() ??
+          batch.createdByUserId?.toString() ??
+          organisationId,
+      },
+      batch._id.toString(),
+      { dryRun: options.dryRun },
+    );
+    results.push({ organisationId, batchId: batch._id.toString(), result });
+  }
+
+  return { processed: results.length, results };
+}

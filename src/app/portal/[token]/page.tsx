@@ -3,6 +3,7 @@ import { PublicMessageForm } from "@/components/portal/public-message-form";
 import { PublicSignatureForm } from "@/components/portal/public-signature-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getPublicPortal } from "@/services/portal-service";
+import { sanitizeRichHtml } from "@/utils/html";
 
 type PortalPageProps = {
   params: Promise<{ token: string }>;
@@ -238,7 +239,7 @@ export default async function PublicPortalPage({ params }: PortalPageProps) {
                     <summary className="cursor-pointer font-medium">{pdfExport.title}</summary>
                     <div
                       className="prose prose-sm mt-3 max-w-none text-sm"
-                      dangerouslySetInnerHTML={{ __html: pdfExport.html }}
+                      dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(pdfExport.html) }}
                     />
                     <a
                       className="mt-3 inline-flex rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"

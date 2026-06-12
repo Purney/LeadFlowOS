@@ -155,6 +155,15 @@ export async function updateProject(
   const data = projectUpdateSchema.parse(input);
   await connectToDatabase();
 
+  if (data.clientId) {
+    const client = await Client.exists({
+      _id: toObjectId(data.clientId),
+      organisationId: toObjectId(context.organisationId),
+    });
+
+    if (!client) return null;
+  }
+
   const project = await Project.findOneAndUpdate(
     {
       _id: toObjectId(projectId),
@@ -231,41 +240,54 @@ export async function getClientProjectMetrics(organisationId: string) {
   await connectToDatabase();
   const orgId = toObjectId(organisationId);
 
-  const [clients, projects, timeEntries] = await Promise.all([
+  const [clients, projectStats, timeStats, timeByClient, timeByProject] = await Promise.all([
     Client.countDocuments({ organisationId: orgId }),
-    Project.find({ organisationId: orgId }).lean(),
-    TimeEntry.find({ organisationId: orgId }).lean(),
+    Project.aggregate([
+      { $match: { organisationId: orgId } },
+      {
+        $group: {
+          _id: null,
+          projects: { $sum: 1 },
+          activeProjects: {
+            $sum: { $cond: [{ $eq: ["$status", "active"] }, 1, 0] },
+          },
+          totalRevenue: { $sum: "$actualRevenue" },
+        },
+      },
+    ]),
+    TimeEntry.aggregate([
+      { $match: { organisationId: orgId } },
+      { $group: { _id: null, totalMinutes: { $sum: "$minutes" } } },
+    ]),
+    TimeEntry.aggregate([
+      { $match: { organisationId: orgId } },
+      { $group: { _id: "$clientId", minutes: { $sum: "$minutes" } } },
+    ]),
+    TimeEntry.aggregate([
+      { $match: { organisationId: orgId } },
+      { $group: { _id: "$projectId", minutes: { $sum: "$minutes" } } },
+    ]),
   ]);
-  const totalMinutes = timeEntries.reduce((total, entry) => total + entry.minutes, 0);
-  const totalRevenue = projects.reduce(
-    (total, project) => total + project.actualRevenue,
-    0,
-  );
-  const byClient = new Map<string, number>();
-  const byProject = new Map<string, number>();
-
-  for (const entry of timeEntries) {
-    const clientId = String(entry.clientId);
-    const projectId = String(entry.projectId);
-    byClient.set(clientId, (byClient.get(clientId) ?? 0) + entry.minutes);
-    byProject.set(projectId, (byProject.get(projectId) ?? 0) + entry.minutes);
-  }
+  const projects = projectStats[0]?.projects ?? 0;
+  const activeProjects = projectStats[0]?.activeProjects ?? 0;
+  const totalRevenue = projectStats[0]?.totalRevenue ?? 0;
+  const totalMinutes = timeStats[0]?.totalMinutes ?? 0;
 
   return {
     clients,
-    projects: projects.length,
-    activeProjects: projects.filter((project) => project.status === "active").length,
+    projects,
+    activeProjects,
     totalMinutes,
     totalHours: Math.round((totalMinutes / 60) * 10) / 10,
     effectiveHourlyRevenue:
       totalMinutes > 0 ? Math.round(totalRevenue / (totalMinutes / 60)) : 0,
-    timeByClient: [...byClient.entries()].map(([clientId, minutes]) => ({
-      clientId,
-      minutes,
+    timeByClient: timeByClient.map((item) => ({
+      clientId: item._id.toString(),
+      minutes: item.minutes,
     })),
-    timeByProject: [...byProject.entries()].map(([projectId, minutes]) => ({
-      projectId,
-      minutes,
+    timeByProject: timeByProject.map((item) => ({
+      projectId: item._id.toString(),
+      minutes: item.minutes,
     })),
   };
 }

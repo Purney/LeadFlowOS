@@ -7,6 +7,7 @@ import { AiDraft } from "@/models/ai-draft";
 import { EmailMessage } from "@/models/email-message";
 import { Lead } from "@/models/lead";
 import { Organisation } from "@/models/organisation";
+import { SetupLock } from "@/models/setup-lock";
 import { User } from "@/models/user";
 import { generateColdEmailDraft, generateReplyDraft } from "@/services/ai-service";
 import { createFirstOwner } from "@/services/auth-service";
@@ -49,6 +50,7 @@ afterEach(async () => {
     AiDraft.deleteMany({}),
     EmailMessage.deleteMany({}),
     Lead.deleteMany({}),
+    SetupLock.deleteMany({}),
     Organisation.deleteMany({}),
     User.deleteMany({}),
   ]);

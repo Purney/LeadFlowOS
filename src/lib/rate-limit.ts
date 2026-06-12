@@ -46,28 +46,47 @@ export async function checkPersistentRateLimit(
   await connectToDatabase();
   const now = new Date();
   const resetAt = new Date(now.getTime() + options.windowMs);
-  const existing = await RateLimitBucket.findOne({ key });
+  const resetBucket = await RateLimitBucket.findOneAndUpdate(
+    { key, resetAt: { $lte: now } },
+    { $set: { count: 0, resetAt } },
+    { returnDocument: "after" },
+  );
 
-  if (!existing || existing.resetAt <= now) {
-    await RateLimitBucket.findOneAndUpdate(
+  if (!resetBucket) {
+    await RateLimitBucket.updateOne(
       { key },
-      { $set: { count: 1, resetAt } },
+      { $setOnInsert: { count: 0, resetAt } },
       { upsert: true },
-    );
-
-    return { allowed: true, remaining: options.limit - 1, resetAt };
+    ).catch((error: unknown) => {
+      if (
+        !(error instanceof Error) ||
+        !("code" in error) ||
+        (error as { code?: number }).code !== 11000
+      ) {
+        throw error;
+      }
+    });
   }
 
-  if (existing.count >= options.limit) {
-    return { allowed: false, remaining: 0, resetAt: existing.resetAt };
-  }
+  const updated = await RateLimitBucket.findOneAndUpdate(
+    { key, resetAt: { $gt: now }, count: { $lt: options.limit } },
+    { $inc: { count: 1 } },
+    { returnDocument: "after" },
+  );
 
-  existing.count += 1;
-  await existing.save();
+  if (!updated) {
+    const blocked = await RateLimitBucket.findOne({ key }).lean();
+
+    return {
+      allowed: false,
+      remaining: 0,
+      resetAt: blocked?.resetAt ?? resetAt,
+    };
+  }
 
   return {
     allowed: true,
-    remaining: options.limit - existing.count,
-    resetAt: existing.resetAt,
+    remaining: Math.max(0, options.limit - updated.count),
+    resetAt: updated.resetAt,
   };
 }

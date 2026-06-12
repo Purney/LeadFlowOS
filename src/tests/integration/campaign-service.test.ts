@@ -7,6 +7,7 @@ import { Campaign } from "@/models/campaign";
 import { CampaignEnrollment } from "@/models/campaign-enrollment";
 import { Lead } from "@/models/lead";
 import { Organisation } from "@/models/organisation";
+import { SetupLock } from "@/models/setup-lock";
 import { User } from "@/models/user";
 import { createFirstOwner } from "@/services/auth-service";
 import {
@@ -46,6 +47,7 @@ afterEach(async () => {
     CampaignEnrollment.deleteMany({}),
     Campaign.deleteMany({}),
     Lead.deleteMany({}),
+    SetupLock.deleteMany({}),
     Organisation.deleteMany({}),
     User.deleteMany({}),
   ]);

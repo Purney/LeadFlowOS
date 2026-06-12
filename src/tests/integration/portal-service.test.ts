@@ -12,6 +12,7 @@ import { PortalAccess } from "@/models/portal-access";
 import { PortalMessage } from "@/models/portal-message";
 import { Project } from "@/models/project";
 import { Proposal } from "@/models/proposal";
+import { SetupLock } from "@/models/setup-lock";
 import { SignatureRequest } from "@/models/signature-request";
 import { User } from "@/models/user";
 import { createFirstOwner } from "@/services/auth-service";
@@ -28,6 +29,7 @@ import {
   getPublicPortal,
   runOnboardingAutomation,
   signPortalSignature,
+  updateOnboardingTask,
 } from "@/services/portal-service";
 import { createProposal } from "@/services/proposal-service";
 
@@ -80,6 +82,7 @@ afterEach(async () => {
     PortalAccess.deleteMany({}),
     Proposal.deleteMany({}),
     Project.deleteMany({}),
+    SetupLock.deleteMany({}),
     Client.deleteMany({}),
     Lead.deleteMany({}),
     Organisation.deleteMany({}),
@@ -198,6 +201,7 @@ describe("portal service", () => {
 
     expect(pdfExport?.html).toContain("Executive summary");
     expect(pdfExport?.html).toContain("Workflow");
+    expect(pdfExport?.html).not.toContain("onerror");
     expect(metrics).toEqual({
       accesses: 1,
       pendingTasks: 1,
@@ -245,5 +249,25 @@ describe("portal service", () => {
     expect(publicMessage?.authorType).toBe("client");
     expect(metrics.pendingTasks).toBe(3);
     expect(metrics.unreadMessages).toBe(1);
+  });
+
+  it("rejects onboarding task updates that point at another organisation client", async () => {
+    await bootstrapOwner();
+    const client = await bootstrapClient();
+    const task = await createOnboardingTask(context, {
+      clientId: client._id.toString(),
+      title: "Scoped task",
+    });
+    const otherClient = await Client.create({
+      organisationId: new mongoose.Types.ObjectId(),
+      company: "Other Org",
+      contacts: [{ email: "other@example.com" }],
+    });
+
+    await expect(
+      updateOnboardingTask(context, task!._id.toString(), {
+        clientId: otherClient._id.toString(),
+      }),
+    ).resolves.toBeNull();
   });
 });

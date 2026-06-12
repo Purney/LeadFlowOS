@@ -7,6 +7,7 @@ import { Client } from "@/models/client";
 import { Lead } from "@/models/lead";
 import { Organisation } from "@/models/organisation";
 import { Project } from "@/models/project";
+import { SetupLock } from "@/models/setup-lock";
 import { TimeEntry } from "@/models/time-entry";
 import { User } from "@/models/user";
 import { createFirstOwner } from "@/services/auth-service";
@@ -16,6 +17,7 @@ import {
   createTimeEntry,
   getClientProjectMetrics,
   listClients,
+  updateProject,
 } from "@/services/client-service";
 import { createLead } from "@/services/lead-service";
 
@@ -46,6 +48,7 @@ afterEach(async () => {
     ActivityLog.deleteMany({}),
     TimeEntry.deleteMany({}),
     Project.deleteMany({}),
+    SetupLock.deleteMany({}),
     Client.deleteMany({}),
     Lead.deleteMany({}),
     Organisation.deleteMany({}),
@@ -162,6 +165,35 @@ describe("client service", () => {
         date: new Date("2026-06-11T00:00:00.000Z"),
         minutes: 30,
         description: "Should not save",
+      }),
+    ).resolves.toBeNull();
+  });
+
+  it("rejects project updates that point at another organisation client", async () => {
+    await bootstrapOwner();
+    const client = await Client.create({
+      organisationId: new mongoose.Types.ObjectId(context.organisationId),
+      createdByUserId: new mongoose.Types.ObjectId(context.userId),
+      company: "Client Co",
+      contacts: [{ email: "client@example.com" }],
+    });
+    const project = await createProject(context, {
+      clientId: client._id.toString(),
+      name: "Scoped project",
+      type: "software",
+      status: "active",
+      estimatedValue: 1000,
+      actualRevenue: 0,
+    });
+    const otherClient = await Client.create({
+      organisationId: new mongoose.Types.ObjectId(),
+      company: "Other Org",
+      contacts: [{ email: "other@example.com" }],
+    });
+
+    await expect(
+      updateProject(context, project!._id.toString(), {
+        clientId: otherClient._id.toString(),
       }),
     ).resolves.toBeNull();
   });

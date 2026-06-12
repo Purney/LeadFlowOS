@@ -11,6 +11,7 @@ import { SignatureRequest } from "@/models/signature-request";
 import { connectToDatabase } from "@/lib/db";
 import { createActivity } from "@/services/activity-service";
 import { createSignatureEnvelope } from "@/services/signature-provider-service";
+import { escapeHtml, sanitizeRichHtml } from "@/utils/html";
 import {
   onboardingAutomationInputSchema,
   onboardingTaskInputSchema,
@@ -49,14 +50,6 @@ function hashToken(token: string) {
 
 function createToken() {
   return crypto.randomBytes(24).toString("base64url");
-}
-
-function escapeHtml(value: string) {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
 }
 
 function section(title: string, body: string | string[]) {
@@ -213,6 +206,23 @@ export async function updateOnboardingTask(
 ) {
   const data = onboardingTaskUpdateSchema.parse(input);
   await connectToDatabase();
+
+  if (data.clientId) {
+    const client = await Client.exists({
+      _id: toObjectId(data.clientId),
+      organisationId: toObjectId(context.organisationId),
+    });
+    if (!client) return null;
+  }
+
+  if (data.projectId) {
+    const project = await Project.exists({
+      _id: toObjectId(data.projectId),
+      organisationId: toObjectId(context.organisationId),
+      ...(data.clientId ? { clientId: toObjectId(data.clientId) } : {}),
+    });
+    if (!project) return null;
+  }
 
   const task = await OnboardingTask.findOneAndUpdate(
     {
@@ -445,7 +455,7 @@ export async function createPdfExport(context: ActorContext, input: PdfExportInp
 
   const pdfExport = await PdfExport.create({
     ...data,
-    html,
+    html: sanitizeRichHtml(html),
     organisationId: toObjectId(context.organisationId),
     createdByUserId: toObjectId(context.userId),
     clientId: data.clientId ? toObjectId(data.clientId) : undefined,

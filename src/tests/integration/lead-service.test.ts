@@ -5,6 +5,7 @@ import { disconnectFromDatabase } from "@/lib/db";
 import { ActivityLog } from "@/models/activity-log";
 import { Lead } from "@/models/lead";
 import { Organisation } from "@/models/organisation";
+import { SetupLock } from "@/models/setup-lock";
 import { User } from "@/models/user";
 import { createFirstOwner } from "@/services/auth-service";
 import {
@@ -42,6 +43,7 @@ afterEach(async () => {
   await Promise.all([
     ActivityLog.deleteMany({}),
     Lead.deleteMany({}),
+    SetupLock.deleteMany({}),
     Organisation.deleteMany({}),
     User.deleteMany({}),
   ]);

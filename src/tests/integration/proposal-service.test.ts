@@ -8,6 +8,7 @@ import { DiscoveryResponse } from "@/models/discovery-response";
 import { Lead } from "@/models/lead";
 import { Organisation } from "@/models/organisation";
 import { Proposal } from "@/models/proposal";
+import { SetupLock } from "@/models/setup-lock";
 import { User } from "@/models/user";
 import { createFirstOwner } from "@/services/auth-service";
 import {
@@ -60,6 +61,7 @@ afterEach(async () => {
     DiscoveryResponse.deleteMany({}),
     DiscoveryForm.deleteMany({}),
     Lead.deleteMany({}),
+    SetupLock.deleteMany({}),
     Organisation.deleteMany({}),
     User.deleteMany({}),
   ]);

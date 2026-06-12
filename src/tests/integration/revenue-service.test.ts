@@ -8,6 +8,7 @@ import { StripeCheckoutSession } from "@/models/stripe-checkout-session";
 import { StripeCustomer } from "@/models/stripe-customer";
 import { StripeInvoice } from "@/models/stripe-invoice";
 import { StripePaymentIntent } from "@/models/stripe-payment-intent";
+import { SetupLock } from "@/models/setup-lock";
 import { User } from "@/models/user";
 import { createFirstOwner } from "@/services/auth-service";
 import {
@@ -41,6 +42,7 @@ afterEach(async () => {
     StripePaymentIntent.deleteMany({}),
     StripeInvoice.deleteMany({}),
     StripeCustomer.deleteMany({}),
+    SetupLock.deleteMany({}),
     Organisation.deleteMany({}),
     User.deleteMany({}),
   ]);

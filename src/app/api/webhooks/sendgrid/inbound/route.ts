@@ -5,15 +5,6 @@ import { processInboundReply } from "@/services/email-service";
 import { requireSendGridWebhookSecret } from "@/services/sendgrid-service";
 
 export async function POST(request: Request) {
-  const rateLimit = await checkPersistentRateLimit(rateLimitKey(request, "sendgrid-inbound"), {
-    limit: 120,
-    windowMs: 60_000,
-  });
-
-  if (!rateLimit.allowed) {
-    return NextResponse.json({ error: "Too many requests." }, { status: 429 });
-  }
-
   const secret = request.headers.get("x-leadflow-webhook-secret");
 
   if (secret !== requireSendGridWebhookSecret()) {
@@ -27,6 +18,15 @@ export async function POST(request: Request) {
       { error: "Missing organisation header." },
       { status: 400 },
     );
+  }
+
+  const rateLimit = await checkPersistentRateLimit(rateLimitKey(request, "sendgrid-inbound"), {
+    limit: 120,
+    windowMs: 60_000,
+  });
+
+  if (!rateLimit.allowed) {
+    return NextResponse.json({ error: "Too many requests." }, { status: 429 });
   }
 
   try {

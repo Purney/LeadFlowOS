@@ -11,6 +11,7 @@ import { EmailMessage } from "@/models/email-message";
 import { Lead } from "@/models/lead";
 import { Organisation } from "@/models/organisation";
 import { SendBatch } from "@/models/send-batch";
+import { SetupLock } from "@/models/setup-lock";
 import { Suppression } from "@/models/suppression";
 import { User } from "@/models/user";
 import { createFirstOwner } from "@/services/auth-service";
@@ -110,6 +111,7 @@ afterEach(async () => {
     CampaignEnrollment.deleteMany({}),
     Campaign.deleteMany({}),
     Lead.deleteMany({}),
+    SetupLock.deleteMany({}),
     Organisation.deleteMany({}),
     User.deleteMany({}),
   ]);

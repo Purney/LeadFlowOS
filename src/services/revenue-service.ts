@@ -187,47 +187,70 @@ export async function getRevenueMetrics(organisationId: string) {
 
   const now = new Date();
   const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
-  const invoices = await StripeInvoice.find({
-    organisationId: toObjectId(organisationId),
-  }).lean();
-  const paidInvoices = invoices.filter((invoice) => invoice.status === "paid");
-  const monthlyRevenue = paidInvoices
-    .filter((invoice) => invoice.paidAt && invoice.paidAt >= monthStart)
-    .reduce((total, invoice) => total + invoice.amountPaid, 0);
-  const lifetimeValue = paidInvoices.reduce(
-    (total, invoice) => total + invoice.amountPaid,
-    0,
-  );
-  const paidCount = paidInvoices.length;
-  const unpaidCount = invoices.filter((invoice) => invoice.status !== "paid").length;
-  const byCustomer = new Map<string, number>();
-  const trend = new Map<string, number>();
-
-  for (const invoice of paidInvoices) {
-    byCustomer.set(
-      invoice.stripeCustomerId ?? "unknown",
-      (byCustomer.get(invoice.stripeCustomerId ?? "unknown") ?? 0) +
-        invoice.amountPaid,
-    );
-
-    const paidAt = invoice.paidAt ?? invoice.updatedAt;
-    const key = `${paidAt.getUTCFullYear()}-${String(paidAt.getUTCMonth() + 1).padStart(2, "0")}`;
-    trend.set(key, (trend.get(key) ?? 0) + invoice.amountPaid);
-  }
+  const orgId = toObjectId(organisationId);
+  const [summary, monthly, byCustomer, trend] = await Promise.all([
+    StripeInvoice.aggregate([
+      { $match: { organisationId: orgId } },
+      {
+        $group: {
+          _id: null,
+          paidCount: { $sum: { $cond: [{ $eq: ["$status", "paid"] }, 1, 0] } },
+          unpaidCount: { $sum: { $cond: [{ $ne: ["$status", "paid"] }, 1, 0] } },
+          lifetimeValue: {
+            $sum: { $cond: [{ $eq: ["$status", "paid"] }, "$amountPaid", 0] },
+          },
+        },
+      },
+    ]),
+    StripeInvoice.aggregate([
+      {
+        $match: {
+          organisationId: orgId,
+          status: "paid",
+          paidAt: { $gte: monthStart },
+        },
+      },
+      { $group: { _id: null, amount: { $sum: "$amountPaid" } } },
+    ]),
+    StripeInvoice.aggregate([
+      { $match: { organisationId: orgId, status: "paid" } },
+      {
+        $group: {
+          _id: { $ifNull: ["$stripeCustomerId", "unknown"] },
+          amount: { $sum: "$amountPaid" },
+        },
+      },
+    ]),
+    StripeInvoice.aggregate([
+      { $match: { organisationId: orgId, status: "paid" } },
+      {
+        $group: {
+          _id: {
+            $dateToString: {
+              format: "%Y-%m",
+              date: { $ifNull: ["$paidAt", "$updatedAt"] },
+            },
+          },
+          amount: { $sum: "$amountPaid" },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]),
+  ]);
+  const totals = summary[0] ?? { paidCount: 0, unpaidCount: 0, lifetimeValue: 0 };
+  const monthlyRevenue = monthly[0]?.amount ?? 0;
 
   return {
     monthlyRevenue,
-    lifetimeValue,
-    paidCount,
-    unpaidCount,
-    paidVsUnpaid: { paid: paidCount, unpaid: unpaidCount },
-    revenueByCustomer: [...byCustomer.entries()].map(([customer, amount]) => ({
-      customer,
-      amount,
+    lifetimeValue: totals.lifetimeValue,
+    paidCount: totals.paidCount,
+    unpaidCount: totals.unpaidCount,
+    paidVsUnpaid: { paid: totals.paidCount, unpaid: totals.unpaidCount },
+    revenueByCustomer: byCustomer.map((item) => ({
+      customer: item._id,
+      amount: item.amount,
     })),
-    revenueTrend: [...trend.entries()]
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([month, amount]) => ({ month, amount })),
+    revenueTrend: trend.map((item) => ({ month: item._id, amount: item.amount })),
   };
 }
 

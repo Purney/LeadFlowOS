@@ -1,6 +1,7 @@
 import { getEnv } from "@/lib/env";
 import { hashPassword, verifyPassword } from "@/lib/password";
 import { connectToDatabase } from "@/lib/db";
+import { SetupLock } from "@/models/setup-lock";
 import { User } from "@/models/user";
 import { createActivity } from "@/services/activity-service";
 import { createOrganisation, hasAnyUser } from "@/services/organisation-service";
@@ -22,14 +23,42 @@ export async function createFirstOwner(input: SignupInput) {
     throw new SignupClosedError();
   }
 
-  const organisation = await createOrganisation(data.organisationName);
-  const user = await User.create({
-    organisationId: organisation._id,
-    name: data.ownerName,
-    email: data.email,
-    passwordHash: await hashPassword(data.password),
-    role: "owner",
-  });
+  let ownsSetupLock = false;
+
+  if (!env.ALLOW_ADDITIONAL_ORG_SIGNUPS) {
+    try {
+      await SetupLock.create({ key: "initial-owner" });
+      ownsSetupLock = true;
+    } catch (error) {
+      if (
+        error instanceof Error &&
+        "code" in error &&
+        (error as { code?: number }).code === 11000
+      ) {
+        throw new SignupClosedError();
+      }
+      throw error;
+    }
+  }
+
+  let organisation;
+  let user;
+
+  try {
+    organisation = await createOrganisation(data.organisationName);
+    user = await User.create({
+      organisationId: organisation._id,
+      name: data.ownerName,
+      email: data.email,
+      passwordHash: await hashPassword(data.password),
+      role: "owner",
+    });
+  } catch (error) {
+    if (ownsSetupLock) {
+      await SetupLock.deleteOne({ key: "initial-owner" });
+    }
+    throw error;
+  }
 
   await createActivity({
     organisationId: organisation._id.toString(),
