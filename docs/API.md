@@ -37,6 +37,14 @@ This is a high-level route map. For exact schemas, read `src/validation`.
 - `PATCH /api/research/[researchId]/checklist`: Complete or reopen a research checklist item.
 - `POST /api/research/[researchId]/summary`: Generate and store an AI research summary.
 
+## Sales Pipeline
+
+- `GET /api/deals`: List scoped deals.
+- `POST /api/deals`: Create a deal and linked lifecycle account when needed.
+- `PATCH /api/deals/[dealId]`: Update deal stage/status/details.
+- `POST /api/deals/[dealId]/tasks`: Create a follow-up task for a deal.
+- `PATCH /api/sales-tasks/[taskId]`: Update a sales task status.
+
 ## Campaigns
 
 - `GET /api/campaigns`: List campaigns.

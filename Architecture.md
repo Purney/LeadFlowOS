@@ -86,6 +86,7 @@ Core model groups:
 - Identity and audit: `Organisation`, `User`, `SetupLock`, `ActivityLog`, `Notification`
 - Account lifecycle: `LifecycleAccount`, `LifecycleTimelineEvent`
 - Research: `ClientResearch`
+- Sales: `Deal`, `SalesTask`
 - CRM: `Lead`, `Client`
 - Outreach: `Campaign`, `CampaignEnrollment`, `EmailAccount`, `SendBatch`, `Suppression`
 - Email history: `EmailMessage`, `EmailEvent`
@@ -113,6 +114,7 @@ Important services:
 - `lead-service`: lead CRUD, import, dedupe, search/filter.
 - `lifecycle-service`: unified account lifecycle, stage movement, account metrics, timeline events, and cross-module sync.
 - `research-service`: target account research, ICP scoring, checklist progress, lifecycle sync, and AI research summaries.
+- `sales-service`: deal pipeline, weighted sales metrics, follow-up tasks, and lifecycle stage transitions.
 - `campaign-service`: campaign CRUD, enrollment, A/B allocation.
 - `sending-service`: email accounts, deliverability metrics, send batch generation and approval.
 - `email-service`: approved batch processing, SendGrid events, inbound replies.
@@ -162,7 +164,7 @@ Route conventions:
 Authenticated app shell:
 
 - `src/app/(app)/layout.tsx`
-- Sidebar navigation for dashboard, accounts, research, leads, campaigns, sending, AI, discovery, proposals, revenue, clients, portal, and time.
+- Sidebar navigation for dashboard, accounts, research, leads, sales, campaigns, sending, AI, discovery, proposals, revenue, clients, portal, and time.
 
 Workspace pages:
 
@@ -170,6 +172,7 @@ Workspace pages:
 - `/accounts`
 - `/research`
 - `/leads`
+- `/sales`
 - `/campaigns`
 - `/sending`
 - `/ai`
@@ -189,6 +192,8 @@ Most pages are server components that load service data directly. Forms are clie
 The `/accounts` workspace is the Phase 14 lifecycle command center. It presents the account spine across `client_research`, `cold_outreach`, `proposal_sales`, `onboarding_payment`, `solution_execution`, and `maintenance`.
 
 The `/research` workspace is the Phase 15 client research stage. It captures target account context before outreach, including ICP fit score, checklist progress, pain hypotheses, opportunity ideas, outreach angle, and AI-generated research summaries.
+
+The `/sales` workspace is the Phase 16 proposal and sales pipeline. It tracks deals from discovery booked through proposal, negotiation, won, and lost outcomes, with weighted pipeline metrics and follow-up tasks.
 
 UI style:
 

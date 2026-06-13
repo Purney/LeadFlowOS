@@ -171,3 +171,17 @@ This document records what has been implemented so far. Keep this as history; us
 - Client research workspace at `/research` with creation form, research metrics, fit scoring, checklist controls, and AI summary actions.
 - Dashboard research metric and sidebar navigation.
 - Unit and integration coverage for research validation, prompts, lifecycle sync, checklist updates, metrics, and AI summary persistence.
+
+## Phase 16
+
+- Dedicated proposal and sales pipeline between outreach/discovery and onboarding/payment.
+- `Deal` model for opportunities with lifecycle account, lead/proposal/client links, stage, status, value, probability, expected close date, next action, notes, won/lost reasons, and timestamps.
+- `SalesTask` model for deal follow-up tasks with due dates and completion state.
+- Sales stages: discovery booked, discovery complete, proposal drafted, proposal sent, negotiation, won, and lost.
+- Deal creation creates or links a lifecycle account in `proposal_sales`.
+- Won deals move linked lifecycle accounts to `onboarding_payment`; lost deals mark lifecycle status as lost.
+- Weighted pipeline metrics, stage counts, open tasks, and overdue task counts.
+- Authenticated sales APIs at `/api/deals`, `/api/deals/[dealId]`, `/api/deals/[dealId]/tasks`, and `/api/sales-tasks/[taskId]`.
+- Sales pipeline workspace at `/sales` with deal creation, pipeline metrics, stage counts, won/lost actions, and open follow-up tasks.
+- Dashboard active-deals metric and sidebar navigation.
+- Unit and integration coverage for sales stages, validation, lifecycle sync, weighted metrics, won transitions, and task completion.

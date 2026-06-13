@@ -71,6 +71,17 @@ Queries should generally include `organisationId` unless the model is infrastruc
 - Stores contacts, notes, and optional Stripe customer ID.
 - Client creation/conversion links or advances the lifecycle account into onboarding and payment.
 
+`Deal`
+
+- Sales opportunity linked to a lifecycle account.
+- Can reference lead, proposal, and client records.
+- Tracks sales stage, status, value, probability, expected close date, next action, notes, and won/lost reasons.
+
+`SalesTask`
+
+- Follow-up task linked to a deal.
+- Tracks due date, status, and completion timestamp.
+
 ## Campaigns And Sending
 
 `Campaign`
