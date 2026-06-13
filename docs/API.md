@@ -58,6 +58,12 @@ This is a high-level route map. For exact schemas, read `src/validation`.
 - `POST /api/execution/tasks`: Create an internal project execution task.
 - `POST /api/execution/deliverables`: Create a client-facing deliverable record.
 
+## Maintenance
+
+- `POST /api/maintenance/plans`: Create a client maintenance plan.
+- `POST /api/maintenance/tickets`: Create a support ticket.
+- `POST /api/maintenance/tasks`: Create a recurring maintenance task.
+
 ## Campaigns
 
 - `GET /api/campaigns`: List campaigns.

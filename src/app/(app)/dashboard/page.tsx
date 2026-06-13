@@ -1,4 +1,4 @@
-import { Activity, Bell, Bot, BriefcaseBusiness, CheckCircle2, Clock, CreditCard, FileSignature, FileText, Hammer, Inbox, Mail, MessageSquare, Rocket, Route, Search, Timer, Users } from "lucide-react";
+import { Activity, Bell, Bot, BriefcaseBusiness, CheckCircle2, Clock, CreditCard, FileSignature, FileText, Hammer, HeartPulse, Inbox, Mail, MessageSquare, Rocket, Route, Search, Timer, Users } from "lucide-react";
 import { auth } from "@/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { listAiDrafts } from "@/services/ai-service";
@@ -18,6 +18,7 @@ import { getResearchMetrics } from "@/services/research-service";
 import { getSalesMetrics } from "@/services/sales-service";
 import { getHandoffMetrics } from "@/services/handoff-service";
 import { getExecutionMetrics } from "@/services/execution-service";
+import { getMaintenanceMetrics } from "@/services/maintenance-service";
 
 function money(amount: number) {
   return new Intl.NumberFormat("en-US", {
@@ -45,12 +46,14 @@ const metricCards = (
   activeDeals: number,
   handoffs: number,
   openExecutionTasks: number,
+  activeMaintenancePlans: number,
 ) => [
   { label: "Lifecycle accounts", value: String(lifecycleAccounts), icon: Route },
   { label: "Research records", value: String(researchRecords), icon: Search },
   { label: "Active deals", value: String(activeDeals), icon: BriefcaseBusiness },
   { label: "Onboarding handoffs", value: String(handoffs), icon: Rocket },
   { label: "Execution tasks", value: String(openExecutionTasks), icon: Hammer },
+  { label: "Maintenance plans", value: String(activeMaintenancePlans), icon: HeartPulse },
   { label: "Total leads", value: String(leadTotal), icon: Users },
   { label: "Active campaigns", value: String(activeCampaigns), icon: Mail },
   { label: "Pending approvals", value: String(pendingApprovals), icon: CheckCircle2 },
@@ -67,7 +70,7 @@ const metricCards = (
 
 export default async function DashboardPage() {
   const session = await auth();
-  const [activity, leadMetrics, campaignMetrics, sendingMetrics, emailMetrics, aiDrafts, discoveryMetrics, proposalMetrics, revenueMetrics, clientMetrics, portalMetrics, notificationMetrics, lifecycleMetrics, researchMetrics, salesMetrics, handoffMetrics, executionMetrics] = session?.user.organisationId
+  const [activity, leadMetrics, campaignMetrics, sendingMetrics, emailMetrics, aiDrafts, discoveryMetrics, proposalMetrics, revenueMetrics, clientMetrics, portalMetrics, notificationMetrics, lifecycleMetrics, researchMetrics, salesMetrics, handoffMetrics, executionMetrics, maintenanceMetrics] = session?.user.organisationId
     ? await Promise.all([
         listRecentActivity(session.user.organisationId),
         getLeadMetrics(session.user.organisationId),
@@ -86,6 +89,7 @@ export default async function DashboardPage() {
         getSalesMetrics(session.user.organisationId),
         getHandoffMetrics(session.user.organisationId),
         getExecutionMetrics(session.user.organisationId),
+        getMaintenanceMetrics(session.user.organisationId),
       ])
     : [
         [],
@@ -155,6 +159,15 @@ export default async function DashboardPage() {
           overdueMilestones: 0,
           byHealth: {},
         },
+        {
+          activePlans: 0,
+          monthlyRecurringCents: 0,
+          openTickets: 0,
+          urgentTickets: 0,
+          dueTasks: 0,
+          renewals: 0,
+          atRisk: 0,
+        },
       ];
 
   return (
@@ -188,6 +201,7 @@ export default async function DashboardPage() {
           salesMetrics.activeDeals,
           handoffMetrics.total,
           executionMetrics.openTasks,
+          maintenanceMetrics.activePlans,
         ).map((metric) => (
           <Card key={metric.label}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">

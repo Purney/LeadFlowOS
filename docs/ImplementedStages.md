@@ -211,3 +211,15 @@ This document records what has been implemented so far. Keep this as history; us
 - Public portal now shows client-visible project progress, milestones, and approved/delivered deliverables.
 - Dashboard execution-task metric and sidebar navigation.
 - Unit and integration coverage for execution validation, project progress, milestones, tasks, deliverables, and metrics.
+
+## Phase 19
+
+- Dedicated maintenance stage after solution execution.
+- `MaintenancePlan` model for retainers with cadence, monthly fee, included hours, renewal date, next check-in, health, and status.
+- `SupportTicket` model for post-delivery support with priority, status, due date, and resolution tracking.
+- `MaintenanceTask` model for recurring maintenance work linked to a maintenance plan.
+- `maintenance-service` for scoped plan, ticket, and task creation; monthly recurring revenue metrics; renewal/check-in signals; urgent support tracking; and lifecycle movement into `maintenance`.
+- Authenticated maintenance APIs at `/api/maintenance/plans`, `/api/maintenance/tickets`, and `/api/maintenance/tasks`.
+- Maintenance workspace at `/maintenance` with plan, ticket, and recurring task creation plus MRR, active plans, open tickets, and at-risk client metrics.
+- Dashboard maintenance-plan metric and sidebar navigation.
+- Unit and integration coverage for maintenance validation, plan/ticket/task creation, metrics, and lifecycle transition to maintenance.

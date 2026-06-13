@@ -193,6 +193,21 @@ Queries should generally include `organisationId` unless the model is infrastruc
 - Client-facing project deliverable.
 - Tracks status, optional URL, description, and delivered timestamp.
 
+`MaintenancePlan`
+
+- Post-delivery retainer or support plan.
+- Tracks cadence, monthly fee, included hours, renewal date, next check-in, status, health, and notes.
+
+`SupportTicket`
+
+- Client support issue after delivery.
+- Tracks priority, status, due date, and resolution timestamp.
+
+`MaintenanceTask`
+
+- Recurring maintenance work linked to a maintenance plan.
+- Tracks due date, status, and completion timestamp.
+
 `TimeEntry`
 
 - Manual time entry linked to client and project.
