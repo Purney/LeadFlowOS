@@ -39,8 +39,9 @@ CRON_SECRET=replace-with-a-long-random-cron-secret
 Optional integration values can be left blank for local foundation work:
 
 ```env
-SENDGRID_API_KEY=
-SENDGRID_WEBHOOK_SECRET=
+MAILGUN_API_KEY=
+MAILGUN_DOMAIN=
+MAILGUN_WEBHOOK_SIGNING_KEY=
 STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
 OPENAI_API_KEY=
@@ -61,7 +62,7 @@ Open [http://localhost:3000](http://localhost:3000). If no owner exists, the app
 - Use a development MongoDB database that is separate from production.
 - The first successful signup creates the initial organisation and owner user.
 - Additional organisation signup is blocked unless `ALLOW_ADDITIONAL_ORG_SIGNUPS=true`.
-- SendGrid, Stripe, OpenAI, and signature-provider integrations are server-side adapter services. Missing credentials fail clearly when those integrations are called.
+- Mailgun, Stripe, OpenAI, and signature-provider integrations are server-side adapter services. Missing credentials fail clearly when those integrations are called.
 - Vercel Cron uses `/api/cron/send-batches` and requires `CRON_SECRET`.
 - Public/webhook ingress uses MongoDB-backed rate limiting.
 
@@ -122,4 +123,4 @@ The E2E smoke test expects a running app and valid local environment.
 
 ## Production Reminder
 
-Before deploying to production, read [docs/ProductionSetup.md](docs/ProductionSetup.md), [docs/Deployment.md](docs/Deployment.md), and [docs/Security.md](docs/Security.md). Production must use separate MongoDB, Stripe, SendGrid, and webhook credentials from development.
+Before deploying to production, read [docs/ProductionSetup.md](docs/ProductionSetup.md), [docs/Deployment.md](docs/Deployment.md), and [docs/Security.md](docs/Security.md). Production must use separate MongoDB, Stripe, Mailgun, and webhook credentials from development.

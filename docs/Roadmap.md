@@ -10,7 +10,7 @@ Phases 1-21 are implemented as MVP/foundation slices:
 - Leads and CSV import.
 - Campaign builder and enrollments.
 - Sending accounts, deliverability, and manual send batches.
-- SendGrid events, inbound replies, and suppressions.
+- Mailgun events, inbound replies, and suppressions.
 - AI drafts.
 - Discovery forms and summaries.
 - Proposals.

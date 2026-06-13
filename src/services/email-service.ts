@@ -8,20 +8,34 @@ import { SendBatch } from "@/models/send-batch";
 import { connectToDatabase } from "@/lib/db";
 import { createActivity } from "@/services/activity-service";
 import { createSuppression, getSuppressedEmailSet } from "@/services/suppression-service";
-import { sendSendGridMessage } from "@/services/sendgrid-service";
+import { sendMailgunMessage } from "@/services/mailgun-service";
 
 type ActorContext = {
   organisationId: string;
   userId: string;
 };
 
-type SendGridEvent = {
-  event: string;
-  email: string;
+type MailgunEvent = {
+  event?: string;
   timestamp?: number;
-  sg_message_id?: string;
+  recipient?: string;
   reason?: string;
+  severity?: string;
   url?: string;
+  message?: {
+    headers?: {
+      "message-id"?: string;
+      [key: string]: unknown;
+    };
+    [key: string]: unknown;
+  };
+  "user-variables"?: {
+    organisationId?: string;
+    emailMessageId?: string;
+    sendBatchId?: string;
+    leadId?: string;
+    [key: string]: unknown;
+  };
   [key: string]: unknown;
 };
 
@@ -49,13 +63,11 @@ function toObjectId(value: string) {
 function eventToMessageStatus(event: string) {
   const map: Record<string, string> = {
     delivered: "delivered",
-    open: "opened",
-    click: "clicked",
-    bounce: "bounced",
-    dropped: "failed",
-    spamreport: "spam_report",
-    unsubscribe: "unsubscribed",
-    group_unsubscribe: "unsubscribed",
+    opened: "opened",
+    clicked: "clicked",
+    failed: "bounced",
+    complained: "spam_report",
+    unsubscribed: "unsubscribed",
   };
 
   return map[event] ?? "sent";
@@ -111,7 +123,7 @@ export async function processApprovedSendBatch(
       emailAccountId: account._id,
       direction: "outbound",
       status: options.dryRun ? "queued" : "sent",
-      provider: "sendgrid",
+      provider: "mailgun",
       from: account.email,
       to: recipient.email,
       subject: batch.subject,
@@ -120,17 +132,15 @@ export async function processApprovedSendBatch(
     });
 
     if (!options.dryRun) {
-      const result = await sendSendGridMessage({
+      const result = await sendMailgunMessage(account.mailgunDomain || account.domain, {
         to: recipient.email,
         from: account.email,
         subject: batch.subject,
         text: batch.body,
-        customArgs: {
-          organisationId: context.organisationId,
-          emailMessageId: message._id.toString(),
-          sendBatchId: batch._id.toString(),
-          leadId: recipient.leadId.toString(),
-        },
+        "v:organisationId": context.organisationId,
+        "v:emailMessageId": message._id.toString(),
+        "v:sendBatchId": batch._id.toString(),
+        "v:leadId": recipient.leadId.toString(),
       });
 
       message.providerMessageId = result.messageId;
@@ -163,67 +173,86 @@ export async function processApprovedSendBatch(
   };
 }
 
-export async function processSendGridEvents(
+function normaliseMailgunEvent(input: MailgunEvent) {
+  const event = input["event-data"] && typeof input["event-data"] === "object"
+    ? (input["event-data"] as MailgunEvent)
+    : input;
+  const messageId = event.message?.headers?.["message-id"];
+  const email = event.recipient;
+
+  return {
+    event,
+    eventType: event.event ?? "unknown",
+    email: email?.toLowerCase(),
+    messageId,
+    occurredAt: event.timestamp ? new Date(event.timestamp * 1000) : new Date(),
+  };
+}
+
+export async function processMailgunEvents(
   organisationId: string,
-  events: SendGridEvent[],
+  events: MailgunEvent[],
 ) {
   await connectToDatabase();
 
   const processed = [];
 
   for (const event of events) {
-    const message = event.sg_message_id
-      ? await EmailMessage.findOne({
-          organisationId: toObjectId(organisationId),
-          providerMessageId: event.sg_message_id,
-        })
-      : await EmailMessage.findOne({
-          organisationId: toObjectId(organisationId),
-          to: event.email.toLowerCase(),
-        }).sort({ createdAt: -1 });
-    const occurredAt = event.timestamp
-      ? new Date(event.timestamp * 1000)
-      : new Date();
+    const normalized = normaliseMailgunEvent(event);
+    let message = null;
+
+    if (normalized.messageId) {
+      message = await EmailMessage.findOne({
+        organisationId: toObjectId(organisationId),
+        providerMessageId: normalized.messageId,
+      });
+    } else if (normalized.email) {
+      message = await EmailMessage.findOne({
+        organisationId: toObjectId(organisationId),
+        to: normalized.email,
+      }).sort({ createdAt: -1 });
+    }
+    const eventEmail = normalized.email ?? message?.to;
 
     const emailEvent = await EmailEvent.create({
       organisationId: toObjectId(organisationId),
       emailMessageId: message?._id,
       leadId: message?.leadId,
       sendBatchId: message?.sendBatchId,
-      eventType: event.event,
-      providerMessageId: event.sg_message_id,
-      email: event.email,
-      occurredAt,
+      eventType: normalized.eventType,
+      providerMessageId: normalized.messageId,
+      email: eventEmail,
+      occurredAt: normalized.occurredAt,
       raw: event,
     });
 
     if (message) {
-      message.status = eventToMessageStatus(event.event);
+      message.status = eventToMessageStatus(normalized.eventType);
       await message.save();
     }
 
-    if (["bounce", "dropped"].includes(event.event)) {
+    if (eventEmail && normalized.eventType === "failed") {
       await createSuppression(
         { organisationId },
         {
-          email: event.email,
+          email: eventEmail,
           reason: "bounced",
-          note: String(event.reason ?? ""),
+          note: String(normalized.event.reason ?? normalized.event.severity ?? ""),
         },
       );
     }
 
-    if (event.event === "spamreport") {
+    if (eventEmail && normalized.eventType === "complained") {
       await createSuppression(
         { organisationId },
-        { email: event.email, reason: "spam_report" },
+        { email: eventEmail, reason: "spam_report" },
       );
     }
 
-    if (event.event === "unsubscribe" || event.event === "group_unsubscribe") {
+    if (eventEmail && normalized.eventType === "unsubscribed") {
       await createSuppression(
         { organisationId },
-        { email: event.email, reason: "unsubscribed" },
+        { email: eventEmail, reason: "unsubscribed" },
       );
     }
 
@@ -261,7 +290,7 @@ export async function processInboundReply(
     emailAccountId: account?._id,
     direction: "inbound",
     status: "replied",
-    provider: "sendgrid",
+    provider: "mailgun",
     from: fromEmail,
     to: toEmail,
     subject: input.subject,

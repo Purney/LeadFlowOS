@@ -10,26 +10,28 @@ This document describes external integration boundaries and conventions.
 - Store provider IDs and raw webhook payloads where useful for audit/debugging.
 - Never let provider output automatically send client-facing communication without manual review unless explicitly designed.
 
-## SendGrid
+## Mailgun
 
 Files:
 
-- `src/services/sendgrid-service.ts`
+- `src/services/mailgun-service.ts`
 - `src/services/email-service.ts`
-- `src/app/api/webhooks/sendgrid/events/route.ts`
-- `src/app/api/webhooks/sendgrid/inbound/route.ts`
+- `src/app/api/webhooks/mailgun/events/route.ts`
+- `src/app/api/webhooks/mailgun/inbound/route.ts`
 
 Environment:
 
-- `SENDGRID_API_KEY`
-- `SENDGRID_WEBHOOK_SECRET`
+- `MAILGUN_API_KEY`
+- `MAILGUN_DOMAIN`
+- `MAILGUN_WEBHOOK_SIGNING_KEY`
+- `MAILGUN_API_BASE_URL`
 
 Outbound flow:
 
 1. Generate send batch.
 2. Manually approve batch.
 3. Process approved batch.
-4. `sendSendGridMessage` sends each message.
+4. `sendMailgunMessage` sends each message through the account Mailgun domain.
 5. `EmailMessage` records provider message ID.
 
 Warmup governance:
@@ -43,7 +45,8 @@ Inbound/event behavior:
 
 - Delivery/open/click/bounce/unsubscribe/spam events are stored as `EmailEvent`.
 - Bounce/unsubscribe/spam creates suppressions.
-- Inbound replies create inbound `EmailMessage`, update lead status to `replied`, and pause campaign enrollment.
+- Mailgun event webhooks are verified with timestamp/token/signature HMAC fields.
+- Inbound route replies create inbound `EmailMessage`, update lead status to `replied`, and pause campaign enrollment.
 
 ## Stripe
 

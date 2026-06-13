@@ -124,7 +124,7 @@ Queries should generally include `organisationId` unless the model is infrastruc
 
 `EmailEvent`
 
-- Provider event history from SendGrid.
+- Provider event history from Mailgun.
 - Tracks delivery, open, click, bounce, unsubscribe, spam reports, and raw event payload.
 
 ## AI

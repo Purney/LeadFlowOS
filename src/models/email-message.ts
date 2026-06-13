@@ -29,7 +29,7 @@ const emailMessageSchema = new Schema(
       default: "queued",
       index: true,
     },
-    provider: { type: String, trim: true, default: "sendgrid" },
+    provider: { type: String, trim: true, default: "mailgun" },
     providerMessageId: { type: String, trim: true, index: true },
     from: { type: String, required: true, lowercase: true, trim: true },
     to: { type: String, required: true, lowercase: true, trim: true },

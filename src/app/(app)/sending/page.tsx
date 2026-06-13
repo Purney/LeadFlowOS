@@ -253,7 +253,7 @@ export default async function SendingPage() {
             ))}
             {emailEvents.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                SendGrid events will appear after webhooks are received.
+                Mailgun events will appear after webhooks are received.
               </p>
             ) : null}
           </CardContent>

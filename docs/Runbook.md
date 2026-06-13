@@ -51,7 +51,8 @@ Checks:
 
 Check:
 
-- `SENDGRID_API_KEY`
+- `MAILGUN_API_KEY`
+- `MAILGUN_DOMAIN`
 - Sending account `active=true`.
 - Sending account health, daily limit, per-domain cap, warmup status, and reputation status.
 - SPF, DKIM, DMARC, unsubscribe support, blocklist status, bounce rate, complaint rate, and deferral rate.
@@ -63,17 +64,17 @@ Check:
 
 Dry-run approved batch processing is supported in service tests and can be used as a debugging pattern.
 
-## SendGrid Webhook Issues
+## Mailgun Webhook Issues
 
 Check:
 
-- `SENDGRID_WEBHOOK_SECRET`
-- `x-leadflow-webhook-secret`
+- `MAILGUN_WEBHOOK_SIGNING_KEY`
+- Mailgun webhook `timestamp`, `token`, and `signature` fields.
 - `x-leadflow-organisation-id`
 - Rate-limit buckets if requests are getting `429`.
 - `ActivityLog` for `webhook.failed`.
 
-Inbound parse requires valid `from`, `to`, and `subject` fields.
+Inbound routes require valid `sender`, `recipient`, and `subject` fields.
 
 ## Stripe Webhook Issues
 

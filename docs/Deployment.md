@@ -1,6 +1,6 @@
 # Deployment
 
-LeadFlow OS targets Vercel with MongoDB Atlas, Auth.js, SendGrid, Stripe, OpenAI, and optional signature-provider credentials.
+LeadFlow OS targets Vercel with MongoDB Atlas, Auth.js, Mailgun, Stripe, OpenAI, and optional signature-provider credentials.
 
 For a step-by-step production setup flow, including how to obtain every environment variable, read [ProductionSetup.md](ProductionSetup.md).
 
@@ -15,8 +15,10 @@ Set these in Vercel production environment variables:
 - `AUTH_SECRET=<long random secret>`
 - `AUTH_URL=https://your-domain.com`
 - `CRON_SECRET=<long random secret>`
-- `SENDGRID_API_KEY=<production key>`
-- `SENDGRID_WEBHOOK_SECRET=<production webhook secret>`
+- `MAILGUN_API_KEY=<production key>`
+- `MAILGUN_DOMAIN=<production sending domain>`
+- `MAILGUN_WEBHOOK_SIGNING_KEY=<production webhook signing key>`
+- `MAILGUN_API_BASE_URL=<optional API base URL>`
 - `STRIPE_SECRET_KEY=<production key>`
 - `STRIPE_WEBHOOK_SECRET=<production webhook secret>`
 - `OPENAI_API_KEY=<production key>`
@@ -70,16 +72,16 @@ The app reuses Mongoose connections through `src/lib/db.ts`.
 
 After deploying, configure provider webhooks:
 
-SendGrid event webhook:
+Mailgun event webhook:
 
 ```text
-https://your-domain.com/api/webhooks/sendgrid/events
+https://your-domain.com/api/webhooks/mailgun/events
 ```
 
-SendGrid inbound parse:
+Mailgun inbound route:
 
 ```text
-https://your-domain.com/api/webhooks/sendgrid/inbound
+https://your-domain.com/api/webhooks/mailgun/inbound
 ```
 
 Stripe webhook:
@@ -88,10 +90,10 @@ Stripe webhook:
 https://your-domain.com/api/webhooks/stripe
 ```
 
-SendGrid webhook calls must include:
+Mailgun webhook calls must include:
 
-- `x-leadflow-webhook-secret`
 - `x-leadflow-organisation-id`
+- Mailgun signature fields: `timestamp`, `token`, and `signature`
 
 Stripe webhook calls must include:
 
@@ -109,7 +111,7 @@ Before switching traffic:
 - Confirm production MongoDB URI is not the development database.
 - Confirm `AUTH_URL` and `NEXT_PUBLIC_APP_URL` match the production domain.
 - Confirm `CRON_SECRET` is set.
-- Configure SendGrid and Stripe webhooks.
+- Configure Mailgun and Stripe webhooks.
 - Create the first owner through `/signup`.
 - Confirm `/dashboard` loads.
 - Confirm `/api/cron/send-batches` rejects unauthenticated requests.

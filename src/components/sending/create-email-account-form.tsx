@@ -26,7 +26,7 @@ export function CreateEmailAccountForm() {
           email: form.get("email"),
           domain: form.get("domain"),
           provider: form.get("provider"),
-          sendGridSenderId: form.get("sendGridSenderId"),
+          mailgunDomain: form.get("mailgunDomain"),
           verificationStatus: form.get("verificationStatus"),
           dailySendLimit: form.get("dailySendLimit"),
           perDomainDailyLimit: form.get("perDomainDailyLimit"),
@@ -82,15 +82,15 @@ export function CreateEmailAccountForm() {
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-2">
           <Label htmlFor="provider">Provider</Label>
-          <Select id="provider" name="provider" defaultValue="sendgrid">
-            <option value="sendgrid">SendGrid</option>
+          <Select id="provider" name="provider" defaultValue="mailgun">
+            <option value="mailgun">Mailgun</option>
             <option value="smtp">SMTP</option>
             <option value="other">Other</option>
           </Select>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="sendGridSenderId">SendGrid sender ID</Label>
-          <Input id="sendGridSenderId" name="sendGridSenderId" />
+          <Label htmlFor="mailgunDomain">Mailgun domain</Label>
+          <Input id="mailgunDomain" name="mailgunDomain" placeholder="mg.example.com" />
         </div>
       </div>
       <div className="grid gap-3 sm:grid-cols-3">

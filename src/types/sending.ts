@@ -1,4 +1,4 @@
-export const emailProviders = ["sendgrid", "smtp", "other"] as const;
+export const emailProviders = ["mailgun", "smtp", "other"] as const;
 
 export const verificationStatuses = [
   "pending",

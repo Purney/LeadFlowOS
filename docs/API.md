@@ -147,8 +147,8 @@ This is a high-level route map. For exact schemas, read `src/validation`.
 
 ## Webhooks
 
-- `POST /api/webhooks/sendgrid/events`: SendGrid event webhook.
-- `POST /api/webhooks/sendgrid/inbound`: SendGrid inbound parse webhook.
+- `POST /api/webhooks/mailgun/events`: Mailgun event webhook.
+- `POST /api/webhooks/mailgun/inbound`: Mailgun inbound route webhook.
 - `POST /api/webhooks/stripe`: Stripe webhook.
 
 ## Cron

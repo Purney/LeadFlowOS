@@ -12,7 +12,7 @@ The app is built as a server-first internal tool:
 - Auth.js credentials auth provides organisation-aware JWT sessions.
 - MongoDB is accessed through Mongoose models and server-side services.
 - UI components call internal API routes for mutations and use server components for most read-heavy pages.
-- External integrations use live-capable adapter services for SendGrid, Stripe, OpenAI, and future signature providers.
+- External integrations use live-capable adapter services for Mailgun, Stripe, OpenAI, and future signature providers.
 - Vercel is the target hosting platform, with Vercel Cron used for due approved send batches.
 
 ## Source Layout
@@ -123,7 +123,7 @@ Important services:
 - `maintenance-service`: retainers, support tickets, recurring maintenance tasks, renewal signals, client health, and lifecycle maintenance sync.
 - `campaign-service`: campaign CRUD, enrollment, A/B allocation.
 - `sending-service`: email accounts, deliverability metrics, send batch generation and approval.
-- `email-service`: approved batch processing, SendGrid events, inbound replies.
+- `email-service`: approved batch processing, Mailgun events, inbound replies.
 - `suppression-service`: suppression CRUD and sendability checks.
 - `ai-service`: cold email drafts, reply drafts.
 - `discovery-service`: form builder, public submissions, AI summaries.
@@ -149,8 +149,8 @@ Public APIs:
 
 Webhook APIs:
 
-- `/api/webhooks/sendgrid/events`
-- `/api/webhooks/sendgrid/inbound`
+- `/api/webhooks/mailgun/events`
+- `/api/webhooks/mailgun/inbound`
 - `/api/webhooks/stripe`
 
 Cron API:
@@ -219,9 +219,9 @@ UI style:
 
 ## Integrations
 
-SendGrid:
+Mailgun:
 
-- Adapter: `src/services/sendgrid-service.ts`
+- Adapter: `src/services/mailgun-service.ts`
 - Event webhook processes delivery/open/click/bounce/unsubscribe/spam events.
 - Inbound webhook records replies, updates lead status, and pauses campaign enrollment.
 - Suppressions are created automatically for bounce, unsubscribe, and spam report events.
@@ -350,8 +350,10 @@ Required production environment:
 - `AUTH_SECRET`
 - `AUTH_URL`
 - `CRON_SECRET`
-- `SENDGRID_API_KEY`
-- `SENDGRID_WEBHOOK_SECRET`
+- `MAILGUN_API_KEY`
+- `MAILGUN_DOMAIN`
+- `MAILGUN_WEBHOOK_SIGNING_KEY`
+- `MAILGUN_API_BASE_URL`
 - `STRIPE_SECRET_KEY`
 - `STRIPE_WEBHOOK_SECRET`
 - `OPENAI_API_KEY`
@@ -363,7 +365,7 @@ Optional:
 - `SIGNATURE_PROVIDER_API_KEY`
 - `SIGNATURE_PROVIDER_WEBHOOK_SECRET`
 
-Development and production must use separate MongoDB databases, Stripe credentials, SendGrid credentials, and webhook endpoints.
+Development and production must use separate MongoDB databases, Stripe credentials, Mailgun credentials, and webhook endpoints.
 
 ## Future Extension Points
 

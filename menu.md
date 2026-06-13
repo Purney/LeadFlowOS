@@ -15,7 +15,7 @@ Start here when you need project context. This file points to the markdown docum
 - [docs/DataModel.md](docs/DataModel.md): Mongoose model groups, relationships, ownership fields, indexes, and data integrity rules.
 - [docs/API.md](docs/API.md): Internal, public, webhook, cron, and download route map with auth expectations.
 - [docs/Testing.md](docs/Testing.md): Test commands, test structure, integration patterns, MongoMemoryServer cleanup rules, and E2E notes.
-- [docs/Integrations.md](docs/Integrations.md): SendGrid, Stripe, OpenAI, signature provider, and future integration conventions.
+- [docs/Integrations.md](docs/Integrations.md): Mailgun, Stripe, OpenAI, signature provider, and future integration conventions.
 - [docs/Runbook.md](docs/Runbook.md): Operational procedures for incidents, cron, webhooks, email sending, secrets, and common debugging paths.
 - [docs/ImplementedStages.md](docs/ImplementedStages.md): Completed phase history through Phase 21, including command center and warmup governance.
 - [docs/Roadmap.md](docs/Roadmap.md): Future work, technical debt, hardening priorities, and likely next phases.
@@ -27,7 +27,7 @@ Start here when you need project context. This file points to the markdown docum
 - Need to add a model? Read [Architecture.md](Architecture.md), then [docs/DataModel.md](docs/DataModel.md), then [docs/Testing.md](docs/Testing.md).
 - Need to add an API route? Read [docs/API.md](docs/API.md) and [docs/Security.md](docs/Security.md).
 - Need to deploy or configure Vercel? Read [docs/ProductionSetup.md](docs/ProductionSetup.md), then [docs/Deployment.md](docs/Deployment.md).
-- Need to work on SendGrid, Stripe, OpenAI, or signatures? Read [docs/Integrations.md](docs/Integrations.md).
+- Need to work on Mailgun, Stripe, OpenAI, or signatures? Read [docs/Integrations.md](docs/Integrations.md).
 - Need to fix production behavior? Read [docs/Runbook.md](docs/Runbook.md).
 - Need to know what has already been built? Read [docs/ImplementedStages.md](docs/ImplementedStages.md).
 - Need to understand future plans? Read [docs/Roadmap.md](docs/Roadmap.md).

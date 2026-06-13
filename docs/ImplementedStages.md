@@ -8,7 +8,7 @@ This document records what has been implemented so far. Keep this as history; us
 - Auth.js credentials authentication with an organisation-aware session.
 - First-owner signup flow that creates the initial organisation and owner user.
 - MongoDB/Mongoose connection layer and Phase 1 models: `Organisation`, `User`, and `ActivityLog`.
-- Live-capable SendGrid, Stripe, and OpenAI service adapters that fail clearly when credentials are missing.
+- Live-capable Mailgun, Stripe, and OpenAI service adapters that fail clearly when credentials are missing.
 - Vitest unit/integration test structure and a Playwright smoke spec.
 
 ## Phase 2
@@ -32,7 +32,7 @@ This document records what has been implemented so far. Keep this as history; us
 
 ## Phase 4
 
-- Sending account model with provider, SendGrid sender ID, verification status, daily limit, warm-up status, active flag, and deliverability health fields.
+- Sending account model with provider, Mailgun domain, verification status, daily limit, warm-up status, active flag, and deliverability health fields.
 - Send batch model with campaign, sending account, recipients, subject/body, A/B variant label, scheduled time, estimated volume, risk warnings, and approval statuses.
 - Sending APIs and UI at `/sending`.
 - Deliverability health scoring for SPF, DKIM, DMARC, tracking domain, unsubscribe support, bounce rate, and spam complaint rate.
@@ -44,8 +44,8 @@ This document records what has been implemented so far. Keep this as history; us
 ## Phase 5
 
 - Suppression model and UI with reasons for unsubscribed, bounced, spam report, manual suppression, existing client, and competitor.
-- Email message and email event models for outbound attempts, inbound replies, and SendGrid event history.
-- SendGrid outbound processing for approved send batches, with dry-run support.
+- Email message and email event models for outbound attempts, inbound replies, and Mailgun event history.
+- Mailgun outbound processing for approved send batches, with dry-run support.
 - Event webhook route for delivery, open, click, bounce, unsubscribe, and spam report processing.
 - Inbound parse webhook route for reply capture.
 - Reply handling updates lead status to `replied` and pauses active campaign enrollments for that lead.

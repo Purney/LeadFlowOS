@@ -71,7 +71,7 @@ async function bootstrapScenario() {
   const account = await createEmailAccount(context, {
     email: "outreach@example.com",
     domain: "example.com",
-    provider: "sendgrid",
+    provider: "mailgun",
     verificationStatus: "verified",
     dailySendLimit: 25,
     warmupStatus: "ready",

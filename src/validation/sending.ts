@@ -33,8 +33,8 @@ export const emailHealthSchema = z.object({
 export const emailAccountInputSchema = z.object({
   email: z.string().trim().email().toLowerCase(),
   domain: z.string().trim().min(2),
-  provider: z.enum(emailProviders).default("sendgrid"),
-  sendGridSenderId: optionalText,
+  provider: z.enum(emailProviders).default("mailgun"),
+  mailgunDomain: optionalText,
   verificationStatus: z.enum(verificationStatuses).default("not_configured"),
   dailySendLimit: z.coerce.number().int().min(1).max(5000).default(25),
   perDomainDailyLimit: z.coerce.number().int().min(1).max(500).default(5),

@@ -76,15 +76,15 @@ Do not store raw portal tokens. Do not expose unrelated organisation data in pub
 
 Webhook routes:
 
-- `/api/webhooks/sendgrid/events`
-- `/api/webhooks/sendgrid/inbound`
+- `/api/webhooks/mailgun/events`
+- `/api/webhooks/mailgun/inbound`
 - `/api/webhooks/stripe`
 
 Rules:
 
 - Verify cheap headers/secrets before hitting MongoDB-backed rate limiting.
 - Verify Stripe signatures before processing events.
-- Verify SendGrid webhook secret before processing events.
+- Verify Mailgun webhook signatures before processing events.
 - Log webhook failures through activity records.
 - Do not return provider secrets or stack traces in error responses.
 

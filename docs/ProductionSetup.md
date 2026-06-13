@@ -1,6 +1,6 @@
 # Production Setup Guide
 
-This guide walks through setting up a production LeadFlow OS environment on Vercel with MongoDB Atlas, Auth.js, SendGrid, Stripe, OpenAI, and optional signature-provider credentials.
+This guide walks through setting up a production LeadFlow OS environment on Vercel with MongoDB Atlas, Auth.js, Mailgun, Stripe, OpenAI, and optional signature-provider credentials.
 
 Use this guide before the first production deployment and whenever production secrets need to be rotated.
 
@@ -11,12 +11,12 @@ Create or confirm access to:
 - Vercel team/project for hosting.
 - MongoDB Atlas project and production cluster.
 - Domain DNS provider for the production app domain.
-- SendGrid account for production outbound/inbound email.
+- Mailgun account for production outbound/inbound email.
 - Stripe account with live mode enabled.
 - OpenAI platform project.
 - Optional external signature provider.
 
-Use separate production credentials from development and preview. Never reuse development databases, Stripe test keys, SendGrid test credentials, or webhook secrets in production.
+Use separate production credentials from development and preview. Never reuse development databases, Stripe test keys, Mailgun sandbox credentials, or webhook signing keys in production.
 
 ## 2. Production Domain
 
@@ -48,7 +48,7 @@ Generate these before entering Vercel environment variables:
 
 - `AUTH_SECRET`
 - `CRON_SECRET`
-- `SENDGRID_WEBHOOK_SECRET`
+- `MAILGUN_WEBHOOK_SIGNING_KEY`
 
 PowerShell:
 
@@ -62,7 +62,7 @@ Run it once for each secret and store the values in a password manager. Do not c
 
 `CRON_SECRET` protects `/api/cron/send-batches`.
 
-`SENDGRID_WEBHOOK_SECRET` is a shared secret that SendGrid webhook requests must include in the `x-leadflow-webhook-secret` header.
+`MAILGUN_WEBHOOK_SIGNING_KEY` verifies Mailgun webhook `timestamp`, `token`, and `signature` values.
 
 ## 4. MongoDB Atlas
 
@@ -126,8 +126,10 @@ AUTH_URL=https://app.leadflow.example
 AUTH_SECRET=<generated-auth-secret>
 MONGODB_URI=<production MongoDB Atlas URI>
 CRON_SECRET=<generated-cron-secret>
-SENDGRID_API_KEY=<production SendGrid API key>
-SENDGRID_WEBHOOK_SECRET=<generated-sendgrid-webhook-secret>
+MAILGUN_API_KEY=<production Mailgun API key>
+MAILGUN_DOMAIN=<production Mailgun sending domain>
+MAILGUN_WEBHOOK_SIGNING_KEY=<production Mailgun webhook signing key>
+MAILGUN_API_BASE_URL=
 STRIPE_SECRET_KEY=<live Stripe restricted or secret key>
 STRIPE_WEBHOOK_SECRET=<Stripe webhook signing secret>
 OPENAI_API_KEY=<OpenAI project API key>
@@ -153,8 +155,10 @@ SIGNATURE_PROVIDER_WEBHOOK_SECRET=<production signature webhook secret>
 | `AUTH_SECRET` | Yes | Generate internally | Use a long random value. Store in password manager. |
 | `MONGODB_URI` | Yes | MongoDB Atlas connect dialog | Use the production cluster/database. |
 | `CRON_SECRET` | Yes | Generate internally | Used by `/api/cron/send-batches`. |
-| `SENDGRID_API_KEY` | Yes for sending | SendGrid Settings -> API Keys | Use production SendGrid account. Store once copied. |
-| `SENDGRID_WEBHOOK_SECRET` | Yes for webhooks | Generate internally | Add as SendGrid webhook custom header value. |
+| `MAILGUN_API_KEY` | Yes for sending | Mailgun account API security settings | Use a production Mailgun API key. |
+| `MAILGUN_DOMAIN` | Yes for sending | Mailgun sending domain settings | Use the verified production sending domain, for example `mg.example.com`. |
+| `MAILGUN_WEBHOOK_SIGNING_KEY` | Yes for webhooks | Mailgun webhook signing key | Used to verify Mailgun webhook signatures. |
+| `MAILGUN_API_BASE_URL` | Optional | Mailgun region settings | Leave blank for US; use `https://api.eu.mailgun.net` for EU infrastructure. |
 | `STRIPE_SECRET_KEY` | Yes for Stripe | Stripe Dashboard -> Developers -> API keys | Prefer restricted live key if permissions are sufficient. |
 | `STRIPE_WEBHOOK_SECRET` | Yes for Stripe webhooks | Stripe Dashboard -> Webhooks -> endpoint signing secret | Separate from API key. Starts with `whsec_`. |
 | `OPENAI_API_KEY` | Yes for AI features | OpenAI platform project API keys | Use a production project/key. |
@@ -163,22 +167,22 @@ SIGNATURE_PROVIDER_WEBHOOK_SECRET=<production signature webhook secret>
 | `SIGNATURE_PROVIDER_API_KEY` | Optional | Signature provider dashboard | Required only when external signature delivery is enabled. |
 | `SIGNATURE_PROVIDER_WEBHOOK_SECRET` | Optional | Signature provider dashboard or generated internally | Required only when external signature webhooks are implemented/enabled. |
 
-## 8. SendGrid Setup
+## 8. Mailgun Setup
 
 ### API Key
 
-1. Log in to SendGrid.
-2. Go to **Settings -> API Keys**.
+1. Log in to Mailgun.
+2. Go to the account/API security area.
 3. Click **Create API Key**.
 4. Prefer a restricted/custom key with the least permissions needed for mail send and relevant account activity. Use full access only temporarily if the exact permission set is not known.
-5. Copy the key immediately. SendGrid shows it once.
-6. Store it in Vercel as `SENDGRID_API_KEY`.
+5. Copy the key immediately.
+6. Store it in Vercel as `MAILGUN_API_KEY`.
 
 ### Sender Authentication And Warmup
 
 Before sending cold outreach:
 
-1. Authenticate the sending domain in SendGrid.
+1. Add and verify the sending domain in Mailgun.
 2. Configure SPF, DKIM, and DMARC in DNS.
 3. Configure link branding/tracking domain if used.
 4. Configure reverse DNS if using dedicated IPs.
@@ -195,10 +199,10 @@ After the production app is deployed and the first organisation exists:
 1. Get the production organisation ID from MongoDB Atlas:
    - Open the `organisations` collection.
    - Copy the `_id` for the production organisation created by first-owner signup.
-2. In SendGrid, configure the Event Webhook URL:
+2. In Mailgun, configure the Event Webhook URL:
 
 ```text
-https://app.leadflow.example/api/webhooks/sendgrid/events
+https://app.leadflow.example/api/webhooks/mailgun/events
 ```
 
 3. Configure the webhook to send the event types used by the app:
@@ -208,29 +212,28 @@ https://app.leadflow.example/api/webhooks/sendgrid/events
    - bounce
    - unsubscribe
    - spam report
-4. Add these request headers if SendGrid account settings support custom headers:
+4. Confirm the webhook signing key is copied to Vercel as `MAILGUN_WEBHOOK_SIGNING_KEY`.
+5. If organisation routing cannot be supplied through Mailgun message variables, add this request header through your webhook forwarding layer:
 
 ```text
-x-leadflow-webhook-secret: <SENDGRID_WEBHOOK_SECRET>
 x-leadflow-organisation-id: <production organisation _id>
 ```
 
-If custom headers are not available in your SendGrid plan/settings, add a small proxy or update the app webhook verification strategy before enabling production SendGrid webhooks.
+Outbound messages include Mailgun user variables for organisation and message IDs; event webhooks can use those variables to route events.
 
 ### Inbound Parse
 
-Configure inbound parse only after DNS for the inbound domain/subdomain is ready.
+Configure inbound routes only after DNS for the inbound domain/subdomain is ready.
 
 Webhook URL:
 
 ```text
-https://app.leadflow.example/api/webhooks/sendgrid/inbound
+https://app.leadflow.example/api/webhooks/mailgun/inbound
 ```
 
-Required headers:
+Required forwarding header:
 
 ```text
-x-leadflow-webhook-secret: <SENDGRID_WEBHOOK_SECRET>
 x-leadflow-organisation-id: <production organisation _id>
 ```
 
@@ -333,7 +336,7 @@ After deployment:
 4. Confirm `/dashboard` loads.
 5. Set `ALLOW_ADDITIONAL_ORG_SIGNUPS=false` if it was not already false.
 6. Retrieve the production organisation ID from MongoDB Atlas.
-7. Finish SendGrid and Stripe webhook headers that need the organisation ID.
+7. Finish Mailgun and Stripe webhook routing details that need the organisation ID.
 
 ## 13. Cron Verification
 
@@ -387,10 +390,10 @@ Stripe:
 - Confirm Vercel logs show accepted events.
 - Confirm invalid signatures are rejected.
 
-SendGrid:
+Mailgun:
 
-- Use SendGrid webhook test tools if available.
-- Confirm missing or wrong `x-leadflow-webhook-secret` is rejected.
+- Use Mailgun webhook test tools if available.
+- Confirm invalid Mailgun signatures are rejected.
 - Confirm missing `x-leadflow-organisation-id` is rejected.
 - Confirm valid events create `EmailEvent` records.
 
@@ -407,7 +410,7 @@ Run this after first production deployment:
 - MongoDB Atlas shows `organisations`, `users`, and `activitylogs` records.
 - `ALLOW_ADDITIONAL_ORG_SIGNUPS=false`.
 - `/api/cron/send-batches` rejects unauthenticated requests.
-- SendGrid API key is production and not blank.
+- Mailgun API key is production and not blank.
 - Stripe key is live mode and not test mode.
 - Stripe webhook endpoint has the production URL and signing secret.
 - OpenAI draft generation fails clearly if no key is set, or succeeds if the production key is set.
@@ -430,7 +433,7 @@ Special cases:
 
 - Rotating `AUTH_SECRET` may invalidate sessions.
 - Rotating `STRIPE_WEBHOOK_SECRET` requires updating the Stripe webhook endpoint secret in Vercel.
-- Rotating `SENDGRID_WEBHOOK_SECRET` requires updating SendGrid webhook custom headers or proxy configuration.
+- Rotating `MAILGUN_WEBHOOK_SIGNING_KEY` requires updating the Vercel environment variable and confirming Mailgun webhook signature verification.
 - Rotating `MONGODB_URI` requires confirming the new database has expected indexes and data.
 
 ## 17. Official References
@@ -439,8 +442,8 @@ Special cases:
 - Vercel cron jobs: https://vercel.com/docs/cron-jobs
 - MongoDB Atlas application connection: https://www.mongodb.com/docs/atlas/driver-connection/
 - Auth.js secret/session behavior: https://authjs.dev/reference/core
-- SendGrid API keys: https://www.twilio.com/docs/sendgrid/ui/account-and-settings/api-keys
-- SendGrid event webhook: https://www.twilio.com/docs/sendgrid/for-developers/tracking-events/getting-started-event-webhook
+- Mailgun Node SDK: https://documentation.mailgun.com/docs/mailgun/sdk/nodejs_sdk
+- Mailgun webhooks: https://documentation.mailgun.com/docs/mailgun/user-manual/events/webhooks/
 - Stripe API keys: https://docs.stripe.com/keys
 - Stripe webhooks: https://docs.stripe.com/webhooks
 - OpenAI API quickstart: https://developers.openai.com/api/docs/quickstart

@@ -20,7 +20,7 @@ import {
   getEmailMetrics,
   processApprovedSendBatch,
   processInboundReply,
-  processSendGridEvents,
+  processMailgunEvents,
 } from "@/services/email-service";
 import { createLead } from "@/services/lead-service";
 import { createEmailAccount, generateSendBatch, updateSendBatch } from "@/services/sending-service";
@@ -67,7 +67,7 @@ async function bootstrapScenario() {
   const account = await createEmailAccount(context, {
     email: "outreach@example.com",
     domain: "example.com",
-    provider: "sendgrid",
+    provider: "mailgun",
     verificationStatus: "verified",
     dailySendLimit: 25,
     warmupStatus: "ready",
@@ -142,32 +142,32 @@ describe("email service", () => {
     await expect(EmailMessage.countDocuments({})).resolves.toBe(0);
   });
 
-  it("processes SendGrid events and creates suppressions", async () => {
+  it("processes Mailgun events and creates suppressions", async () => {
     await bootstrapScenario();
     const message = await EmailMessage.create({
       organisationId: context.organisationId,
       direction: "outbound",
       status: "sent",
-      provider: "sendgrid",
-      providerMessageId: "sg_123",
+      provider: "mailgun",
+      providerMessageId: "mailgun_123",
       from: "outreach@example.com",
       to: "grace@example.com",
       subject: "Hello",
       body: "Hi",
     });
 
-    const result = await processSendGridEvents(context.organisationId, [
+    const result = await processMailgunEvents(context.organisationId, [
       {
-        event: "bounce",
-        email: "grace@example.com",
-        sg_message_id: "sg_123",
+        event: "failed",
+        recipient: "grace@example.com",
+        message: { headers: { "message-id": "mailgun_123" } },
         timestamp: 1_812_844_800,
         reason: "Mailbox unavailable",
       },
     ]);
 
     expect(result.processed).toBe(1);
-    await expect(EmailEvent.countDocuments({ eventType: "bounce" })).resolves.toBe(1);
+    await expect(EmailEvent.countDocuments({ eventType: "failed" })).resolves.toBe(1);
     await expect(Suppression.countDocuments({ reason: "bounced" })).resolves.toBe(1);
     const updated = await EmailMessage.findById(message._id);
     expect(updated?.status).toBe("bounced");

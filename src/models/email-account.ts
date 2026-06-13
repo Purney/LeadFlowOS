@@ -42,8 +42,8 @@ const emailAccountSchema = new Schema(
     },
     email: { type: String, required: true, lowercase: true, trim: true },
     domain: { type: String, required: true, lowercase: true, trim: true, index: true },
-    provider: { type: String, enum: emailProviders, required: true, default: "sendgrid" },
-    sendGridSenderId: { type: String, trim: true },
+    provider: { type: String, enum: emailProviders, required: true, default: "mailgun" },
+    mailgunDomain: { type: String, trim: true, lowercase: true },
     verificationStatus: {
       type: String,
       enum: verificationStatuses,
