@@ -101,7 +101,7 @@ Production notes:
 In Vercel:
 
 1. Import the repository.
-2. Select the production branch, usually `main`.
+2. Select the production branch, usually `master`.
 3. Keep the package manager as npm.
 4. Use the default Next.js build command unless Vercel detects otherwise:
 
