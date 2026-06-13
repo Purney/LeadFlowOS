@@ -45,6 +45,12 @@ This is a high-level route map. For exact schemas, read `src/validation`.
 - `POST /api/deals/[dealId]/tasks`: Create a follow-up task for a deal.
 - `PATCH /api/sales-tasks/[taskId]`: Update a sales task status.
 
+## Onboarding Handoffs
+
+- `GET /api/handoffs`: List onboarding/payment handoffs.
+- `POST /api/handoffs`: Create a handoff from a won deal, optionally creating client, project, portal access, onboarding tasks, and signature request.
+- `PATCH /api/handoffs/[handoffId]`: Update handoff status, payment gate, or kickoff notes.
+
 ## Campaigns
 
 - `GET /api/campaigns`: List campaigns.

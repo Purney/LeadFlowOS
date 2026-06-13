@@ -82,6 +82,11 @@ Queries should generally include `organisationId` unless the model is infrastruc
 - Follow-up task linked to a deal.
 - Tracks due date, status, and completion timestamp.
 
+`OnboardingHandoff`
+
+- Won-deal handoff into onboarding and payment.
+- Links deal, client, optional project, optional portal access, optional signature request, payment gate, onboarding task count, status, and kickoff notes.
+
 ## Campaigns And Sending
 
 `Campaign`

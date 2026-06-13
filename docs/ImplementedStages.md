@@ -185,3 +185,15 @@ This document records what has been implemented so far. Keep this as history; us
 - Sales pipeline workspace at `/sales` with deal creation, pipeline metrics, stage counts, won/lost actions, and open follow-up tasks.
 - Dashboard active-deals metric and sidebar navigation.
 - Unit and integration coverage for sales stages, validation, lifecycle sync, weighted metrics, won transitions, and task completion.
+
+## Phase 17
+
+- Dedicated onboarding and payment handoff workflow for won deals.
+- `OnboardingHandoff` model linking deal, client, project, portal access, signature request, payment gate, onboarding task count, status, and kickoff notes.
+- Handoff creation converts or creates the client, links the won deal to that client, optionally creates a planned project, optionally creates portal access, optionally creates a signature request, and optionally runs onboarding task automation.
+- Payment gate tracks `not_required`, `pending`, `paid`, and `failed` without calling Stripe from the UI workflow.
+- Handoffs keep lifecycle accounts in `onboarding_payment` with blocked status while kickoff payment is pending.
+- Authenticated handoff APIs at `/api/handoffs` and `/api/handoffs/[handoffId]`.
+- Onboarding workspace at `/onboarding` with won-deal handoff creation, payment gate actions, readiness actions, and handoff metrics.
+- Dashboard onboarding-handoff metric and sidebar navigation.
+- Unit and integration coverage for handoff validation, won-deal conversion, onboarding asset creation, portal token issuance, payment metrics, and handoff state updates.

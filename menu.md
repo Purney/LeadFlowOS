@@ -16,7 +16,7 @@ Start here when you need project context. This file points to the markdown docum
 - [docs/Testing.md](docs/Testing.md): Test commands, test structure, integration patterns, MongoMemoryServer cleanup rules, and E2E notes.
 - [docs/Integrations.md](docs/Integrations.md): SendGrid, Stripe, OpenAI, signature provider, and future integration conventions.
 - [docs/Runbook.md](docs/Runbook.md): Operational procedures for incidents, cron, webhooks, email sending, secrets, and common debugging paths.
-- [docs/ImplementedStages.md](docs/ImplementedStages.md): Completed phase history, including Phase 16 sales pipeline and the security/performance hardening pass.
+- [docs/ImplementedStages.md](docs/ImplementedStages.md): Completed phase history, including Phase 17 onboarding/payment handoffs and the security/performance hardening pass.
 - [docs/Roadmap.md](docs/Roadmap.md): Future work, technical debt, hardening priorities, and likely next phases.
 
 ## Quick Lookup

@@ -1,4 +1,4 @@
-import { Activity, Bell, Bot, BriefcaseBusiness, CheckCircle2, Clock, CreditCard, FileSignature, FileText, Inbox, Mail, MessageSquare, Route, Search, Timer, Users } from "lucide-react";
+import { Activity, Bell, Bot, BriefcaseBusiness, CheckCircle2, Clock, CreditCard, FileSignature, FileText, Inbox, Mail, MessageSquare, Rocket, Route, Search, Timer, Users } from "lucide-react";
 import { auth } from "@/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { listAiDrafts } from "@/services/ai-service";
@@ -16,6 +16,7 @@ import { getNotificationMetrics } from "@/services/notification-service";
 import { getLifecycleMetrics } from "@/services/lifecycle-service";
 import { getResearchMetrics } from "@/services/research-service";
 import { getSalesMetrics } from "@/services/sales-service";
+import { getHandoffMetrics } from "@/services/handoff-service";
 
 function money(amount: number) {
   return new Intl.NumberFormat("en-US", {
@@ -41,10 +42,12 @@ const metricCards = (
   lifecycleAccounts: number,
   researchRecords: number,
   activeDeals: number,
+  handoffs: number,
 ) => [
   { label: "Lifecycle accounts", value: String(lifecycleAccounts), icon: Route },
   { label: "Research records", value: String(researchRecords), icon: Search },
   { label: "Active deals", value: String(activeDeals), icon: BriefcaseBusiness },
+  { label: "Onboarding handoffs", value: String(handoffs), icon: Rocket },
   { label: "Total leads", value: String(leadTotal), icon: Users },
   { label: "Active campaigns", value: String(activeCampaigns), icon: Mail },
   { label: "Pending approvals", value: String(pendingApprovals), icon: CheckCircle2 },
@@ -61,7 +64,7 @@ const metricCards = (
 
 export default async function DashboardPage() {
   const session = await auth();
-  const [activity, leadMetrics, campaignMetrics, sendingMetrics, emailMetrics, aiDrafts, discoveryMetrics, proposalMetrics, revenueMetrics, clientMetrics, portalMetrics, notificationMetrics, lifecycleMetrics, researchMetrics, salesMetrics] = session?.user.organisationId
+  const [activity, leadMetrics, campaignMetrics, sendingMetrics, emailMetrics, aiDrafts, discoveryMetrics, proposalMetrics, revenueMetrics, clientMetrics, portalMetrics, notificationMetrics, lifecycleMetrics, researchMetrics, salesMetrics, handoffMetrics] = session?.user.organisationId
     ? await Promise.all([
         listRecentActivity(session.user.organisationId),
         getLeadMetrics(session.user.organisationId),
@@ -78,6 +81,7 @@ export default async function DashboardPage() {
         getLifecycleMetrics(session.user.organisationId),
         getResearchMetrics(session.user.organisationId),
         getSalesMetrics(session.user.organisationId),
+        getHandoffMetrics(session.user.organisationId),
       ])
     : [
         [],
@@ -139,6 +143,7 @@ export default async function DashboardPage() {
             lost: 0,
           },
         },
+        { total: 0, paymentPending: 0, ready: 0, byStatus: {} },
       ];
 
   return (
@@ -170,6 +175,7 @@ export default async function DashboardPage() {
           lifecycleMetrics.total,
           researchMetrics.total,
           salesMetrics.activeDeals,
+          handoffMetrics.total,
         ).map((metric) => (
           <Card key={metric.label}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
