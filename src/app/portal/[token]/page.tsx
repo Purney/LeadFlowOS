@@ -14,6 +14,9 @@ type ProjectView = {
   name: string;
   type: string;
   status: string;
+  health?: string;
+  progressPercent?: number;
+  clientVisibleSummary?: string;
 };
 
 type TaskView = {
@@ -48,6 +51,23 @@ type MessageView = {
   createdAt: Date | string;
 };
 
+type MilestoneView = {
+  _id: unknown;
+  projectId: unknown;
+  title: string;
+  status: string;
+  dueDate?: Date | string;
+};
+
+type DeliverableView = {
+  _id: unknown;
+  projectId: unknown;
+  title: string;
+  description?: string;
+  url?: string;
+  status: string;
+};
+
 function id(value: unknown) {
   return String(value);
 }
@@ -69,6 +89,8 @@ export default async function PublicPortalPage({ params }: PortalPageProps) {
   const signatures = portal.signatures as SignatureView[];
   const pdfExports = portal.pdfExports as PdfExportView[];
   const messages = portal.messages as MessageView[];
+  const milestones = portal.milestones as MilestoneView[];
+  const deliverables = portal.deliverables as DeliverableView[];
   const projectOptions = projects.map((project) => ({
     id: id(project._id),
     label: project.name,
@@ -128,14 +150,22 @@ export default async function PublicPortalPage({ params }: PortalPageProps) {
                       <div className="flex items-start justify-between gap-3">
                         <div>
                           <p className="font-medium">{project.name}</p>
-                          <p className="text-sm text-muted-foreground">{project.type}</p>
-                        </div>
-                        <span className="rounded-md bg-muted px-2 py-1 text-xs text-muted-foreground">
-                          {project.status}
-                        </span>
+                        <p className="text-sm text-muted-foreground">{project.type}</p>
+                        {project.clientVisibleSummary ? (
+                          <p className="mt-2 text-sm text-muted-foreground">
+                            {project.clientVisibleSummary}
+                          </p>
+                        ) : null}
                       </div>
+                      <span className="rounded-md bg-muted px-2 py-1 text-xs text-muted-foreground">
+                          {project.progressPercent ?? 0}%
+                      </span>
                     </div>
-                  ))}
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      {project.status} · {project.health ?? "on track"}
+                    </p>
+                  </div>
+                ))}
                 </div>
               ) : (
                 <p className="text-sm text-muted-foreground">
@@ -176,6 +206,75 @@ export default async function PublicPortalPage({ params }: PortalPageProps) {
               ) : (
                 <p className="text-sm text-muted-foreground">
                   Onboarding tasks will appear here.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        </section>
+
+        <section className="grid gap-4 lg:grid-cols-2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Milestones</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {milestones.length > 0 ? (
+                <div className="space-y-3">
+                  {milestones.map((milestone) => (
+                    <div className="rounded-md border border-border p-3" key={id(milestone._id)}>
+                      <div className="flex items-start justify-between gap-3">
+                        <p className="font-medium">{milestone.title}</p>
+                        <span className="rounded-md bg-muted px-2 py-1 text-xs text-muted-foreground">
+                          {milestone.status}
+                        </span>
+                      </div>
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        Due {date(milestone.dueDate)}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Delivery milestones will appear here.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Deliverables</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {deliverables.length > 0 ? (
+                <div className="space-y-3">
+                  {deliverables.map((deliverable) => (
+                    <div className="rounded-md border border-border p-3" key={id(deliverable._id)}>
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="font-medium">{deliverable.title}</p>
+                          {deliverable.description ? (
+                            <p className="mt-1 text-sm text-muted-foreground">
+                              {deliverable.description}
+                            </p>
+                          ) : null}
+                        </div>
+                        <span className="rounded-md bg-muted px-2 py-1 text-xs text-muted-foreground">
+                          {deliverable.status}
+                        </span>
+                      </div>
+                      {deliverable.url ? (
+                        <a className="mt-2 inline-flex text-sm font-medium text-primary" href={deliverable.url}>
+                          Open deliverable
+                        </a>
+                      ) : null}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">
+                  Approved or delivered work will appear here.
                 </p>
               )}
             </CardContent>

@@ -177,6 +177,21 @@ Queries should generally include `organisationId` unless the model is infrastruc
 - Linked to client.
 - Tracks type, status, estimated value, actual revenue, and dates.
 - Project creation advances the linked lifecycle account into solution execution.
+- Also tracks execution health, progress percentage, client-visible summary, and internal status note.
+
+`ExecutionMilestone`
+
+- Project milestone with status, due date, order, and completion timestamp.
+
+`ExecutionTask`
+
+- Internal delivery task linked to a project and optionally a milestone.
+- Tracks assignee, status, due date, and completion timestamp.
+
+`Deliverable`
+
+- Client-facing project deliverable.
+- Tracks status, optional URL, description, and delivered timestamp.
 
 `TimeEntry`
 

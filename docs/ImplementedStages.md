@@ -197,3 +197,17 @@ This document records what has been implemented so far. Keep this as history; us
 - Onboarding workspace at `/onboarding` with won-deal handoff creation, payment gate actions, readiness actions, and handoff metrics.
 - Dashboard onboarding-handoff metric and sidebar navigation.
 - Unit and integration coverage for handoff validation, won-deal conversion, onboarding asset creation, portal token issuance, payment metrics, and handoff state updates.
+
+## Phase 18
+
+- Dedicated solution execution workspace after onboarding.
+- Project execution fields for health, progress percentage, client-visible status summary, and internal status notes.
+- `ExecutionMilestone` model for project milestones with status, due date, order, and completion tracking.
+- `ExecutionTask` model for internal delivery tasks with assignee, status, due date, milestone link, and completion tracking.
+- `Deliverable` model for client-facing deliverables with URL, status, and delivery timestamp.
+- `execution-service` for scoped project progress updates, execution metrics, milestone creation, task creation, deliverable creation, lifecycle timeline events, and activity logging.
+- Authenticated execution APIs at `/api/execution/projects/[projectId]`, `/api/execution/milestones`, `/api/execution/tasks`, and `/api/execution/deliverables`.
+- Solution execution workspace at `/execution` with project progress controls, milestone/task/deliverable creation, metrics, project health, and delivery queue.
+- Public portal now shows client-visible project progress, milestones, and approved/delivered deliverables.
+- Dashboard execution-task metric and sidebar navigation.
+- Unit and integration coverage for execution validation, project progress, milestones, tasks, deliverables, and metrics.

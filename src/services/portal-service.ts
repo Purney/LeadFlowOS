@@ -1,6 +1,8 @@
 import crypto from "crypto";
 import mongoose from "mongoose";
 import { Client } from "@/models/client";
+import { Deliverable } from "@/models/deliverable";
+import { ExecutionMilestone } from "@/models/execution-milestone";
 import { OnboardingTask } from "@/models/onboarding-task";
 import { PdfExport } from "@/models/pdf-export";
 import { PortalAccess } from "@/models/portal-access";
@@ -516,7 +518,7 @@ export async function getPublicPortal(token: string) {
     { $set: { lastViewedAt: now } },
   );
 
-  const [client, projects, tasks, signatures, pdfExports, messages] = await Promise.all([
+  const [client, projects, tasks, signatures, pdfExports, messages, milestones, deliverables] = await Promise.all([
     Client.findById(access.clientId).lean(),
     Project.find({
       organisationId: access.organisationId,
@@ -550,11 +552,24 @@ export async function getPublicPortal(token: string) {
     })
       .sort({ createdAt: -1 })
       .lean(),
+    ExecutionMilestone.find({
+      organisationId: access.organisationId,
+      clientId: access.clientId,
+    })
+      .sort({ sortOrder: 1, dueDate: 1 })
+      .lean(),
+    Deliverable.find({
+      organisationId: access.organisationId,
+      clientId: access.clientId,
+      status: { $in: ["approved", "delivered"] },
+    })
+      .sort({ createdAt: -1 })
+      .lean(),
   ]);
 
   if (!client) return null;
 
-  return { access, client, projects, tasks, signatures, pdfExports, messages };
+  return { access, client, projects, tasks, signatures, pdfExports, messages, milestones, deliverables };
 }
 
 export async function createPublicPortalMessage(

@@ -88,6 +88,7 @@ Core model groups:
 - Research: `ClientResearch`
 - Sales: `Deal`, `SalesTask`
 - Onboarding handoff: `OnboardingHandoff`
+- Solution execution: `ExecutionMilestone`, `ExecutionTask`, `Deliverable`
 - CRM: `Lead`, `Client`
 - Outreach: `Campaign`, `CampaignEnrollment`, `EmailAccount`, `SendBatch`, `Suppression`
 - Email history: `EmailMessage`, `EmailEvent`
@@ -117,6 +118,7 @@ Important services:
 - `research-service`: target account research, ICP scoring, checklist progress, lifecycle sync, and AI research summaries.
 - `sales-service`: deal pipeline, weighted sales metrics, follow-up tasks, and lifecycle stage transitions.
 - `handoff-service`: won-deal onboarding/payment handoff orchestration, client/project/portal/signature setup, and payment gate tracking.
+- `execution-service`: delivery health, project progress, milestones, tasks, deliverables, and portal-visible execution progress.
 - `campaign-service`: campaign CRUD, enrollment, A/B allocation.
 - `sending-service`: email accounts, deliverability metrics, send batch generation and approval.
 - `email-service`: approved batch processing, SendGrid events, inbound replies.
@@ -166,7 +168,7 @@ Route conventions:
 Authenticated app shell:
 
 - `src/app/(app)/layout.tsx`
-- Sidebar navigation for dashboard, accounts, research, leads, sales, onboarding, campaigns, sending, AI, discovery, proposals, revenue, clients, portal, and time.
+- Sidebar navigation for dashboard, accounts, research, leads, sales, onboarding, execution, campaigns, sending, AI, discovery, proposals, revenue, clients, portal, and time.
 
 Workspace pages:
 
@@ -176,6 +178,7 @@ Workspace pages:
 - `/leads`
 - `/sales`
 - `/onboarding`
+- `/execution`
 - `/campaigns`
 - `/sending`
 - `/ai`
@@ -199,6 +202,8 @@ The `/research` workspace is the Phase 15 client research stage. It captures tar
 The `/sales` workspace is the Phase 16 proposal and sales pipeline. It tracks deals from discovery booked through proposal, negotiation, won, and lost outcomes, with weighted pipeline metrics and follow-up tasks.
 
 The `/onboarding` workspace is the Phase 17 onboarding and payment handoff. It converts won deals into client onboarding assets, portal access, task automation, signature requests, and payment-gated kickoff tracking.
+
+The `/execution` workspace is the Phase 18 solution execution layer. It manages delivery health, project progress, milestones, internal tasks, deliverables, and client-visible portal progress.
 
 UI style:
 

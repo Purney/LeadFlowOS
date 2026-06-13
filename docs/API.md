@@ -51,6 +51,13 @@ This is a high-level route map. For exact schemas, read `src/validation`.
 - `POST /api/handoffs`: Create a handoff from a won deal, optionally creating client, project, portal access, onboarding tasks, and signature request.
 - `PATCH /api/handoffs/[handoffId]`: Update handoff status, payment gate, or kickoff notes.
 
+## Solution Execution
+
+- `PATCH /api/execution/projects/[projectId]`: Update project health, progress percentage, client-visible summary, and internal status note.
+- `POST /api/execution/milestones`: Create a project milestone.
+- `POST /api/execution/tasks`: Create an internal project execution task.
+- `POST /api/execution/deliverables`: Create a client-facing deliverable record.
+
 ## Campaigns
 
 - `GET /api/campaigns`: List campaigns.

@@ -1,5 +1,6 @@
 import mongoose, { type InferSchemaType, Schema } from "mongoose";
 import { projectStatuses, projectTypes } from "@/types/client";
+import { projectHealthStatuses } from "@/types/execution";
 
 const projectSchema = new Schema(
   {
@@ -32,6 +33,16 @@ const projectSchema = new Schema(
     },
     estimatedValue: { type: Number, required: true, default: 0, min: 0 },
     actualRevenue: { type: Number, required: true, default: 0, min: 0 },
+    health: {
+      type: String,
+      enum: projectHealthStatuses,
+      required: true,
+      default: "on_track",
+      index: true,
+    },
+    progressPercent: { type: Number, required: true, default: 0, min: 0, max: 100 },
+    clientVisibleSummary: { type: String, trim: true },
+    internalStatusNote: { type: String, trim: true },
     startDate: { type: Date },
     endDate: { type: Date },
   },

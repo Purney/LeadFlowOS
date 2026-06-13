@@ -4,7 +4,7 @@ This document captures future work and technical debt beyond the current MVP fou
 
 ## Current State
 
-Phases 1-17 are implemented as MVP/foundation slices:
+Phases 1-18 are implemented as MVP/foundation slices:
 
 - Foundation/auth/org/dashboard.
 - Leads and CSV import.
@@ -23,6 +23,7 @@ Phases 1-17 are implemented as MVP/foundation slices:
 - Client research workspace with target account records, ICP scoring, checklists, pain/opportunity notes, lifecycle sync, and AI research summaries.
 - Sales pipeline with deals, weighted pipeline metrics, proposal/sales stages, won/lost outcomes, lifecycle transitions, and follow-up tasks.
 - Onboarding and payment handoff workflow for won deals, client/project/portal/signature setup, task automation, and payment gates.
+- Solution execution with project health, client-visible progress, milestones, internal tasks, deliverables, and portal progress.
 
 ## High-Priority Future Work
 
@@ -53,7 +54,6 @@ Phases 1-17 are implemented as MVP/foundation slices:
 
 ## Product Roadmap
 
-- Richer solution execution boards with milestones, deliverables, internal assignments, and client-facing progress.
 - Maintenance plans, support tickets, renewal tracking, health scores, and expansion opportunities.
 - Client portal accounts and login.
 - Portal notifications and email alerts.
