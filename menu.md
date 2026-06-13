@@ -11,6 +11,7 @@ Start here when you need project context. This file points to the markdown docum
 
 - [docs/Security.md](docs/Security.md): Authentication, tenant isolation, public routes, webhook verification, rate limiting, sanitization, and security checklists.
 - [docs/Deployment.md](docs/Deployment.md): Vercel deployment, environment variables, MongoDB Atlas, cron, webhook setup, and production checklist.
+- [docs/ProductionSetup.md](docs/ProductionSetup.md): Detailed production setup guide, including how to obtain and configure every production environment variable.
 - [docs/DataModel.md](docs/DataModel.md): Mongoose model groups, relationships, ownership fields, indexes, and data integrity rules.
 - [docs/API.md](docs/API.md): Internal, public, webhook, cron, and download route map with auth expectations.
 - [docs/Testing.md](docs/Testing.md): Test commands, test structure, integration patterns, MongoMemoryServer cleanup rules, and E2E notes.
@@ -25,7 +26,7 @@ Start here when you need project context. This file points to the markdown docum
 
 - Need to add a model? Read [Architecture.md](Architecture.md), then [docs/DataModel.md](docs/DataModel.md), then [docs/Testing.md](docs/Testing.md).
 - Need to add an API route? Read [docs/API.md](docs/API.md) and [docs/Security.md](docs/Security.md).
-- Need to deploy or configure Vercel? Read [docs/Deployment.md](docs/Deployment.md).
+- Need to deploy or configure Vercel? Read [docs/ProductionSetup.md](docs/ProductionSetup.md), then [docs/Deployment.md](docs/Deployment.md).
 - Need to work on SendGrid, Stripe, OpenAI, or signatures? Read [docs/Integrations.md](docs/Integrations.md).
 - Need to fix production behavior? Read [docs/Runbook.md](docs/Runbook.md).
 - Need to know what has already been built? Read [docs/ImplementedStages.md](docs/ImplementedStages.md).

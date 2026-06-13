@@ -71,6 +71,7 @@ Open [http://localhost:3000](http://localhost:3000). If no owner exists, the app
 - [Architecture.md](Architecture.md): current system architecture and conventions.
 - [docs/ImplementedStages.md](docs/ImplementedStages.md): complete implementation history.
 - [docs/Roadmap.md](docs/Roadmap.md): future work and technical debt.
+- [docs/ProductionSetup.md](docs/ProductionSetup.md): detailed production setup and environment variable guide.
 - [docs/Deployment.md](docs/Deployment.md): Vercel and production setup.
 - [docs/Security.md](docs/Security.md): security conventions and checklists.
 - [docs/API.md](docs/API.md): route map.
@@ -121,4 +122,4 @@ The E2E smoke test expects a running app and valid local environment.
 
 ## Production Reminder
 
-Before deploying to production, read [docs/Deployment.md](docs/Deployment.md) and [docs/Security.md](docs/Security.md). Production must use separate MongoDB, Stripe, SendGrid, and webhook credentials from development.
+Before deploying to production, read [docs/ProductionSetup.md](docs/ProductionSetup.md), [docs/Deployment.md](docs/Deployment.md), and [docs/Security.md](docs/Security.md). Production must use separate MongoDB, Stripe, SendGrid, and webhook credentials from development.

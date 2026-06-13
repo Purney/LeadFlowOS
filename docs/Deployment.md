@@ -2,6 +2,8 @@
 
 LeadFlow OS targets Vercel with MongoDB Atlas, Auth.js, SendGrid, Stripe, OpenAI, and optional signature-provider credentials.
 
+For a step-by-step production setup flow, including how to obtain every environment variable, read [ProductionSetup.md](ProductionSetup.md).
+
 ## Required Production Environment
 
 Set these in Vercel production environment variables:
@@ -127,4 +129,3 @@ Upgrade paths:
 - Use Trigger.dev, Inngest, QStash, or a worker queue for large email-send workloads.
 - Add pagination to large list APIs.
 - Add observability for cron duration, webhook failures, and provider retries.
-
