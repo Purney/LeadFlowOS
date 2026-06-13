@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { BarChart3, Bot, BriefcaseBusiness, Clock3, CreditCard, FileQuestion, FileText, Hammer, HeartPulse, Inbox, Rocket, Route, Search, Send, Settings, Share2, Users } from "lucide-react";
+import { BarChart3, Bot, BriefcaseBusiness, Clock3, Command, CreditCard, FileQuestion, FileText, Hammer, HeartPulse, Inbox, Rocket, Route, Search, Send, Settings, Share2, Users } from "lucide-react";
 import { auth, signOut } from "@/auth";
 import { Button } from "@/components/ui/button";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: BarChart3 },
+  { href: "/command", label: "Command", icon: Command },
   { href: "/accounts", label: "Accounts", icon: Route },
   { href: "/research", label: "Research", icon: Search },
   { href: "/leads", label: "Leads", icon: Users },

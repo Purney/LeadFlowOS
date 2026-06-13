@@ -29,3 +29,6 @@ Start here when you need project context. This file points to the markdown docum
 - Need to know what has already been built? Read [docs/ImplementedStages.md](docs/ImplementedStages.md).
 - Need to understand future plans? Read [docs/Roadmap.md](docs/Roadmap.md).
 - Need security guidance before changing public routes, HTML rendering, auth, or webhooks? Read [docs/Security.md](docs/Security.md).
+## Phase 20
+
+- [Phase20CommandCenter.md](docs/Phase20CommandCenter.md) documents the command center aggregate, next-best-action rules, and verification coverage.
