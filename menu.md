@@ -16,8 +16,10 @@ Start here when you need project context. This file points to the markdown docum
 - [docs/Testing.md](docs/Testing.md): Test commands, test structure, integration patterns, MongoMemoryServer cleanup rules, and E2E notes.
 - [docs/Integrations.md](docs/Integrations.md): SendGrid, Stripe, OpenAI, signature provider, and future integration conventions.
 - [docs/Runbook.md](docs/Runbook.md): Operational procedures for incidents, cron, webhooks, email sending, secrets, and common debugging paths.
-- [docs/ImplementedStages.md](docs/ImplementedStages.md): Completed phase history, including Phase 19 maintenance and the security/performance hardening pass.
+- [docs/ImplementedStages.md](docs/ImplementedStages.md): Completed phase history through Phase 21, including command center and warmup governance.
 - [docs/Roadmap.md](docs/Roadmap.md): Future work, technical debt, hardening priorities, and likely next phases.
+- [docs/Phase20CommandCenter.md](docs/Phase20CommandCenter.md): Command center aggregate, next-best-action rules, and verification coverage.
+- [docs/Phase21WarmupGovernance.md](docs/Phase21WarmupGovernance.md): Email warmup safeguards, readiness rules, domain caps, and deliverability verification.
 
 ## Quick Lookup
 
@@ -29,9 +31,5 @@ Start here when you need project context. This file points to the markdown docum
 - Need to know what has already been built? Read [docs/ImplementedStages.md](docs/ImplementedStages.md).
 - Need to understand future plans? Read [docs/Roadmap.md](docs/Roadmap.md).
 - Need security guidance before changing public routes, HTML rendering, auth, or webhooks? Read [docs/Security.md](docs/Security.md).
-## Phase 20
-
-- [Phase20CommandCenter.md](docs/Phase20CommandCenter.md) documents the command center aggregate, next-best-action rules, and verification coverage.
-## Phase 21
-
-- [Phase21WarmupGovernance.md](docs/Phase21WarmupGovernance.md) documents email warmup safeguards, readiness rules, domain caps, and deliverability verification.
+- Need to change command-center actions? Read [docs/Phase20CommandCenter.md](docs/Phase20CommandCenter.md), then [Architecture.md](Architecture.md).
+- Need to change email warmup or deliverability controls? Read [docs/Phase21WarmupGovernance.md](docs/Phase21WarmupGovernance.md), then [docs/Security.md](docs/Security.md) and [docs/Integrations.md](docs/Integrations.md).

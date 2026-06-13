@@ -379,7 +379,7 @@ Good next areas:
 - Advanced analytics and reporting.
 ## Phase 20 Command Center
 
-The command center is implemented as a server-side aggregate in `src/services/command-service.ts`. It does not introduce persistent command records. Instead, it composes existing stage metrics and returns an ordered action list for the authenticated `/command` workspace and dashboard command counts.
+The command center is implemented as a server-side aggregate in `src/services/command-service.ts`. It does not introduce persistent command records. Instead, it composes existing stage metrics and returns an ordered action list for the authenticated `/command` workspace.
 
 Future command rules should usually be added to this service after the underlying stage service exposes the necessary metric or query. This keeps stage ownership clear and avoids duplicate reporting logic.
 ## Phase 21 Warmup Governance

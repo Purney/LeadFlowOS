@@ -2,7 +2,7 @@
 
 LeadFlow OS is a Next.js App Router application for managing the lifecycle from lead capture through outreach, discovery, proposals, revenue, client delivery, and portal collaboration.
 
-The project is currently implemented through Phase 19 as an MVP/foundation build. For architecture, implementation history, and future work, start with [menu.md](menu.md).
+The project is currently implemented through Phase 21 as an MVP/foundation build. For architecture, implementation history, and future work, start with [menu.md](menu.md).
 
 ## Getting Started
 
@@ -100,6 +100,7 @@ The E2E smoke test expects a running app and valid local environment.
 ## Current App Areas
 
 - `/dashboard`
+- `/command`
 - `/accounts`
 - `/research`
 - `/leads`
@@ -121,4 +122,3 @@ The E2E smoke test expects a running app and valid local environment.
 ## Production Reminder
 
 Before deploying to production, read [docs/Deployment.md](docs/Deployment.md) and [docs/Security.md](docs/Security.md). Production must use separate MongoDB, Stripe, SendGrid, and webhook credentials from development.
-> Current implementation status: LeadFlow OS is implemented through Phase 21, including the authenticated command center at `/command` and warmup governance in `/sending`.

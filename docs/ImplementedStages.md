@@ -223,6 +223,7 @@ This document records what has been implemented so far. Keep this as history; us
 - Maintenance workspace at `/maintenance` with plan, ticket, and recurring task creation plus MRR, active plans, open tickets, and at-risk client metrics.
 - Dashboard maintenance-plan metric and sidebar navigation.
 - Unit and integration coverage for maintenance validation, plan/ticket/task creation, metrics, and lifecycle transition to maintenance.
+
 ## Phase 20: Command Center
 
 - Added a server-rendered command workspace at `/command`.
@@ -230,6 +231,7 @@ This document records what has been implemented so far. Keep this as history; us
 - Added prioritized next-best actions with `critical`, `warning`, and `info` severities.
 - Added a dedicated command workspace for command-center critical and warning counts.
 - Added unit and integration coverage for command center typing and action generation.
+
 ## Phase 21: Warmup Governance
 
 - Extended sending account health with authentication, DNS, TLS, unsubscribe, blocklist, bounce, complaint, and deferral signals.

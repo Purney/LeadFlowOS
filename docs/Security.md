@@ -130,6 +130,12 @@ Send-batch generation must filter:
 - Existing clients.
 - Inactive sending accounts.
 - Volumes above daily or warm-up limits.
+- Missing core authentication or unsubscribe support.
+- Blocklisted sending identities.
+- High bounce, complaint, or deferral rates.
+- Recipient-domain volumes above the sending account per-domain cap.
+
+Warmup governance does not use artificial engagement. Keep deliverability controls based on real provider, DNS, suppression, and event signals.
 
 ## Security Headers
 
@@ -159,4 +165,3 @@ Before merging changes:
 - Is stored HTML sanitized?
 - Are webhooks verified before processing?
 - Are large public inputs rate-limited?
-

@@ -32,6 +32,13 @@ Outbound flow:
 4. `sendSendGridMessage` sends each message.
 5. `EmailMessage` records provider message ID.
 
+Warmup governance:
+
+- Sending account readiness is tracked in `EmailAccount.health`.
+- `src/utils/deliverability.ts` owns health scoring, warmup checklist, risk classification, and recommended send volume.
+- Batch generation blocks unsafe warmup volume and enforces per-recipient-domain caps before approval.
+- The app does not send artificial warmup conversations. It relies on real authentication, reputation, bounce, complaint, deferral, blocklist, unsubscribe, and provider-event signals.
+
 Inbound/event behavior:
 
 - Delivery/open/click/bounce/unsubscribe/spam events are stored as `EmailEvent`.
@@ -118,4 +125,3 @@ Files:
 - `src/utils/pdf.ts`
 
 PDF exports are sanitized HTML snapshots rendered to lightweight PDF bytes. This is enough for MVP. For polished PDFs, add a dedicated renderer or service.
-

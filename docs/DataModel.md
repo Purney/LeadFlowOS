@@ -102,7 +102,8 @@ Queries should generally include `organisationId` unless the model is infrastruc
 `EmailAccount`
 
 - Sending identity and deliverability state.
-- Tracks provider, domain, verification status, daily limit, warm-up status, active flag, and health fields.
+- Tracks provider, domain, verification status, daily limit, per-domain cap, target warmup volume, warm-up status, reputation status, active flag, and deliverability review timestamp.
+- Health fields cover SPF, DKIM, DMARC policy, forward/reverse DNS, TLS, tracking domain, unsubscribe support, one-click unsubscribe support, blocklist status, bounce rate, spam complaint rate, and deferral rate.
 
 `SendBatch`
 

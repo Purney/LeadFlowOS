@@ -53,11 +53,13 @@ Check:
 
 - `SENDGRID_API_KEY`
 - Sending account `active=true`.
-- Sending account health and daily limit.
+- Sending account health, daily limit, per-domain cap, warmup status, and reputation status.
+- SPF, DKIM, DMARC, unsubscribe support, blocklist status, bounce rate, complaint rate, and deferral rate.
 - Batch status is `approved`.
 - Lead is not suppressed.
 - Lead status is not `replied`, `won`, or `lost`.
 - Lead email is not already a client contact.
+- Recipient domain has not exceeded the account per-domain batch cap.
 
 Dry-run approved batch processing is supported in service tests and can be used as a debugging pattern.
 
@@ -131,4 +133,3 @@ For `AUTH_SECRET`, rotating may invalidate sessions.
 ## Incident Notes
 
 Prefer adding a short dated note to future `Runbook.md` updates if an incident reveals a new operational gotcha.
-

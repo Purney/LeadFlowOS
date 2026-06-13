@@ -4,7 +4,7 @@ This document captures future work and technical debt beyond the current MVP fou
 
 ## Current State
 
-Phases 1-19 are implemented as MVP/foundation slices:
+Phases 1-21 are implemented as MVP/foundation slices:
 
 - Foundation/auth/org/dashboard.
 - Leads and CSV import.
@@ -25,6 +25,8 @@ Phases 1-19 are implemented as MVP/foundation slices:
 - Onboarding and payment handoff workflow for won deals, client/project/portal/signature setup, task automation, and payment gates.
 - Solution execution with project health, client-visible progress, milestones, internal tasks, deliverables, and portal progress.
 - Maintenance plans, support tickets, recurring maintenance tasks, renewal tracking, health scoring, and MRR metrics.
+- Command center with cross-stage operating metrics and prioritized next-best actions.
+- Warmup governance with deliverability readiness signals, per-domain send caps, and stricter cold-outreach volume rules.
 
 ## High-Priority Future Work
 
@@ -65,6 +67,7 @@ Phases 1-19 are implemented as MVP/foundation slices:
 - Proposal PDF templates.
 - Signed document storage and audit trails.
 - More complete analytics.
+- Domain reputation trend history and provider-specific deliverability diagnostics.
 
 ## Testing Roadmap
 
@@ -78,8 +81,3 @@ Phases 1-19 are implemented as MVP/foundation slices:
 - Add screenshots or diagrams for onboarding new contributors.
 - Add decision records for major future architectural changes.
 - Keep `menu.md` updated whenever new documentation files are added.
-## Phase 21: Warmup Governance
-
-- Track deliverability readiness before cold outreach scales.
-- Enforce per-domain send caps and stricter recommended volume rules.
-- Surface blocked and watch-list sending accounts in the sending workspace.
