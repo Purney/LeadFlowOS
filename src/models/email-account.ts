@@ -1,6 +1,8 @@
 import mongoose, { type InferSchemaType, Schema } from "mongoose";
 import {
+  dmarcPolicies,
   emailProviders,
+  reputationStatuses,
   verificationStatuses,
   warmupStatuses,
 } from "@/types/sending";
@@ -10,10 +12,16 @@ const emailHealthSchema = new Schema(
     spfConfigured: { type: Boolean, default: false },
     dkimConfigured: { type: Boolean, default: false },
     dmarcConfigured: { type: Boolean, default: false },
+    dmarcPolicy: { type: String, enum: dmarcPolicies, default: "none" },
+    forwardReverseDnsConfigured: { type: Boolean, default: false },
+    tlsEnabled: { type: Boolean, default: false },
     trackingDomainConfigured: { type: Boolean, default: false },
     unsubscribeSupported: { type: Boolean, default: true },
+    oneClickUnsubscribeSupported: { type: Boolean, default: false },
+    blocklistDetected: { type: Boolean, default: false },
     bounceRate: { type: Number, default: 0, min: 0, max: 1 },
     spamComplaintRate: { type: Number, default: 0, min: 0, max: 1 },
+    deferralRate: { type: Number, default: 0, min: 0, max: 1 },
   },
   { _id: false },
 );
@@ -44,6 +52,8 @@ const emailAccountSchema = new Schema(
       index: true,
     },
     dailySendLimit: { type: Number, required: true, min: 1, default: 25 },
+    perDomainDailyLimit: { type: Number, required: true, min: 1, default: 5 },
+    warmupTargetDailyVolume: { type: Number, required: true, min: 1, default: 75 },
     warmupStatus: {
       type: String,
       enum: warmupStatuses,
@@ -52,6 +62,14 @@ const emailAccountSchema = new Schema(
       index: true,
     },
     warmupStartedAt: { type: Date },
+    reputationStatus: {
+      type: String,
+      enum: reputationStatuses,
+      required: true,
+      default: "unknown",
+      index: true,
+    },
+    lastDeliverabilityReviewAt: { type: Date },
     active: { type: Boolean, required: true, default: true, index: true },
     health: { type: emailHealthSchema, default: {} },
   },

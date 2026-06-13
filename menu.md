@@ -32,3 +32,6 @@ Start here when you need project context. This file points to the markdown docum
 ## Phase 20
 
 - [Phase20CommandCenter.md](docs/Phase20CommandCenter.md) documents the command center aggregate, next-best-action rules, and verification coverage.
+## Phase 21
+
+- [Phase21WarmupGovernance.md](docs/Phase21WarmupGovernance.md) documents email warmup safeguards, readiness rules, domain caps, and deliverability verification.

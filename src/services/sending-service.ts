@@ -11,9 +11,13 @@ import { getSuppressedEmailSet } from "@/services/suppression-service";
 import { applyPersonalisation } from "@/utils/personalisation";
 import {
   buildDeliverabilityWarnings,
+  buildWarmupChecklist,
   calculateHealthScore,
   recommendedSendVolume,
+  warmupAgeDays,
+  warmupRiskLevel,
 } from "@/utils/deliverability";
+import type { EmailHealth } from "@/types/sending";
 import {
   emailAccountInputSchema,
   emailAccountUpdateSchema,
@@ -34,32 +38,58 @@ function toObjectId(value: string) {
   return new mongoose.Types.ObjectId(value);
 }
 
-function accountView(account: {
-  health: {
-    spfConfigured: boolean;
-    dkimConfigured: boolean;
-    dmarcConfigured: boolean;
-    trackingDomainConfigured: boolean;
-    unsubscribeSupported: boolean;
-    bounceRate: number;
-    spamComplaintRate: number;
+function getEmailDomain(email: string) {
+  return email.split("@")[1]?.toLowerCase() ?? "unknown";
+}
+
+function normaliseHealth(health: Partial<EmailHealth> = {}): EmailHealth {
+  return {
+    spfConfigured: health.spfConfigured ?? false,
+    dkimConfigured: health.dkimConfigured ?? false,
+    dmarcConfigured: health.dmarcConfigured ?? false,
+    dmarcPolicy: health.dmarcPolicy ?? "none",
+    forwardReverseDnsConfigured: health.forwardReverseDnsConfigured ?? false,
+    tlsEnabled: health.tlsEnabled ?? false,
+    trackingDomainConfigured: health.trackingDomainConfigured ?? false,
+    unsubscribeSupported: health.unsubscribeSupported ?? true,
+    oneClickUnsubscribeSupported: health.oneClickUnsubscribeSupported ?? false,
+    blocklistDetected: health.blocklistDetected ?? false,
+    bounceRate: health.bounceRate ?? 0,
+    spamComplaintRate: health.spamComplaintRate ?? 0,
+    deferralRate: health.deferralRate ?? 0,
   };
+}
+
+function accountView(account: {
+  health?: Partial<EmailHealth>;
   dailySendLimit: number;
+  perDomainDailyLimit?: number;
+  warmupTargetDailyVolume?: number;
   warmupStatus: "not_started" | "warming" | "ready" | "paused";
   warmupStartedAt?: Date;
+  reputationStatus?: "unknown" | "good" | "watch" | "poor";
   active: boolean;
 }) {
-  const healthScore = calculateHealthScore(account.health);
+  const health = normaliseHealth(account.health);
+  const healthScore = calculateHealthScore(health);
   const recommendedVolume = recommendedSendVolume({
     dailySendLimit: account.dailySendLimit,
+    warmupTargetDailyVolume: account.warmupTargetDailyVolume,
     warmupStatus: account.warmupStatus,
     warmupStartedAt: account.warmupStartedAt,
-    health: account.health,
+    health,
   });
 
   return {
+    health,
+    perDomainDailyLimit: account.perDomainDailyLimit ?? 5,
+    warmupTargetDailyVolume: account.warmupTargetDailyVolume ?? account.dailySendLimit,
+    reputationStatus: account.reputationStatus ?? "unknown",
     healthScore,
     recommendedVolume,
+    warmupAgeDays: warmupAgeDays(account.warmupStartedAt),
+    warmupRiskLevel: warmupRiskLevel(health),
+    warmupChecklist: buildWarmupChecklist(health),
   };
 }
 
@@ -146,13 +176,18 @@ export async function getSendingMetrics(organisationId: string) {
   ]);
 
   const activeAccounts = accounts.filter((account) => account.active).length;
+  const warmupViews = accounts.map(accountView);
+  const blockedWarmupAccounts = warmupViews.filter(
+    (account) => account.warmupRiskLevel === "blocked",
+  ).length;
+  const watchWarmupAccounts = warmupViews.filter(
+    (account) => account.warmupRiskLevel === "watch",
+  ).length;
   const averageHealth =
     accounts.length > 0
       ? Math.round(
-          accounts.reduce(
-            (total, account) => total + calculateHealthScore(account.health),
-            0,
-          ) / accounts.length,
+          warmupViews.reduce((total, account) => total + account.healthScore, 0) /
+            accounts.length,
         )
       : 0;
 
@@ -161,6 +196,8 @@ export async function getSendingMetrics(organisationId: string) {
     activeAccounts,
     pendingApprovals,
     averageHealth,
+    blockedWarmupAccounts,
+    watchWarmupAccounts,
   };
 }
 
@@ -196,10 +233,12 @@ export async function generateSendBatch(
 
   const recommendedVolume = recommendedSendVolume({
     dailySendLimit: account.dailySendLimit,
+    warmupTargetDailyVolume: account.warmupTargetDailyVolume,
     warmupStatus: account.warmupStatus,
     warmupStartedAt: account.warmupStartedAt,
-    health: account.health,
+    health: normaliseHealth(account.health),
   });
+  const accountHealth = normaliseHealth(account.health);
   const batchLimit = Math.max(0, Math.min(data.limit, account.dailySendLimit, recommendedVolume));
 
   if (batchLimit === 0) {
@@ -248,11 +287,22 @@ export async function generateSendBatch(
       ((client.contacts ?? []) as { email: string }[]).map((contact) => contact.email),
     ),
   );
-  const sendableLeads = leads
+  const eligibleLeads = leads
     .filter((lead) => !suppressed.has(lead.email))
     .filter((lead) => !clientLeadIds.has(String(lead._id)))
-    .filter((lead) => !clientEmails.has(lead.email))
-    .slice(0, batchLimit);
+    .filter((lead) => !clientEmails.has(lead.email));
+  const perDomainDailyLimit = account.perDomainDailyLimit ?? 5;
+  const domainCounts = new Map<string, number>();
+  const sendableLeads = [];
+
+  for (const lead of eligibleLeads) {
+    if (sendableLeads.length >= batchLimit) break;
+    const domain = getEmailDomain(lead.email);
+    const count = domainCounts.get(domain) ?? 0;
+    if (count >= perDomainDailyLimit) continue;
+    domainCounts.set(domain, count + 1);
+    sendableLeads.push(lead);
+  }
   const leadById = new Map(sendableLeads.map((lead) => [String(lead._id), lead]));
   const firstEnrollment = enrollments.find((enrollment) =>
     leadById.has(String(enrollment.leadId)),
@@ -289,7 +339,7 @@ export async function generateSendBatch(
     dailySendLimit: account.dailySendLimit,
     estimatedVolume,
     recommendedVolume,
-    health: account.health,
+    health: accountHealth,
     active: account.active,
   });
   const subjectTemplate =

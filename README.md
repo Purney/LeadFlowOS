@@ -121,4 +121,4 @@ The E2E smoke test expects a running app and valid local environment.
 ## Production Reminder
 
 Before deploying to production, read [docs/Deployment.md](docs/Deployment.md) and [docs/Security.md](docs/Security.md). Production must use separate MongoDB, Stripe, SendGrid, and webhook credentials from development.
-> Current implementation status: LeadFlow OS is implemented through Phase 20, including the authenticated command center at `/command`.
+> Current implementation status: LeadFlow OS is implemented through Phase 21, including the authenticated command center at `/command` and warmup governance in `/sending`.

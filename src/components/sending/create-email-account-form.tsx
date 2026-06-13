@@ -29,16 +29,27 @@ export function CreateEmailAccountForm() {
           sendGridSenderId: form.get("sendGridSenderId"),
           verificationStatus: form.get("verificationStatus"),
           dailySendLimit: form.get("dailySendLimit"),
+          perDomainDailyLimit: form.get("perDomainDailyLimit"),
+          warmupTargetDailyVolume: form.get("warmupTargetDailyVolume"),
           warmupStatus: form.get("warmupStatus"),
+          reputationStatus: form.get("reputationStatus"),
           active: true,
           health: {
             spfConfigured: form.get("spfConfigured") === "on",
             dkimConfigured: form.get("dkimConfigured") === "on",
             dmarcConfigured: form.get("dmarcConfigured") === "on",
+            dmarcPolicy: form.get("dmarcPolicy"),
+            forwardReverseDnsConfigured:
+              form.get("forwardReverseDnsConfigured") === "on",
+            tlsEnabled: form.get("tlsEnabled") === "on",
             trackingDomainConfigured: form.get("trackingDomainConfigured") === "on",
             unsubscribeSupported: form.get("unsubscribeSupported") === "on",
+            oneClickUnsubscribeSupported:
+              form.get("oneClickUnsubscribeSupported") === "on",
+            blocklistDetected: form.get("blocklistDetected") === "on",
             bounceRate: 0,
             spamComplaintRate: 0,
+            deferralRate: 0,
           },
         }),
       });
@@ -116,13 +127,56 @@ export function CreateEmailAccountForm() {
           />
         </div>
       </div>
+      <div className="grid gap-3 sm:grid-cols-3">
+        <div className="space-y-2">
+          <Label htmlFor="perDomainDailyLimit">Per-domain cap</Label>
+          <Input
+            id="perDomainDailyLimit"
+            min={1}
+            name="perDomainDailyLimit"
+            type="number"
+            defaultValue={5}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="warmupTargetDailyVolume">Warm-up target</Label>
+          <Input
+            id="warmupTargetDailyVolume"
+            min={1}
+            name="warmupTargetDailyVolume"
+            type="number"
+            defaultValue={75}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="reputationStatus">Reputation</Label>
+          <Select id="reputationStatus" name="reputationStatus" defaultValue="unknown">
+            <option value="unknown">Unknown</option>
+            <option value="good">Good</option>
+            <option value="watch">Watch</option>
+            <option value="poor">Poor</option>
+          </Select>
+        </div>
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="dmarcPolicy">DMARC policy</Label>
+        <Select id="dmarcPolicy" name="dmarcPolicy" defaultValue="none">
+          <option value="none">None</option>
+          <option value="quarantine">Quarantine</option>
+          <option value="reject">Reject</option>
+        </Select>
+      </div>
       <div className="grid gap-2 sm:grid-cols-2">
         {[
           ["spfConfigured", "SPF configured"],
           ["dkimConfigured", "DKIM configured"],
           ["dmarcConfigured", "DMARC configured"],
+          ["forwardReverseDnsConfigured", "Forward/reverse DNS confirmed"],
+          ["tlsEnabled", "TLS enabled"],
           ["trackingDomainConfigured", "Tracking domain configured"],
           ["unsubscribeSupported", "Unsubscribe supported"],
+          ["oneClickUnsubscribeSupported", "One-click unsubscribe supported"],
+          ["blocklistDetected", "Blocklist detected"],
         ].map(([id, label]) => (
           <label className="flex items-center gap-2 text-sm" key={id}>
             <input

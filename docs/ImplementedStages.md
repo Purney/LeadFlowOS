@@ -230,3 +230,11 @@ This document records what has been implemented so far. Keep this as history; us
 - Added prioritized next-best actions with `critical`, `warning`, and `info` severities.
 - Added a dedicated command workspace for command-center critical and warning counts.
 - Added unit and integration coverage for command center typing and action generation.
+## Phase 21: Warmup Governance
+
+- Extended sending account health with authentication, DNS, TLS, unsubscribe, blocklist, bounce, complaint, and deferral signals.
+- Added warmup governance fields for per-domain caps, target warmup volume, reputation status, and deliverability review tracking.
+- Tightened recommended send volume so unsafe accounts are blocked before cold outreach batches scale.
+- Enforced per-recipient-domain caps during approval batch generation.
+- Added sending dashboard visibility for blocked and watch-list warmup accounts.
+- Added unit and integration coverage for warmup risk, checklist, blocked volume, metrics, and domain caps.

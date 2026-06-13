@@ -382,3 +382,10 @@ Good next areas:
 The command center is implemented as a server-side aggregate in `src/services/command-service.ts`. It does not introduce persistent command records. Instead, it composes existing stage metrics and returns an ordered action list for the authenticated `/command` workspace and dashboard command counts.
 
 Future command rules should usually be added to this service after the underlying stage service exposes the necessary metric or query. This keeps stage ownership clear and avoids duplicate reporting logic.
+## Phase 21 Warmup Governance
+
+Warmup governance lives in the existing sending domain. `src/utils/deliverability.ts` owns the shared policy for health score, warmup checklist, risk level, and recommended send volume. `src/services/sending-service.ts` applies those rules when listing sending accounts, reporting sending metrics, and generating approval batches.
+
+Sending accounts persist readiness signals such as authentication, DNS, TLS, unsubscribe support, blocklist status, bounce rate, complaint rate, deferral rate, per-domain caps, target warmup volume, and reputation status. Batch generation enforces per-recipient-domain caps before manual approval.
+
+This stage intentionally avoids fake warmup conversations. Operators should use real reputation signals and gradual volume controls before cold outreach scales.

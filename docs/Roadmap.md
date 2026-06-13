@@ -78,3 +78,8 @@ Phases 1-19 are implemented as MVP/foundation slices:
 - Add screenshots or diagrams for onboarding new contributors.
 - Add decision records for major future architectural changes.
 - Keep `menu.md` updated whenever new documentation files are added.
+## Phase 21: Warmup Governance
+
+- Track deliverability readiness before cold outreach scales.
+- Enforce per-domain send caps and stricter recommended volume rules.
+- Surface blocked and watch-list sending accounts in the sending workspace.

@@ -1,18 +1,26 @@
 import { describe, expect, it, vi } from "vitest";
 import {
   buildDeliverabilityWarnings,
+  buildWarmupChecklist,
   calculateHealthScore,
   recommendedSendVolume,
+  warmupRiskLevel,
 } from "@/utils/deliverability";
 
 const healthy = {
   spfConfigured: true,
   dkimConfigured: true,
   dmarcConfigured: true,
+  dmarcPolicy: "reject" as const,
+  forwardReverseDnsConfigured: true,
+  tlsEnabled: true,
   trackingDomainConfigured: true,
   unsubscribeSupported: true,
+  oneClickUnsubscribeSupported: true,
+  blocklistDetected: false,
   bounceRate: 0,
   spamComplaintRate: 0,
+  deferralRate: 0,
 };
 
 describe("deliverability", () => {
@@ -30,9 +38,39 @@ describe("deliverability", () => {
         warmupStartedAt: new Date("2026-06-08T00:00:00.000Z"),
         health: healthy,
       }),
-    ).toBe(25);
+    ).toBe(20);
 
     vi.useRealTimers();
+  });
+
+  it("blocks warm-up volume when core authentication is missing", () => {
+    expect(
+      recommendedSendVolume({
+        dailySendLimit: 100,
+        warmupStatus: "warming",
+        warmupStartedAt: new Date("2026-06-08T00:00:00.000Z"),
+        health: { ...healthy, dkimConfigured: false },
+      }),
+    ).toBe(0);
+  });
+
+  it("classifies warm-up risk from compliance and reputation signals", () => {
+    expect(warmupRiskLevel(healthy)).toBe("ready");
+    expect(warmupRiskLevel({ ...healthy, deferralRate: 0.06 })).toBe("watch");
+    expect(warmupRiskLevel({ ...healthy, blocklistDetected: true })).toBe("blocked");
+  });
+
+  it("builds a checklist for the required warm-up controls", () => {
+    expect(buildWarmupChecklist(healthy).map((item) => item.id)).toEqual([
+      "spf",
+      "dkim",
+      "dmarc",
+      "dns",
+      "tls",
+      "unsubscribe",
+      "one-click",
+      "blocklist",
+    ]);
   });
 
   it("flags unsafe batches", () => {

@@ -24,18 +24,35 @@ type AccountView = {
   provider: string;
   verificationStatus: string;
   dailySendLimit: number;
+  perDomainDailyLimit: number;
+  warmupTargetDailyVolume: number;
   warmupStatus: WarmupStatus;
+  warmupAgeDays: number;
+  warmupRiskLevel: "blocked" | "watch" | "ready";
+  reputationStatus: string;
   active: boolean;
   healthScore: number;
   recommendedVolume: number;
+  warmupChecklist: {
+    id: string;
+    label: string;
+    complete: boolean;
+    severity: "blocked" | "watch";
+  }[];
   health: {
     spfConfigured: boolean;
     dkimConfigured: boolean;
     dmarcConfigured: boolean;
+    dmarcPolicy: string;
+    forwardReverseDnsConfigured: boolean;
+    tlsEnabled: boolean;
     trackingDomainConfigured: boolean;
     unsubscribeSupported: boolean;
+    oneClickUnsubscribeSupported: boolean;
+    blocklistDetected: boolean;
     bounceRate: number;
     spamComplaintRate: number;
+    deferralRate: number;
   };
 };
 
@@ -92,7 +109,7 @@ export default async function SendingPage() {
         </p>
       </div>
 
-      <section className="grid gap-4 md:grid-cols-4">
+      <section className="grid gap-4 md:grid-cols-3 xl:grid-cols-6">
         <Card>
           <CardHeader>
             <CardTitle className="text-sm text-muted-foreground">Accounts</CardTitle>
@@ -127,6 +144,24 @@ export default async function SendingPage() {
           <CardContent className="flex items-center gap-3">
             <Send className="h-5 w-5 text-muted-foreground" />
             <p className="text-2xl font-semibold">{metrics.pendingApprovals}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm text-muted-foreground">Warm-up blocked</CardTitle>
+          </CardHeader>
+          <CardContent className="flex items-center gap-3">
+            <AlertTriangle className="h-5 w-5 text-muted-foreground" />
+            <p className="text-2xl font-semibold">{metrics.blockedWarmupAccounts}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm text-muted-foreground">Watch list</CardTitle>
+          </CardHeader>
+          <CardContent className="flex items-center gap-3">
+            <HeartPulse className="h-5 w-5 text-muted-foreground" />
+            <p className="text-2xl font-semibold">{metrics.watchWarmupAccounts}</p>
           </CardContent>
         </Card>
       </section>
@@ -260,13 +295,41 @@ export default async function SendingPage() {
                       <p className="mt-1 text-xl font-semibold">{account.recommendedVolume}</p>
                     </div>
                   </div>
+                  <div className="grid gap-3 sm:grid-cols-4">
+                    <div className="rounded-md border border-border p-3">
+                      <p className="text-xs uppercase text-muted-foreground">Risk</p>
+                      <p className="mt-1 text-sm font-semibold">{account.warmupRiskLevel}</p>
+                    </div>
+                    <div className="rounded-md border border-border p-3">
+                      <p className="text-xs uppercase text-muted-foreground">Age</p>
+                      <p className="mt-1 text-sm font-semibold">
+                        {account.warmupAgeDays} days
+                      </p>
+                    </div>
+                    <div className="rounded-md border border-border p-3">
+                      <p className="text-xs uppercase text-muted-foreground">Domain cap</p>
+                      <p className="mt-1 text-sm font-semibold">
+                        {account.perDomainDailyLimit}/day
+                      </p>
+                    </div>
+                    <div className="rounded-md border border-border p-3">
+                      <p className="text-xs uppercase text-muted-foreground">Reputation</p>
+                      <p className="mt-1 text-sm font-semibold">
+                        {account.reputationStatus}
+                      </p>
+                    </div>
+                  </div>
                   <div className="flex flex-wrap gap-2 text-xs">
                     {[
                       ["SPF", account.health.spfConfigured],
                       ["DKIM", account.health.dkimConfigured],
                       ["DMARC", account.health.dmarcConfigured],
+                      ["DNS", account.health.forwardReverseDnsConfigured],
+                      ["TLS", account.health.tlsEnabled],
                       ["Tracking", account.health.trackingDomainConfigured],
                       ["Unsubscribe", account.health.unsubscribeSupported],
+                      ["One-click", account.health.oneClickUnsubscribeSupported],
+                      ["Blocklist clear", !account.health.blocklistDetected],
                     ].map(([label, ok]) => (
                       <span
                         className={`rounded-md px-2 py-1 font-medium ${
@@ -277,6 +340,28 @@ export default async function SendingPage() {
                         {label}
                       </span>
                     ))}
+                  </div>
+                  <div className="rounded-md border border-border p-4">
+                    <p className="mb-3 text-sm font-medium">Warm-up checklist</p>
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      {account.warmupChecklist.map((item) => (
+                        <div
+                          className="flex items-center justify-between gap-3 text-sm"
+                          key={item.id}
+                        >
+                          <span className="text-muted-foreground">{item.label}</span>
+                          <span
+                            className={
+                              item.complete
+                                ? "font-medium text-foreground"
+                                : "font-medium text-destructive"
+                            }
+                          >
+                            {item.complete ? "Ready" : item.severity}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </CardContent>
               </Card>

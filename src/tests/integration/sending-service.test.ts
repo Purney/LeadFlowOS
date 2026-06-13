@@ -80,10 +80,16 @@ async function bootstrapScenario() {
       spfConfigured: true,
       dkimConfigured: true,
       dmarcConfigured: true,
+      dmarcPolicy: "reject",
+      forwardReverseDnsConfigured: true,
+      tlsEnabled: true,
       trackingDomainConfigured: true,
       unsubscribeSupported: true,
+      oneClickUnsubscribeSupported: true,
+      blocklistDetected: false,
       bounceRate: 0,
       spamComplaintRate: 0,
+      deferralRate: 0,
     },
   });
 
@@ -130,6 +136,8 @@ describe("sending service", () => {
     expect(metrics.accounts).toBe(1);
     expect(metrics.activeAccounts).toBe(1);
     expect(metrics.averageHealth).toBe(100);
+    expect(metrics.blockedWarmupAccounts).toBe(0);
+    expect(metrics.watchWarmupAccounts).toBe(0);
   });
 
   it("generates pending approval batches and supports approval", async () => {
@@ -192,6 +200,35 @@ describe("sending service", () => {
 
     expect(clientResult?.batch).toBeNull();
     expect(clientResult?.created).toBe(0);
+  });
+
+  it("caps generated batches by recipient domain during warm-up governance", async () => {
+    const { campaign, account } = await bootstrapScenario();
+    const extraLead = await createLead(context, {
+      email: "katherine@example.com",
+      firstName: "Katherine",
+      company: "Compiler Labs",
+      tags: [],
+      status: "new",
+      customFields: {},
+    });
+    await enrollLeadsInCampaign(context, campaign._id.toString(), {
+      leadIds: [extraLead._id.toString()],
+      startAt: new Date("2026-06-11T00:00:00.000Z"),
+    });
+    await EmailAccount.updateOne(
+      { _id: account._id },
+      { $set: { perDomainDailyLimit: 1 } },
+    );
+
+    const result = await generateSendBatch(context, {
+      campaignId: campaign._id.toString(),
+      sendingAccountId: account._id.toString(),
+      limit: 10,
+    });
+
+    expect(result?.created).toBe(1);
+    expect(result?.batch?.recipients).toHaveLength(1);
   });
 
   it("processes due approved send batches from the scheduled job helper", async () => {
