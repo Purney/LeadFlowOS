@@ -33,7 +33,8 @@ export function ProjectProgressForm({ projects }: { projects: ProjectOption[] })
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
     const projectId = String(form.get("projectId") ?? "");
     const payload = {
       health: form.get("health"),
@@ -52,7 +53,7 @@ export function ProjectProgressForm({ projects }: { projects: ProjectOption[] })
         setError("Could not update project progress.");
         return;
       }
-      event.currentTarget.reset();
+      formElement.reset();
       router.refresh();
     });
   }
@@ -97,7 +98,8 @@ export function MilestoneForm({ projects }: { projects: ProjectOption[] }) {
 
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
     startTransition(async () => {
       await postJson("/api/execution/milestones", {
         projectId: form.get("projectId"),
@@ -106,7 +108,7 @@ export function MilestoneForm({ projects }: { projects: ProjectOption[] }) {
         status: form.get("status"),
         dueDate: form.get("dueDate") || undefined,
       });
-      event.currentTarget.reset();
+      formElement.reset();
       router.refresh();
     });
   }
@@ -134,7 +136,8 @@ export function ExecutionTaskForm({ projects }: { projects: ProjectOption[] }) {
 
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
     startTransition(async () => {
       await postJson("/api/execution/tasks", {
         projectId: form.get("projectId"),
@@ -144,7 +147,7 @@ export function ExecutionTaskForm({ projects }: { projects: ProjectOption[] }) {
         status: form.get("status"),
         dueDate: form.get("dueDate") || undefined,
       });
-      event.currentTarget.reset();
+      formElement.reset();
       router.refresh();
     });
   }
@@ -173,7 +176,8 @@ export function DeliverableForm({ projects }: { projects: ProjectOption[] }) {
 
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
     startTransition(async () => {
       await postJson("/api/execution/deliverables", {
         projectId: form.get("projectId"),
@@ -182,7 +186,7 @@ export function DeliverableForm({ projects }: { projects: ProjectOption[] }) {
         url: form.get("url"),
         status: form.get("status"),
       });
-      event.currentTarget.reset();
+      formElement.reset();
       router.refresh();
     });
   }

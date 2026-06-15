@@ -18,7 +18,8 @@ export function TimeEntryForm({
 
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
     const project = projects.find((item) => item.id === form.get("projectId"));
     setMessage(null);
 
@@ -39,7 +40,7 @@ export function TimeEntryForm({
         setMessage(body?.error ?? "Time entry failed.");
         return;
       }
-      event.currentTarget.reset();
+      formElement.reset();
       setMessage("Time logged.");
       router.refresh();
     });

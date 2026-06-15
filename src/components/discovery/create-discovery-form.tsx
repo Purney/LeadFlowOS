@@ -25,7 +25,8 @@ export function CreateDiscoveryForm() {
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setMessage(null);
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
     const labels = lines(form.get("fieldLabels"));
     const fieldType = String(form.get("fieldType"));
     const options = lines(form.get("options"));
@@ -59,7 +60,7 @@ export function CreateDiscoveryForm() {
         return;
       }
 
-      event.currentTarget.reset();
+      formElement.reset();
       setMessage("Discovery form created.");
       router.refresh();
     });

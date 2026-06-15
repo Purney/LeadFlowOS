@@ -23,7 +23,8 @@ export function CreateCampaignForm() {
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
     const steps = [
       {
         name: "Initial outreach",
@@ -60,7 +61,7 @@ export function CreateCampaignForm() {
         return;
       }
 
-      event.currentTarget.reset();
+      formElement.reset();
       router.refresh();
     });
   }

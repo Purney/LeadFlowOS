@@ -21,7 +21,8 @@ export function PublicResponseForm({
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setMessage(null);
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
     const answers = Object.fromEntries(
       fields.map((field) => {
         if (field.type === "multi_select") {
@@ -50,7 +51,7 @@ export function PublicResponseForm({
         return;
       }
 
-      event.currentTarget.reset();
+      formElement.reset();
       setMessage("Response submitted. Thank you.");
     });
   }

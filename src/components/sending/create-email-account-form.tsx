@@ -16,7 +16,8 @@ export function CreateEmailAccountForm() {
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
 
     startTransition(async () => {
       const response = await fetch("/api/email-accounts", {
@@ -62,7 +63,7 @@ export function CreateEmailAccountForm() {
         return;
       }
 
-      event.currentTarget.reset();
+      formElement.reset();
       router.refresh();
     });
   }

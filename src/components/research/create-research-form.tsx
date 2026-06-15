@@ -25,7 +25,8 @@ export function CreateResearchForm() {
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
     const payload = {
       companyName: form.get("companyName"),
       website: form.get("website"),
@@ -65,7 +66,7 @@ export function CreateResearchForm() {
         return;
       }
 
-      event.currentTarget.reset();
+      formElement.reset();
       router.refresh();
     });
   }

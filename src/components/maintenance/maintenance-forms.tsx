@@ -31,7 +31,8 @@ export function MaintenancePlanForm({ clients }: { clients: ClientOption[] }) {
 
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
     startTransition(async () => {
       await postJson("/api/maintenance/plans", {
         clientId: form.get("clientId"),
@@ -44,7 +45,7 @@ export function MaintenancePlanForm({ clients }: { clients: ClientOption[] }) {
         nextCheckInDate: form.get("nextCheckInDate") || undefined,
         notes: form.get("notes"),
       });
-      event.currentTarget.reset();
+      formElement.reset();
       router.refresh();
     });
   }
@@ -84,7 +85,8 @@ export function SupportTicketForm({ clients }: { clients: ClientOption[] }) {
 
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
     startTransition(async () => {
       await postJson("/api/maintenance/tickets", {
         clientId: form.get("clientId"),
@@ -93,7 +95,7 @@ export function SupportTicketForm({ clients }: { clients: ClientOption[] }) {
         priority: form.get("priority"),
         dueDate: form.get("dueDate") || undefined,
       });
-      event.currentTarget.reset();
+      formElement.reset();
       router.refresh();
     });
   }
@@ -121,7 +123,8 @@ export function MaintenanceTaskForm({ plans }: { plans: PlanOption[] }) {
 
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
     startTransition(async () => {
       await postJson("/api/maintenance/tasks", {
         planId: form.get("planId"),
@@ -129,7 +132,7 @@ export function MaintenanceTaskForm({ plans }: { plans: PlanOption[] }) {
         description: form.get("description"),
         dueDate: form.get("dueDate") || undefined,
       });
-      event.currentTarget.reset();
+      formElement.reset();
       router.refresh();
     });
   }

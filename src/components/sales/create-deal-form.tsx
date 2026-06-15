@@ -18,7 +18,8 @@ export function CreateDealForm() {
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
     const payload = {
       title: form.get("title"),
       companyName: form.get("companyName"),
@@ -48,7 +49,7 @@ export function CreateDealForm() {
         return;
       }
 
-      event.currentTarget.reset();
+      formElement.reset();
       router.refresh();
     });
   }

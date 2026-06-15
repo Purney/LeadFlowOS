@@ -60,14 +60,18 @@ export async function createFirstOwner(input: SignupInput) {
     throw error;
   }
 
-  await createActivity({
-    organisationId: organisation._id.toString(),
-    actorUserId: user._id.toString(),
-    entityType: "organisation",
-    entityId: organisation._id.toString(),
-    action: "organisation.created",
-    metadata: { source: "first_owner_signup" },
-  });
+  try {
+    await createActivity({
+      organisationId: organisation._id.toString(),
+      actorUserId: user._id.toString(),
+      entityType: "organisation",
+      entityId: organisation._id.toString(),
+      action: "organisation.created",
+      metadata: { source: "first_owner_signup" },
+    });
+  } catch (error) {
+    console.error("Failed to record first-owner signup activity.", error);
+  }
 
   return {
     user,

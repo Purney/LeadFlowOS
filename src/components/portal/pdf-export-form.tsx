@@ -20,7 +20,8 @@ export function PdfExportForm({
 
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
     setMessage(null);
 
     startTransition(async () => {
@@ -38,7 +39,7 @@ export function PdfExportForm({
         setMessage(body?.error ?? "PDF export failed.");
         return;
       }
-      event.currentTarget.reset();
+      formElement.reset();
       setMessage("PDF-ready export generated.");
       router.refresh();
     });

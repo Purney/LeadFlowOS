@@ -19,7 +19,8 @@ export function CreateProjectForm({
 
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
     setMessage(null);
     startTransition(async () => {
       const response = await fetch("/api/projects", {
@@ -41,7 +42,7 @@ export function CreateProjectForm({
         setMessage(body?.error ?? "Project creation failed.");
         return;
       }
-      event.currentTarget.reset();
+      formElement.reset();
       setMessage("Project created.");
       router.refresh();
     });

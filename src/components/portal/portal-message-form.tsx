@@ -21,7 +21,8 @@ export function PortalMessageForm({
 
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
     setMessage(null);
 
     startTransition(async () => {
@@ -40,7 +41,7 @@ export function PortalMessageForm({
         setMessage(body?.error ?? "Message failed.");
         return;
       }
-      event.currentTarget.reset();
+      formElement.reset();
       setMessage("Message posted.");
       router.refresh();
     });

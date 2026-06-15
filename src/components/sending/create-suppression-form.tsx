@@ -16,7 +16,8 @@ export function CreateSuppressionForm() {
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setMessage(null);
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
 
     startTransition(async () => {
       const response = await fetch("/api/suppressions", {
@@ -37,7 +38,7 @@ export function CreateSuppressionForm() {
         return;
       }
 
-      event.currentTarget.reset();
+      formElement.reset();
       setMessage("Suppression saved.");
       router.refresh();
     });

@@ -26,7 +26,8 @@ export function CreateHandoffForm({ deals }: { deals: DealOption[] }) {
     event.preventDefault();
     setError(null);
     setPortalToken(null);
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
     const payload = {
       dealId: form.get("dealId"),
       projectName: form.get("projectName"),
@@ -60,7 +61,7 @@ export function CreateHandoffForm({ deals }: { deals: DealOption[] }) {
       }
 
       setPortalToken(body?.portalToken ?? null);
-      event.currentTarget.reset();
+      formElement.reset();
       router.refresh();
     });
   }

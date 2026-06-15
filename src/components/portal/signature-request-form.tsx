@@ -21,7 +21,8 @@ export function SignatureRequestForm({
 
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
     const client = clients.find((item) => item.id === form.get("clientId"));
     setMessage(null);
 
@@ -45,7 +46,7 @@ export function SignatureRequestForm({
         setMessage(body?.error ?? "Signature request failed.");
         return;
       }
-      event.currentTarget.reset();
+      formElement.reset();
       setMessage("Signature request created.");
       router.refresh();
     });

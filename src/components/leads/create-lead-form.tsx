@@ -18,7 +18,8 @@ export function CreateLeadForm() {
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
-    const form = new FormData(event.currentTarget);
+    const formElement = event.currentTarget;
+    const form = new FormData(formElement);
     const payload = {
       firstName: form.get("firstName"),
       lastName: form.get("lastName"),
@@ -52,7 +53,7 @@ export function CreateLeadForm() {
         return;
       }
 
-      event.currentTarget.reset();
+      formElement.reset();
       router.refresh();
     });
   }
