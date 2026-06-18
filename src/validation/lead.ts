@@ -7,6 +7,32 @@ const optionalText = z
   .optional()
   .transform((value) => value || undefined);
 
+const reservedCustomFieldKeys = new Set([
+  "__proto__",
+  "constructor",
+  "prototype",
+  "organisationId",
+  "createdByUserId",
+  "passwordHash",
+]);
+
+const customFieldsSchema = z
+  .record(z.string(), z.union([z.string(), z.number(), z.boolean()]))
+  .default({})
+  .transform((fields) => {
+    const entries = Object.entries(fields)
+      .map(([key, value]) => [key.trim(), String(value).trim()] as const)
+      .filter(([key, value]) => {
+        if (!key || !value) return false;
+        if (key.length > 64 || value.length > 1000) return false;
+        if (reservedCustomFieldKeys.has(key)) return false;
+        return /^[A-Za-z][A-Za-z0-9_ -]*$/.test(key);
+      })
+      .slice(0, 50);
+
+    return Object.fromEntries(entries);
+  });
+
 export const leadStatusSchema = z.enum(leadStatuses);
 
 export const leadInputSchema = z.object({
@@ -17,11 +43,16 @@ export const leadInputSchema = z.object({
   company: optionalText,
   website: optionalText,
   role: optionalText,
+  specificDataPoint: optionalText,
+  normalisedCompany: optionalText,
+  magnetName: optionalText,
+  personalisedWorkflowValue: optionalText,
+  senderEmailSignature: optionalText,
   tags: z.array(z.string().trim().min(1)).default([]),
   notes: optionalText,
   source: optionalText,
   status: leadStatusSchema.default("new"),
-  customFields: z.record(z.string(), z.unknown()).default({}),
+  customFields: customFieldsSchema,
 });
 
 export const leadUpdateSchema = leadInputSchema.partial().extend({

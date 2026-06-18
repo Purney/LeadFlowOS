@@ -19,4 +19,20 @@ describe("lead validation", () => {
 
     expect(result.success).toBe(false);
   });
+
+  it("sanitises custom fields into a safe text map", () => {
+    const lead = leadInputSchema.parse({
+      email: "ada@example.com",
+      customFields: {
+        "Project Type": "Healthcare refurbishment",
+        "__proto__": "blocked",
+        empty: "",
+        "1bad": "blocked",
+      },
+    });
+
+    expect(lead.customFields).toEqual({
+      "Project Type": "Healthcare refurbishment",
+    });
+  });
 });

@@ -18,6 +18,7 @@ Start here when you need project context. This file points to the markdown docum
 - [docs/Integrations.md](docs/Integrations.md): Mailgun, Stripe, OpenAI, signature provider, and future integration conventions.
 - [docs/Runbook.md](docs/Runbook.md): Operational procedures for incidents, cron, webhooks, email sending, secrets, and common debugging paths.
 - [docs/ImplementedStages.md](docs/ImplementedStages.md): Completed phase history through Phase 21, including command center and warmup governance.
+- [docs/ImplementedStages.md](docs/ImplementedStages.md#post-phase-21-outreach-personalisation): Latest post-Phase 21 outreach enhancements, including global lead fields, spintax, signatures, and positive-reply automation.
 - [docs/Roadmap.md](docs/Roadmap.md): Future work, technical debt, hardening priorities, and likely next phases.
 - [docs/Phase20CommandCenter.md](docs/Phase20CommandCenter.md): Command center aggregate, next-best-action rules, and verification coverage.
 - [docs/Phase21WarmupGovernance.md](docs/Phase21WarmupGovernance.md): Email warmup safeguards, readiness rules, domain caps, and deliverability verification.
@@ -34,3 +35,4 @@ Start here when you need project context. This file points to the markdown docum
 - Need security guidance before changing public routes, HTML rendering, auth, or webhooks? Read [docs/Security.md](docs/Security.md).
 - Need to change command-center actions? Read [docs/Phase20CommandCenter.md](docs/Phase20CommandCenter.md), then [Architecture.md](Architecture.md).
 - Need to change email warmup or deliverability controls? Read [docs/Phase21WarmupGovernance.md](docs/Phase21WarmupGovernance.md), then [docs/Security.md](docs/Security.md) and [docs/Integrations.md](docs/Integrations.md).
+- Need to change campaign variables, custom lead fields, spintax, signatures, or positive-reply booking automation? Read [docs/ImplementedStages.md](docs/ImplementedStages.md#post-phase-21-outreach-personalisation), [docs/DataModel.md](docs/DataModel.md), and [docs/Integrations.md](docs/Integrations.md).

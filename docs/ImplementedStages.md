@@ -240,3 +240,15 @@ This document records what has been implemented so far. Keep this as history; us
 - Enforced per-recipient-domain caps during approval batch generation.
 - Added sending dashboard visibility for blocked and watch-list warmup accounts.
 - Added unit and integration coverage for warmup risk, checklist, blocked volume, metrics, and domain caps.
+
+## Post-Phase 21 Outreach Personalisation
+
+- Added organisation-level lead custom field definitions so custom fields can appear on every lead like first name, company, and role.
+- Added inline lead custom field editing and custom field values on lead creation.
+- CSV import now preserves unknown columns as lead custom fields.
+- Campaign personalisation resolves custom lead-field tokens such as `{PROJECT_TYPE}`.
+- Campaign copy supports deterministic spintax using `{{RANDOM | option one | option two}}`.
+- Campaigns now have a dashboard/list page, a create page, individual detail pages, and draft edit pages.
+- Send batches store both approval-preview copy and original templates for send-time per-recipient rendering.
+- Added organisation outbound settings for global signature, booking link, and positive-reply booking auto-response templates.
+- Inbound positive replies can trigger the configured booking-call auto-response, with provider failures captured on the outbound message record.

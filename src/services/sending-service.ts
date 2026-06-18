@@ -5,10 +5,12 @@ import { CampaignEnrollment } from "@/models/campaign-enrollment";
 import { Client } from "@/models/client";
 import { EmailAccount } from "@/models/email-account";
 import { Lead } from "@/models/lead";
+import { Organisation } from "@/models/organisation";
 import { SendBatch } from "@/models/send-batch";
 import { createActivity } from "@/services/activity-service";
 import { getSuppressedEmailSet } from "@/services/suppression-service";
 import { applyPersonalisation } from "@/utils/personalisation";
+import { renderSpintax } from "@/utils/spintax";
 import {
   buildDeliverabilityWarnings,
   buildWarmupChecklist,
@@ -34,12 +36,25 @@ type ActorContext = {
   userId: string;
 };
 
+type OutboundSettings = {
+  globalSignature?: string;
+  bookingLink?: string;
+};
+
 function toObjectId(value: string) {
   return new mongoose.Types.ObjectId(value);
 }
 
 function getEmailDomain(email: string) {
   return email.split("@")[1]?.toLowerCase() ?? "unknown";
+}
+
+function appendSignature(body: string, signature?: string) {
+  if (!signature || body.includes("{GLOBAL_SIGNATURE}")) {
+    return body;
+  }
+
+  return `${body.trim()}\n\n${signature.trim()}`;
 }
 
 function normaliseHealth(health: Partial<EmailHealth> = {}): EmailHealth {
@@ -216,7 +231,7 @@ export async function generateSendBatch(
   const data = generateSendBatchSchema.parse(input);
   await connectToDatabase();
 
-  const [campaign, account] = await Promise.all([
+  const [campaign, account, organisation] = await Promise.all([
     Campaign.findOne({
       _id: toObjectId(data.campaignId),
       organisationId: toObjectId(context.organisationId),
@@ -225,6 +240,9 @@ export async function generateSendBatch(
       _id: toObjectId(data.sendingAccountId),
       organisationId: toObjectId(context.organisationId),
     }),
+    Organisation.findById(context.organisationId)
+      .select("outboundSettings")
+      .lean(),
   ]);
 
   if (!campaign || !account || campaign.steps.length === 0 || !account.active) {
@@ -332,6 +350,7 @@ export async function generateSendBatch(
       firstName: lead.firstName,
       lastName: lead.lastName,
       company: lead.company,
+      customFields: lead.customFields ?? {},
     }));
   const sampleLead = recipients[0];
   const estimatedVolume = recipients.length;
@@ -344,16 +363,34 @@ export async function generateSendBatch(
   });
   const subjectTemplate =
     firstStep.subjectVariants[Math.min(subjectIndex, firstStep.subjectVariants.length - 1)];
-  const bodyTemplate =
-    firstStep.bodyVariants[Math.min(bodyIndex, firstStep.bodyVariants.length - 1)];
+  const bodyTemplate = appendSignature(
+    firstStep.bodyVariants[Math.min(bodyIndex, firstStep.bodyVariants.length - 1)],
+    ((organisation?.outboundSettings as OutboundSettings | undefined) ?? {})
+      .globalSignature,
+  );
+  const outboundSettings =
+    (organisation?.outboundSettings as OutboundSettings | undefined) ?? {};
+  const renderContext = {
+    ...sampleLead,
+    globalSignature: outboundSettings.globalSignature,
+    bookingLink: outboundSettings.bookingLink,
+  };
   const batch = await SendBatch.create({
     organisationId: toObjectId(context.organisationId),
     createdByUserId: toObjectId(context.userId),
     campaignId: campaign._id,
     sendingAccountId: account._id,
     recipients,
-    subject: applyPersonalisation(subjectTemplate, sampleLead),
-    body: applyPersonalisation(bodyTemplate, sampleLead),
+    subject: applyPersonalisation(
+      renderSpintax(subjectTemplate, `${campaign._id}:${sampleLead?.leadId}:subject`),
+      renderContext,
+    ),
+    body: applyPersonalisation(
+      renderSpintax(bodyTemplate, `${campaign._id}:${sampleLead?.leadId}:body`),
+      renderContext,
+    ),
+    subjectTemplate,
+    bodyTemplate,
     variantLabel: `step-${firstStep.order}-subject-${subjectIndex}-body-${bodyIndex}`,
     scheduledSendTime: data.scheduledSendTime ?? firstEnrollment.nextScheduledAt,
     estimatedVolume,

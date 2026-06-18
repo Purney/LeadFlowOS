@@ -4,11 +4,14 @@ import { Search } from "lucide-react";
 import { auth } from "@/auth";
 import { CreateLeadForm } from "@/components/leads/create-lead-form";
 import { ImportLeadsForm } from "@/components/leads/import-leads-form";
+import { LeadFieldSettingsForm } from "@/components/leads/lead-field-settings-form";
+import { LeadCustomFields } from "@/components/leads/lead-custom-fields";
 import { LeadActions } from "@/components/leads/lead-actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { getLeadMetrics, listLeads } from "@/services/lead-service";
+import { getOrganisationSettings } from "@/services/organisation-service";
 import { leadStatuses, type LeadStatus } from "@/types/lead";
 
 type LeadsPageProps = {
@@ -32,6 +35,7 @@ type LeadView = {
   notes?: string;
   source?: string;
   status: LeadStatus;
+  customFields?: Record<string, unknown>;
 };
 
 export default async function LeadsPage({ searchParams }: LeadsPageProps) {
@@ -51,6 +55,9 @@ export default async function LeadsPage({ searchParams }: LeadsPageProps) {
     listLeads({ organisationId: session.user.organisationId }, filters),
     getLeadMetrics(session.user.organisationId),
   ]);
+  const organisationSettings = await getOrganisationSettings(
+    session.user.organisationId,
+  );
   const viewLeads: LeadView[] = leads.map((lead) => ({
     ...lead,
     tags: Array.isArray(lead.tags) ? (lead.tags as string[]) : [],
@@ -102,7 +109,9 @@ export default async function LeadsPage({ searchParams }: LeadsPageProps) {
             <CardTitle>Create lead</CardTitle>
           </CardHeader>
           <CardContent>
-            <CreateLeadForm />
+            <CreateLeadForm
+              leadCustomFields={organisationSettings.leadCustomFields}
+            />
           </CardContent>
         </Card>
         <Card>
@@ -114,6 +123,18 @@ export default async function LeadsPage({ searchParams }: LeadsPageProps) {
           </CardContent>
         </Card>
       </section>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Lead field settings</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <LeadFieldSettingsForm
+            leadCustomFields={organisationSettings.leadCustomFields}
+            outboundSettings={organisationSettings.outboundSettings}
+          />
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
@@ -163,6 +184,7 @@ export default async function LeadsPage({ searchParams }: LeadsPageProps) {
                   <th className="px-4 py-3 font-medium">Tags</th>
                   <th className="px-4 py-3 font-medium">Source</th>
                   <th className="px-4 py-3 font-medium">Notes</th>
+                  <th className="px-4 py-3 font-medium">Custom fields</th>
                   <th className="px-4 py-3 font-medium">Status</th>
                 </tr>
               </thead>
@@ -217,6 +239,13 @@ export default async function LeadsPage({ searchParams }: LeadsPageProps) {
                       <td className="max-w-56 px-4 py-3 align-top text-muted-foreground">
                         <p className="line-clamp-3">{lead.notes ?? "No notes"}</p>
                       </td>
+                      <td className="min-w-96 px-4 py-3 align-top">
+                        <LeadCustomFields
+                          customFields={lead.customFields ?? {}}
+                          fieldDefinitions={organisationSettings.leadCustomFields}
+                          leadId={lead._id.toString()}
+                        />
+                      </td>
                       <td className="px-4 py-3 align-top">
                         <LeadActions
                           leadId={lead._id.toString()}
@@ -229,7 +258,7 @@ export default async function LeadsPage({ searchParams }: LeadsPageProps) {
                   <tr>
                     <td
                       className="px-4 py-10 text-center text-muted-foreground"
-                      colSpan={6}
+                      colSpan={7}
                     >
                       No leads match this view.
                     </td>

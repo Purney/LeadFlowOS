@@ -7,6 +7,7 @@ type LeadPromptData = {
   role?: string;
   notes?: string;
   source?: string;
+  customFields?: Record<string, unknown>;
 };
 
 type MessagePromptData = {
@@ -17,6 +18,10 @@ type MessagePromptData = {
 };
 
 function leadBlock(lead: LeadPromptData) {
+  const customFields = Object.entries(lead.customFields ?? {})
+    .map(([key, value]) => `${key}: ${String(value ?? "")}`)
+    .join("\n");
+
   return [
     `Name: ${[lead.firstName, lead.lastName].filter(Boolean).join(" ") || "Unknown"}`,
     `Email: ${lead.email}`,
@@ -25,6 +30,7 @@ function leadBlock(lead: LeadPromptData) {
     `Role: ${lead.role ?? "Unknown"}`,
     `Source: ${lead.source ?? "Unknown"}`,
     `Notes: ${lead.notes ?? "None"}`,
+    customFields ? `Custom fields:\n${customFields}` : "Custom fields: None",
   ].join("\n");
 }
 

@@ -123,6 +123,8 @@ Required flow:
 4. Manually approve batch.
 5. Process approved batch.
 
+Positive-reply booking automation is the deliberate exception. It only runs after a lead has replied inbound, the organisation has explicitly enabled the setting, and the reply text is classified as positive by the service. The auto-response template is organisation-scoped and provider failures are recorded on the outbound `EmailMessage` rather than failing inbound webhook processing.
+
 Send-batch generation must filter:
 
 - Suppressed emails.
@@ -136,6 +138,8 @@ Send-batch generation must filter:
 - Recipient-domain volumes above the sending account per-domain cap.
 
 Warmup governance does not use artificial engagement. Keep deliverability controls based on real provider, DNS, suppression, and event signals.
+
+Campaign templates can include custom-field tokens, `{GLOBAL_SIGNATURE}`, `{BOOKING_LINK}`, and spintax. Keep rendering server-side and do not expose provider credentials or send actions to client components.
 
 ## Security Headers
 

@@ -4,11 +4,14 @@ import { EmailAccount } from "@/models/email-account";
 import { EmailEvent } from "@/models/email-event";
 import { EmailMessage } from "@/models/email-message";
 import { Lead } from "@/models/lead";
+import { Organisation } from "@/models/organisation";
 import { SendBatch } from "@/models/send-batch";
 import { connectToDatabase } from "@/lib/db";
 import { createActivity } from "@/services/activity-service";
 import { createSuppression, getSuppressedEmailSet } from "@/services/suppression-service";
 import { sendMailgunMessage } from "@/services/mailgun-service";
+import { applyPersonalisation } from "@/utils/personalisation";
+import { renderSpintax } from "@/utils/spintax";
 
 type ActorContext = {
   organisationId: string;
@@ -54,6 +57,16 @@ type BatchRecipient = {
   firstName?: string;
   lastName?: string;
   company?: string;
+  customFields?: Record<string, unknown>;
+};
+
+type OutboundSettings = {
+  globalSignature?: string;
+  bookingLink?: string;
+  positiveAutoReplyEnabled?: boolean;
+  positiveAutoReplyDelayMinutes?: number;
+  positiveAutoReplySubject?: string;
+  positiveAutoReplyBody?: string;
 };
 
 function toObjectId(value: string) {
@@ -71,6 +84,28 @@ function eventToMessageStatus(event: string) {
   };
 
   return map[event] ?? "sent";
+}
+
+function isPositiveReply(subject: string, body: string) {
+  const value = `${subject} ${body}`.toLowerCase();
+  const positiveSignals = [
+    "interested",
+    "sounds good",
+    "book",
+    "call",
+    "send it",
+    "yes",
+    "let's",
+    "lets",
+    "next step",
+    "tell me more",
+  ];
+  const negativeSignals = ["not interested", "unsubscribe", "no thanks", "stop"];
+
+  return (
+    positiveSignals.some((signal) => value.includes(signal)) &&
+    !negativeSignals.some((signal) => value.includes(signal))
+  );
 }
 
 export async function processApprovedSendBatch(
@@ -115,6 +150,20 @@ export async function processApprovedSendBatch(
   const messages = [];
 
   for (const recipient of sendableRecipients) {
+    const renderContext = {
+      ...recipient,
+      customFields: recipient.customFields ?? {},
+    };
+    const subjectTemplate = batch.subjectTemplate || batch.subject;
+    const bodyTemplate = batch.bodyTemplate || batch.body;
+    const subject = applyPersonalisation(
+      renderSpintax(subjectTemplate, `${batch._id}:${recipient.leadId}:subject`),
+      renderContext,
+    );
+    const body = applyPersonalisation(
+      renderSpintax(bodyTemplate, `${batch._id}:${recipient.leadId}:body`),
+      renderContext,
+    );
     const message = await EmailMessage.create({
       organisationId: toObjectId(context.organisationId),
       leadId: recipient.leadId,
@@ -126,8 +175,8 @@ export async function processApprovedSendBatch(
       provider: "mailgun",
       from: account.email,
       to: recipient.email,
-      subject: batch.subject,
-      body: batch.body,
+      subject,
+      body,
       sentAt: options.dryRun ? undefined : new Date(),
     });
 
@@ -135,8 +184,8 @@ export async function processApprovedSendBatch(
       const result = await sendMailgunMessage(account.mailgunDomain || account.domain, {
         to: recipient.email,
         from: account.email,
-        subject: batch.subject,
-        text: batch.body,
+        subject,
+        text: body,
         "v:organisationId": context.organisationId,
         "v:emailMessageId": message._id.toString(),
         "v:sendBatchId": batch._id.toString(),
@@ -319,6 +368,88 @@ export async function processInboundReply(
       action: "email.reply_received",
       metadata: { email: fromEmail, subject: input.subject },
     });
+
+    const organisation = await Organisation.findById(organisationId)
+      .select("outboundSettings")
+      .lean();
+    const outboundSettings = organisation?.outboundSettings as
+      | OutboundSettings
+      | undefined;
+
+    if (
+      account &&
+      outboundSettings?.positiveAutoReplyEnabled &&
+      isPositiveReply(input.subject, body)
+    ) {
+      const renderContext = {
+        firstName: lead.firstName,
+        lastName: lead.lastName,
+        company: lead.company,
+        website: lead.website,
+        specificDataPoint: lead.specificDataPoint,
+        normalisedCompany: lead.normalisedCompany ?? lead.company,
+        magnetName: lead.magnetName,
+        personalisedWorkflowValue: lead.personalisedWorkflowValue,
+        senderEmailSignature: lead.senderEmailSignature,
+        customFields: lead.customFields ?? {},
+        globalSignature: outboundSettings.globalSignature,
+        bookingLink: outboundSettings.bookingLink,
+      };
+      const autoReplySubject = applyPersonalisation(
+        renderSpintax(
+          outboundSettings.positiveAutoReplySubject ?? "Re: {NORMALISED_COMPANY}",
+          `${lead._id}:positive-reply-subject`,
+        ),
+        renderContext,
+      );
+      const autoReplyBody = applyPersonalisation(
+        renderSpintax(
+          outboundSettings.positiveAutoReplyBody ??
+            "Thanks {FIRST_NAME}, glad this is relevant.\n\nThe easiest next step is to book a short call so I can understand the workflow and show where automation would fit.\n\nYou can book a time here: {BOOKING_LINK}\n\n{GLOBAL_SIGNATURE}",
+          `${lead._id}:positive-reply-body`,
+        ),
+        renderContext,
+      );
+      const autoReply = await EmailMessage.create({
+        organisationId: toObjectId(organisationId),
+        leadId: lead._id,
+        emailAccountId: account._id,
+        direction: "outbound",
+        status: "sent",
+        provider: "mailgun",
+        from: account.email,
+        to: fromEmail,
+        subject: autoReplySubject,
+        body: autoReplyBody,
+        raw: {
+          automation: "positive_reply_booking",
+          targetWindowMinutes:
+            outboundSettings.positiveAutoReplyDelayMinutes ?? 60,
+        },
+        sentAt: new Date(),
+      });
+
+      try {
+        const result = await sendMailgunMessage(account.mailgunDomain || account.domain, {
+          to: fromEmail,
+          from: account.email,
+          subject: autoReplySubject,
+          text: autoReplyBody,
+          "v:organisationId": organisationId,
+          "v:emailMessageId": autoReply._id.toString(),
+          "v:leadId": lead._id.toString(),
+        });
+
+        autoReply.providerMessageId = result.messageId;
+      } catch (error) {
+        autoReply.status = "queued";
+        autoReply.raw = {
+          ...autoReply.raw,
+          sendError: error instanceof Error ? error.message : "unknown",
+        };
+      }
+      await autoReply.save();
+    }
   }
 
   return { message, matchedLead: Boolean(lead) };

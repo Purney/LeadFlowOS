@@ -23,6 +23,11 @@ This is a high-level route map. For exact schemas, read `src/validation`.
 - `PATCH /api/leads/[leadId]`: Update scoped lead.
 - `DELETE /api/leads/[leadId]`: Delete scoped lead.
 
+## Organisation Settings
+
+- `GET /api/organisation/settings`: Return organisation-level lead custom field definitions and outbound email settings.
+- `PATCH /api/organisation/settings`: Update lead custom field definitions, global signature, booking link, and positive-reply auto-response settings.
+
 ## Account Lifecycle
 
 - `GET /api/accounts`: List/search/filter unified lifecycle accounts.
@@ -71,6 +76,8 @@ This is a high-level route map. For exact schemas, read `src/validation`.
 - `PATCH /api/campaigns/[campaignId]`: Update campaign.
 - `POST /api/campaigns/[campaignId]/enrollments`: Enroll leads.
 
+Campaign copy supports standard lead tokens, organisation custom-field tokens, and spintax. Exact validation is in `src/validation/campaign.ts`; rendering helpers are in `src/utils/personalisation.ts` and `src/utils/spintax.ts`.
+
 ## Sending
 
 - `GET /api/email-accounts`: List sending accounts.
@@ -82,6 +89,8 @@ This is a high-level route map. For exact schemas, read `src/validation`.
 - `POST /api/send-batches/[batchId]/process`: Process approved batch.
 - `GET /api/suppressions`: List suppressions.
 - `POST /api/suppressions`: Create suppression.
+
+Outbound settings are managed through `/api/organisation/settings`, not the sending-account routes. Send batch generation stores approval previews plus original templates for send-time per-recipient rendering.
 
 ## AI
 

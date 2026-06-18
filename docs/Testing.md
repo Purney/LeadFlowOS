@@ -30,6 +30,7 @@ Unit tests cover pure helpers and validation:
 - Zod validation.
 - CSV parsing.
 - Personalisation.
+- Spintax rendering.
 - Campaign scheduling.
 - Deliverability.
 - AI prompts.
@@ -82,8 +83,9 @@ Future E2E coverage should include:
 - Add tests when changing tenant-scoped reference validation.
 - Add tests when expanding rich HTML allowlists.
 - Keep tests deterministic; pass explicit `now` values to job helpers.
+- For spintax, pass explicit seeds so rendered variants are deterministic.
+- For positive-reply automation, mock provider sending or assert failed provider attempts are recorded without crashing inbound processing.
 
 ## Known Test Caveat
 
 Several integration suites start their own MongoMemoryServer. If the machine is under heavy load, startup contention can cause timeouts. Rerun the suite once before assuming a product failure.
-

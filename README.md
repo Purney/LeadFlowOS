@@ -2,7 +2,7 @@
 
 LeadFlow OS is a Next.js App Router application for managing the lifecycle from lead capture through outreach, discovery, proposals, revenue, client delivery, and portal collaboration.
 
-The project is currently implemented through Phase 21 as an MVP/foundation build. For architecture, implementation history, and future work, start with [menu.md](menu.md).
+The project is currently implemented through Phase 21 as an MVP/foundation build, with additional outreach personalisation, spintax, global signature, and positive-reply automation foundations. For architecture, implementation history, and future work, start with [menu.md](menu.md).
 
 ## Getting Started
 
@@ -62,6 +62,8 @@ Open [http://localhost:3000](http://localhost:3000). If no owner exists, the app
 - Use a development MongoDB database that is separate from production.
 - The first successful signup creates the initial organisation and owner user.
 - Additional organisation signup is blocked unless `ALLOW_ADDITIONAL_ORG_SIGNUPS=true`.
+- Organisation settings now define reusable lead custom fields, outbound email signature, booking link, and positive-reply auto-response templates.
+- Campaign copy supports lead tokens, organisation custom-field tokens, and spintax such as `{{RANDOM | Hey | Hi | Hello}}`.
 - Mailgun, Stripe, OpenAI, and signature-provider integrations are server-side adapter services. Missing credentials fail clearly when those integrations are called.
 - Vercel Cron uses `/api/cron/send-batches` and requires `CRON_SECRET`.
 - Public/webhook ingress uses MongoDB-backed rate limiting.

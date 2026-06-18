@@ -19,6 +19,8 @@ Queries should generally include `organisationId` unless the model is infrastruc
 
 - Business account container.
 - Created during first-owner signup.
+- Stores organisation-wide lead custom field definitions and outbound email settings.
+- Outbound settings include global signature, booking link, positive-reply auto-response toggle, delay window, subject, and body template.
 
 `User`
 
@@ -61,7 +63,8 @@ Queries should generally include `organisationId` unless the model is infrastruc
 
 - Prospect record.
 - Unique email per organisation.
-- Tracks lifecycle status, source, tags, notes, and custom fields.
+- Tracks lifecycle status, source, tags, notes, outreach personalisation fields, and custom fields.
+- Custom fields are stored as a bounded text key/value map. Organisation-level custom field definitions make the same custom field appear on every lead and expose campaign tokens such as `{PROJECT_TYPE}`.
 - Lead create, update, and import workflows sync into `LifecycleAccount`.
 
 `Client`
@@ -93,6 +96,7 @@ Queries should generally include `organisationId` unless the model is infrastruc
 
 - Contains campaign metadata and embedded sequence steps.
 - Step fields include delays, subject variants, and body variants.
+- Subject and body variants support A/B testing, personalisation tokens, custom lead-field tokens, and spintax syntax such as `{{RANDOM | Hey | Hi | Hello}}`.
 
 `CampaignEnrollment`
 
@@ -108,7 +112,8 @@ Queries should generally include `organisationId` unless the model is infrastruc
 `SendBatch`
 
 - Manual approval unit for outbound sending.
-- Stores recipients, rendered sample subject/body, scheduled time, risk warnings, and status.
+- Stores recipients, rendered sample subject/body, original subject/body templates, scheduled time, risk warnings, and status.
+- Template fields allow send-time per-recipient rendering of custom fields and spintax while preserving an approval preview.
 
 `Suppression`
 
@@ -121,6 +126,7 @@ Queries should generally include `organisationId` unless the model is infrastruc
 
 - Outbound and inbound email records.
 - Links to lead, campaign, send batch, and email account where known.
+- Positive-reply auto-response attempts are stored as outbound messages with automation metadata.
 
 `EmailEvent`
 

@@ -31,8 +31,14 @@ Outbound flow:
 1. Generate send batch.
 2. Manually approve batch.
 3. Process approved batch.
-4. `sendMailgunMessage` sends each message through the account Mailgun domain.
-5. `EmailMessage` records provider message ID.
+4. Send-time rendering resolves custom lead fields, global signature tokens, booking-link tokens, and spintax per recipient.
+5. `sendMailgunMessage` sends each message through the account Mailgun domain.
+6. `EmailMessage` records provider message ID.
+
+Personalisation and spintax:
+
+- Campaign templates can use built-in lead tokens, organisation custom-field tokens, `{GLOBAL_SIGNATURE}`, `{BOOKING_LINK}`, and spintax syntax such as `{{RANDOM | Hey | Hi | Hello}}`.
+- Send batches store both approval-preview copy and original templates. The original templates are rendered per recipient when an approved batch is processed.
 
 Warmup governance:
 
@@ -47,6 +53,7 @@ Inbound/event behavior:
 - Bounce/unsubscribe/spam creates suppressions.
 - Mailgun event webhooks are verified with timestamp/token/signature HMAC fields.
 - Inbound route replies create inbound `EmailMessage`, update lead status to `replied`, and pause campaign enrollment.
+- If organisation outbound settings enable positive-reply automation, positive inbound replies can create/send a booking-call auto-response within the configured one-hour window. The outbound attempt is stored as an `EmailMessage`; Mailgun send failures are captured on the record rather than failing the inbound webhook.
 
 ## Stripe
 

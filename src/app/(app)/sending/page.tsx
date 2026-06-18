@@ -6,6 +6,7 @@ import { AccountActions } from "@/components/sending/account-actions";
 import { CreateEmailAccountForm } from "@/components/sending/create-email-account-form";
 import { CreateSuppressionForm } from "@/components/sending/create-suppression-form";
 import { GenerateBatchForm } from "@/components/sending/generate-batch-form";
+import { OutboundSettingsForm } from "@/components/sending/outbound-settings-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { listCampaigns } from "@/services/campaign-service";
 import { getEmailMetrics, listRecentEmailEvents } from "@/services/email-service";
@@ -14,6 +15,7 @@ import {
   listEmailAccounts,
   listSendBatches,
 } from "@/services/sending-service";
+import { getOrganisationSettings } from "@/services/organisation-service";
 import { listSuppressions } from "@/services/suppression-service";
 import type { SendBatchStatus, WarmupStatus } from "@/types/sending";
 
@@ -75,11 +77,12 @@ export default async function SendingPage() {
     redirect("/login");
   }
 
-  const [accounts, batches, metrics, campaigns] = await Promise.all([
+  const [accounts, batches, metrics, campaigns, organisationSettings] = await Promise.all([
     listEmailAccounts(session.user.organisationId),
     listSendBatches(session.user.organisationId),
     getSendingMetrics(session.user.organisationId),
     listCampaigns(session.user.organisationId),
+    getOrganisationSettings(session.user.organisationId),
   ]);
   const [suppressions, emailMetrics, emailEvents] = await Promise.all([
     listSuppressions(session.user.organisationId),
@@ -211,6 +214,18 @@ export default async function SendingPage() {
           </CardContent>
         </Card>
       </section>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Outbound email settings</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <OutboundSettingsForm
+            leadCustomFields={organisationSettings.leadCustomFields}
+            outboundSettings={organisationSettings.outboundSettings}
+          />
+        </CardContent>
+      </Card>
 
       <section className="grid gap-4 xl:grid-cols-[0.9fr_1fr]">
         <Card>

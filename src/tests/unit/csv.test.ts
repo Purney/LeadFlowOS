@@ -17,7 +17,7 @@ describe("CSV parsing", () => {
 
   it("maps CSV rows into imported leads", () => {
     const leads = parseLeadCsv(
-      "firstName,lastName,email,company,tags\nAda,Lovelace,ada@example.com,Engines,ai;automation",
+      "firstName,lastName,email,company,tags,projecttype\nAda,Lovelace,ada@example.com,Engines,ai;automation,Healthcare",
       "Apollo",
     );
 
@@ -26,6 +26,7 @@ describe("CSV parsing", () => {
       source: "Apollo",
       status: "imported",
       tags: ["ai", "automation"],
+      customFields: { projecttype: "Healthcare" },
     });
   });
 });

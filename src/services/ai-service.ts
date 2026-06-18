@@ -41,6 +41,7 @@ function leadPromptData(lead: {
   role?: string;
   notes?: string;
   source?: string;
+  customFields?: Record<string, unknown>;
 }) {
   return {
     firstName: lead.firstName,
@@ -51,6 +52,7 @@ function leadPromptData(lead: {
     role: lead.role,
     notes: lead.notes,
     source: lead.source,
+    customFields: lead.customFields,
   };
 }
 

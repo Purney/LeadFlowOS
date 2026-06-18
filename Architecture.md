@@ -14,6 +14,7 @@ The app is built as a server-first internal tool:
 - UI components call internal API routes for mutations and use server components for most read-heavy pages.
 - External integrations use live-capable adapter services for Mailgun, Stripe, OpenAI, and future signature providers.
 - Vercel is the target hosting platform, with Vercel Cron used for due approved send batches.
+- Organisation settings define reusable lead custom fields, global outbound email signature, booking link, and positive-reply auto-response templates.
 
 ## Source Layout
 
@@ -123,7 +124,7 @@ Important services:
 - `maintenance-service`: retainers, support tickets, recurring maintenance tasks, renewal signals, client health, and lifecycle maintenance sync.
 - `campaign-service`: campaign CRUD, enrollment, A/B allocation.
 - `sending-service`: email accounts, deliverability metrics, send batch generation and approval.
-- `email-service`: approved batch processing, Mailgun events, inbound replies.
+- `email-service`: approved batch processing, Mailgun events, inbound replies, and positive-reply booking auto-response handling.
 - `suppression-service`: suppression CRUD and sendability checks.
 - `ai-service`: cold email drafts, reply drafts.
 - `discovery-service`: form builder, public submissions, AI summaries.
@@ -210,6 +211,12 @@ The `/execution` workspace is the Phase 18 solution execution layer. It manages 
 
 The `/maintenance` workspace is the Phase 19 post-delivery layer. It tracks retainers, support tickets, recurring maintenance tasks, renewal/check-in dates, client health, and maintenance revenue signals.
 
+The `/leads` workspace also owns organisation-level lead field settings. These definitions make custom lead fields appear alongside normal fields such as company and first name when creating or updating leads. Custom field keys become campaign tokens, for example `Project type` can be used as `{PROJECT_TYPE}`.
+
+The `/campaigns` workspace is split into a campaign dashboard/list, `/campaigns/create`, individual campaign pages, and draft edit pages. Campaign subject/body variants support A/B testing, normal personalisation tokens, custom-field tokens, and deterministic spintax syntax such as `{{RANDOM | Hey | Hi | Hello}}`.
+
+The `/sending` workspace owns outbound email settings. It captures a global signature, booking link, and positive-reply auto-response template used by inbound reply handling.
+
 UI style:
 
 - Local shadcn-style primitives in `src/components/ui`.
@@ -224,6 +231,7 @@ Mailgun:
 - Adapter: `src/services/mailgun-service.ts`
 - Event webhook processes delivery/open/click/bounce/unsubscribe/spam events.
 - Inbound webhook records replies, updates lead status, and pauses campaign enrollment.
+- Positive inbound replies can trigger a configured booking-call auto-response. The attempt is stored as an outbound `EmailMessage`; provider failures are captured on the message instead of crashing inbound webhook processing.
 - Suppressions are created automatically for bounce, unsubscribe, and spam report events.
 
 Stripe:
@@ -282,6 +290,7 @@ Important rules for future changes:
 - Never trust IDs from a request without checking the referenced document belongs to the current organisation.
 - Never render stored HTML unless it has passed through `sanitizeRichHtml`.
 - Never send campaign emails automatically from campaign creation. Emails must go through send batches and manual approval.
+- Positive-reply auto-responses are the exception to manual campaign send approval. Keep their templates organisation-scoped, explicit, and easy to disable.
 - Never call external providers directly from client components.
 - Keep provider secrets server-only.
 - Keep public portal access limited to token-scoped data.

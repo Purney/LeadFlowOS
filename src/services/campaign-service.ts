@@ -16,6 +16,10 @@ function toObjectId(value: string) {
   return new mongoose.Types.ObjectId(value);
 }
 
+function isObjectId(value: string) {
+  return mongoose.Types.ObjectId.isValid(value);
+}
+
 function buildSteps(input: CampaignInput["steps"]) {
   return input.map((step, index) => ({
     ...step,
@@ -55,6 +59,19 @@ export async function getCampaignMetrics(organisationId: string) {
   ]);
 
   return { total, active };
+}
+
+export async function getCampaignById(organisationId: string, campaignId: string) {
+  if (!isObjectId(campaignId)) {
+    return null;
+  }
+
+  await connectToDatabase();
+
+  return Campaign.findOne({
+    _id: toObjectId(campaignId),
+    organisationId: toObjectId(organisationId),
+  }).lean();
 }
 
 export async function createCampaign(context: ActorContext, input: CampaignInput) {

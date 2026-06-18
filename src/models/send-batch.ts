@@ -8,6 +8,7 @@ const sendBatchRecipientSchema = new Schema(
     firstName: { type: String, trim: true },
     lastName: { type: String, trim: true },
     company: { type: String, trim: true },
+    customFields: { type: Schema.Types.Mixed, default: {} },
   },
   { _id: false },
 );
@@ -41,6 +42,8 @@ const sendBatchSchema = new Schema(
     recipients: { type: [sendBatchRecipientSchema], default: [] },
     subject: { type: String, required: true, trim: true },
     body: { type: String, required: true, trim: true },
+    subjectTemplate: { type: String, trim: true },
+    bodyTemplate: { type: String, trim: true },
     variantLabel: { type: String, required: true, trim: true },
     scheduledSendTime: { type: Date, required: true, index: true },
     estimatedVolume: { type: Number, required: true, min: 0 },
