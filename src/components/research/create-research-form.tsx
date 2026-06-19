@@ -47,7 +47,7 @@ export function CreateResearchForm() {
       priority: form.get("priority"),
       status: form.get("status"),
       notes: form.get("notes"),
-      outreachAngle: form.get("outreachAngle"),
+      opportunityAngle: form.get("opportunityAngle"),
       nextAction: form.get("nextAction"),
     };
 
@@ -172,8 +172,8 @@ export function CreateResearchForm() {
         <Textarea id="competitors" name="competitors" placeholder="One per line" />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="outreachAngle">Outreach angle</Label>
-        <Textarea id="outreachAngle" name="outreachAngle" />
+        <Label htmlFor="opportunityAngle">Opportunity angle</Label>
+        <Textarea id="opportunityAngle" name="opportunityAngle" />
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="space-y-2">

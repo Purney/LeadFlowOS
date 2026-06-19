@@ -3,7 +3,6 @@ export type CommandSeverity = (typeof commandSeverities)[number];
 
 export const commandAreas = [
   "research",
-  "outreach",
   "sales",
   "onboarding",
   "execution",

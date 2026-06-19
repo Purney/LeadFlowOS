@@ -1,83 +1,21 @@
 # Roadmap
 
-This document captures future work and technical debt beyond the current MVP foundation.
+## Current Direction
 
-## Current State
+LeadFlow OS is now focused on CRM and client lifecycle management after a first call is booked. Cold email outreach and deliverability management are out of scope.
 
-Phases 1-21 are implemented as MVP/foundation slices:
+## Near-Term Priorities
 
-- Foundation/auth/org/dashboard.
-- Leads and CSV import.
-- Campaign builder and enrollments.
-- Sending accounts, deliverability, and manual send batches.
-- Mailgun events, inbound replies, and suppressions.
-- AI drafts.
-- Discovery forms and summaries.
-- Proposals.
-- Stripe revenue tracking.
-- Clients, projects, and time tracking.
-- Client portal, onboarding, signatures, and PDF-ready exports.
-- Portal collaboration, PDF downloads, and signature adapter shell.
-- Vercel cron, persistent rate limiting, security headers, and deployment hardening.
-- Unified account lifecycle across client research, cold outreach, proposal and sales, onboarding and payment, solution execution, and maintenance.
-- Client research workspace with target account records, ICP scoring, checklists, pain/opportunity notes, lifecycle sync, and AI research summaries.
-- Sales pipeline with deals, weighted pipeline metrics, proposal/sales stages, won/lost outcomes, lifecycle transitions, and follow-up tasks.
-- Onboarding and payment handoff workflow for won deals, client/project/portal/signature setup, task automation, and payment gates.
-- Solution execution with project health, client-visible progress, milestones, internal tasks, deliverables, and portal progress.
-- Maintenance plans, support tickets, recurring maintenance tasks, renewal tracking, health scoring, and MRR metrics.
-- Command center with cross-stage operating metrics and prioritized next-best actions.
-- Warmup governance with deliverability readiness signals, per-domain send caps, and stricter cold-outreach volume rules.
+- Improve lead and lifecycle account views for booked-call follow-up.
+- Add richer sales task automation and reminders.
+- Improve proposal generation and proposal acceptance tracking.
+- Expand onboarding handoff visibility.
+- Add pagination to leads, portal messages, notifications, invoices, time entries, and support tickets.
+- Improve dashboard and command center drilldowns.
 
-## High-Priority Future Work
+## Technical Debt
 
-- Role and permission enforcement for `owner`, `admin`, and `member`.
-- Pagination for large workspaces and list APIs.
-- Redis/Upstash rate limiting for high-traffic deployments.
-- Durable queue for email sending and AI jobs.
-- Provider-specific signature implementation and webhooks.
-- Richer PDF rendering.
-- Client-authenticated portal accounts.
-- File upload/storage management.
-
-## Security Roadmap
-
-- Centralized permission helpers.
-- Stricter CSP without unsafe inline/eval if feasible.
-- CSRF review for any future cookie-based custom routes outside Auth.js conventions.
-- Webhook replay/idempotency tracking.
-- Secret rotation docs per provider.
-- Audit-log export and retention policy.
-
-## Performance Roadmap
-
-- Add pagination to leads, campaigns, send batches, portal messages, notifications, invoices, time entries.
-- Add database indexes as access patterns stabilize.
-- Replace cron polling with queue-based job orchestration if send volume grows.
-- Add dashboard cache/revalidation strategy if dashboard aggregations become expensive.
-
-## Product Roadmap
-
-- Expansion opportunity tracking from maintenance accounts.
-- Client portal accounts and login.
-- Portal notifications and email alerts.
-- Kanban/task boards.
-- Calendar integrations.
-- CRM integrations.
-- AI meeting summaries.
-- Proposal PDF templates.
-- Signed document storage and audit trails.
-- More complete analytics.
-- Domain reputation trend history and provider-specific deliverability diagnostics.
-
-## Testing Roadmap
-
-- Expand Playwright E2E coverage beyond smoke.
-- Add route-level tests for public portal and webhooks.
-- Add permission tests after role enforcement lands.
-- Add load-oriented tests for cron/rate-limit behavior if traffic grows.
-
-## Documentation Roadmap
-
-- Add screenshots or diagrams for onboarding new contributors.
-- Add decision records for major future architectural changes.
-- Keep `menu.md` updated whenever new documentation files are added.
+- Continue tightening tenant-scoped reference validation.
+- Add more service-level integration tests for sales, onboarding, execution, maintenance, revenue, and portal workflows.
+- Add migration tracking if more one-off data migrations become necessary.
+- Improve typed route coverage and app-level E2E smoke flows.

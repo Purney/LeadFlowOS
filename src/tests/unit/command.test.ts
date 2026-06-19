@@ -10,7 +10,6 @@ describe("command center types", () => {
   it("covers the operating areas surfaced by the command center", () => {
     expect(commandAreas).toEqual([
       "research",
-      "outreach",
       "sales",
       "onboarding",
       "execution",

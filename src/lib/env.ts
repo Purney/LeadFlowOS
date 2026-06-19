@@ -12,17 +12,12 @@ export const envSchema = z
     MONGODB_URI: z.string().trim().min(1).optional(),
     AUTH_SECRET: optionalSecret,
     AUTH_URL: z.string().url().optional().or(z.literal("")),
-    MAILGUN_API_KEY: optionalSecret,
-    MAILGUN_DOMAIN: optionalSecret,
-    MAILGUN_WEBHOOK_SIGNING_KEY: optionalSecret,
-    MAILGUN_API_BASE_URL: z.string().url().optional().or(z.literal("")),
     STRIPE_SECRET_KEY: optionalSecret,
     STRIPE_WEBHOOK_SECRET: optionalSecret,
     OPENAI_API_KEY: optionalSecret,
     OPENAI_MODEL: z.string().trim().default("gpt-4.1-mini"),
     SIGNATURE_PROVIDER_API_KEY: optionalSecret,
     SIGNATURE_PROVIDER_WEBHOOK_SECRET: optionalSecret,
-    CRON_SECRET: optionalSecret,
     ALLOW_ADDITIONAL_ORG_SIGNUPS: z
       .enum(["true", "false"])
       .default("false")
@@ -30,7 +25,7 @@ export const envSchema = z
   })
   .superRefine((env, ctx) => {
     if (env.NODE_ENV === "production") {
-      for (const key of ["MONGODB_URI", "AUTH_SECRET", "AUTH_URL", "CRON_SECRET"] as const) {
+      for (const key of ["MONGODB_URI", "AUTH_SECRET", "AUTH_URL"] as const) {
         if (!env[key]) {
           ctx.addIssue({
             code: "custom",

@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "LeadFlow OS",
-  description: "Internal operating system for lead flow, outreach, revenue, and delivery.",
+  description: "Internal CRM for client lifecycle, revenue, and delivery.",
 };
 
 export default function RootLayout({

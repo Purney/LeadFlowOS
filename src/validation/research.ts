@@ -26,7 +26,7 @@ export const clientResearchInputSchema = z.object({
   priority: z.enum(researchPriorities).default("medium"),
   status: z.enum(researchStatuses).default("draft"),
   notes: z.string().trim().max(5000).optional().or(z.literal("")),
-  outreachAngle: z.string().trim().max(1000).optional().or(z.literal("")),
+  opportunityAngle: z.string().trim().max(1000).optional().or(z.literal("")),
   nextAction: z.string().trim().max(240).optional().or(z.literal("")),
 });
 

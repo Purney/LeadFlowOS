@@ -131,7 +131,6 @@ export default async function LeadsPage({ searchParams }: LeadsPageProps) {
         <CardContent>
           <LeadFieldSettingsForm
             leadCustomFields={organisationSettings.leadCustomFields}
-            outboundSettings={organisationSettings.outboundSettings}
           />
         </CardContent>
       </Card>

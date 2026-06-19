@@ -1,14 +1,11 @@
-import { Activity, Bell, Bot, BriefcaseBusiness, CheckCircle2, Clock, CreditCard, FileSignature, FileText, Hammer, HeartPulse, Inbox, Mail, MessageSquare, Rocket, Route, Search, Timer, Users } from "lucide-react";
+import { Activity, Bell, Bot, BriefcaseBusiness, Clock, CreditCard, FileSignature, FileText, Hammer, HeartPulse, MessageSquare, Rocket, Route, Search, Timer, Users } from "lucide-react";
 import { auth } from "@/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { listAiDrafts } from "@/services/ai-service";
-import { getCampaignMetrics } from "@/services/campaign-service";
 import { getClientProjectMetrics } from "@/services/client-service";
 import { getDiscoveryMetrics } from "@/services/discovery-service";
-import { getEmailMetrics } from "@/services/email-service";
 import { getLeadMetrics } from "@/services/lead-service";
 import { listRecentActivity } from "@/services/activity-service";
-import { getSendingMetrics } from "@/services/sending-service";
 import { getProposalMetrics } from "@/services/proposal-service";
 import { getRevenueMetrics } from "@/services/revenue-service";
 import { getPortalMetrics } from "@/services/portal-service";
@@ -30,9 +27,6 @@ function money(amount: number) {
 
 const metricCards = (
   leadTotal: number,
-  activeCampaigns: number,
-  pendingApprovals: number,
-  replies: number,
   aiDrafts: number,
   discoveryResponses: number,
   proposals: number,
@@ -55,9 +49,6 @@ const metricCards = (
   { label: "Execution tasks", value: String(openExecutionTasks), icon: Hammer },
   { label: "Maintenance plans", value: String(activeMaintenancePlans), icon: HeartPulse },
   { label: "Total leads", value: String(leadTotal), icon: Users },
-  { label: "Active campaigns", value: String(activeCampaigns), icon: Mail },
-  { label: "Pending approvals", value: String(pendingApprovals), icon: CheckCircle2 },
-  { label: "Replies received", value: String(replies), icon: Inbox },
   { label: "AI drafts", value: String(aiDrafts), icon: Bot },
   { label: "Discovery responses", value: String(discoveryResponses), icon: FileText },
   { label: "Proposal pipeline", value: String(proposals), icon: Activity },
@@ -70,13 +61,10 @@ const metricCards = (
 
 export default async function DashboardPage() {
   const session = await auth();
-  const [activity, leadMetrics, campaignMetrics, sendingMetrics, emailMetrics, aiDrafts, discoveryMetrics, proposalMetrics, revenueMetrics, clientMetrics, portalMetrics, notificationMetrics, lifecycleMetrics, researchMetrics, salesMetrics, handoffMetrics, executionMetrics, maintenanceMetrics] = session?.user.organisationId
+  const [activity, leadMetrics, aiDrafts, discoveryMetrics, proposalMetrics, revenueMetrics, clientMetrics, portalMetrics, notificationMetrics, lifecycleMetrics, researchMetrics, salesMetrics, handoffMetrics, executionMetrics, maintenanceMetrics] = session?.user.organisationId
     ? await Promise.all([
         listRecentActivity(session.user.organisationId),
         getLeadMetrics(session.user.organisationId),
-        getCampaignMetrics(session.user.organisationId),
-        getSendingMetrics(session.user.organisationId),
-        getEmailMetrics(session.user.organisationId),
         listAiDrafts(session.user.organisationId),
         getDiscoveryMetrics(session.user.organisationId),
         getProposalMetrics(session.user.organisationId),
@@ -94,9 +82,6 @@ export default async function DashboardPage() {
     : [
         [],
         { total: 0, byStatus: {}, tags: [] },
-        { total: 0, active: 0 },
-        { accounts: 0, activeAccounts: 0, pendingApprovals: 0, averageHealth: 0 },
-        { messages: 0, replies: 0, events: 0 },
         [],
         { forms: 0, responses: 0 },
         { total: 0, byStatus: {} },
@@ -125,7 +110,6 @@ export default async function DashboardPage() {
           total: 0,
           byStage: {
             client_research: 0,
-            cold_outreach: 0,
             proposal_sales: 0,
             onboarding_payment: 0,
             solution_execution: 0,
@@ -176,7 +160,7 @@ export default async function DashboardPage() {
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Phase 14 account lifecycle is active. Research, outreach, sales,
+            Account lifecycle is active. Research, sales,
             onboarding, delivery, and maintenance now share one operating spine.
           </p>
         </div>
@@ -185,9 +169,6 @@ export default async function DashboardPage() {
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {metricCards(
           leadMetrics.total,
-          campaignMetrics.active,
-          sendingMetrics.pendingApprovals,
-          emailMetrics.replies,
           aiDrafts.length,
           discoveryMetrics.responses,
           proposalMetrics.total,
@@ -264,7 +245,7 @@ export default async function DashboardPage() {
               </div>
             ) : (
               <p className="text-sm text-muted-foreground">
-                Activity will appear here as setup, imports, emails, replies,
+                Activity will appear here as setup, imports, calls, proposals,
                 payments, and time entries are recorded.
               </p>
             )}

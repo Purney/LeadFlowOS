@@ -9,7 +9,7 @@ describe("lead validation", () => {
     });
 
     expect(lead.email).toBe("ada@example.com");
-    expect(lead.status).toBe("new");
+    expect(lead.status).toBe("discovery_booked");
   });
 
   it("rejects invalid emails", () => {

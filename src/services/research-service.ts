@@ -96,7 +96,7 @@ function serialiseResearch(research: Record<string, unknown>) {
     priority: research.priority as string,
     status: research.status as string,
     notes: research.notes as string | undefined,
-    outreachAngle: research.outreachAngle as string | undefined,
+    opportunityAngle: research.opportunityAngle as string | undefined,
     aiSummary: research.aiSummary as ResearchSummaryContent | undefined,
     nextAction: research.nextAction as string | undefined,
     researchedAt: researchedAt?.toISOString(),
@@ -171,7 +171,7 @@ export async function createClientResearch(
     positiveSignals: dedupe(data.positiveSignals),
     negativeSignals: dedupe(data.negativeSignals),
     notes: cleanString(data.notes),
-    outreachAngle: cleanString(data.outreachAngle),
+    opportunityAngle: cleanString(data.opportunityAngle),
     nextAction: cleanString(data.nextAction),
     researchedAt: data.status === "researched" ? new Date() : undefined,
     organisationId: toObjectId(context.organisationId),
@@ -223,7 +223,7 @@ export async function updateClientResearch(
     source: cleanString(data.source),
     currentProvider: cleanString(data.currentProvider),
     notes: cleanString(data.notes),
-    outreachAngle: cleanString(data.outreachAngle),
+    opportunityAngle: cleanString(data.opportunityAngle),
     nextAction: cleanString(data.nextAction),
   };
 
@@ -379,14 +379,14 @@ export async function generateResearchSummary(
     positiveSignals: research.positiveSignals,
     negativeSignals: research.negativeSignals,
     notes: research.notes,
-    outreachAngle: research.outreachAngle,
+    opportunityAngle: research.opportunityAngle,
     fitScore: research.fitScore,
   });
   const text = await (options.generateText ?? generateTextWithOpenAI)(prompt);
   const content = parseJsonObject<ResearchSummaryContent>(text, {
     fitSummary: text,
     likelyPainPoints: research.painHypotheses,
-    outreachAngles: research.outreachAngle ? [research.outreachAngle] : [],
+    opportunityAngles: research.opportunityAngle ? [research.opportunityAngle] : [],
     risks: research.negativeSignals,
     recommendedNextSteps: research.nextAction ? [research.nextAction] : [],
   });

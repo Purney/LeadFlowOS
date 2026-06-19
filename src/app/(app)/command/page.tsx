@@ -31,8 +31,6 @@ export default async function CommandPage() {
   const metrics = [
     ["Lifecycle accounts", command.metrics.lifecycleAccounts],
     ["Research records", command.metrics.researchRecords],
-    ["Active campaigns", command.metrics.activeCampaigns],
-    ["Pending approvals", command.metrics.pendingApprovals],
     ["Active deals", command.metrics.activeDeals],
     ["Weighted pipeline", money(command.metrics.weightedPipelineCents)],
     ["Onboarding handoffs", command.metrics.onboardingHandoffs],
@@ -51,8 +49,8 @@ export default async function CommandPage() {
           <h1 className="text-3xl font-semibold tracking-tight">Command Center</h1>
           <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
             One executive view for what needs attention across research,
-            outreach, sales, onboarding, execution, maintenance, revenue, and
-            the client portal.
+            sales, onboarding, execution, maintenance, revenue, and the client
+            portal.
           </p>
         </div>
         <div className="grid grid-cols-2 gap-2 text-sm">

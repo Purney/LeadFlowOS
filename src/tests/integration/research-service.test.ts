@@ -75,7 +75,7 @@ describe("research service", () => {
       fitScore: 88,
       priority: "high",
       status: "researched",
-      outreachAngle: "Offer reporting workflow audit.",
+      opportunityAngle: "Offer reporting workflow audit.",
     });
 
     const account = await LifecycleAccount.findById(
@@ -124,7 +124,7 @@ describe("research service", () => {
           JSON.stringify({
             fitSummary: "Strong fit for automation.",
             likelyPainPoints: ["Manual reporting"],
-            outreachAngles: ["Workflow audit"],
+            opportunityAngles: ["Workflow audit"],
             risks: ["Unclear owner"],
             recommendedNextSteps: ["Find COO"],
           }),

@@ -4,35 +4,30 @@ Start here when you need project context. This file points to the markdown docum
 
 ## Core Orientation
 
+- [README.md](README.md): Getting started, quality checks, current app areas, and the legacy outreach purge command.
 - [Architecture.md](Architecture.md): System architecture, source layout, service boundaries, tenancy rules, deployment shape, and extension points.
-- [README.md](README.md): Getting started, local setup, quality checks, current app areas, and links to the rest of the documentation set.
 
 ## Specialist References
 
-- [docs/Security.md](docs/Security.md): Authentication, tenant isolation, public routes, webhook verification, rate limiting, sanitization, and security checklists.
-- [docs/Deployment.md](docs/Deployment.md): Vercel deployment, environment variables, MongoDB Atlas, cron, webhook setup, and production checklist.
-- [docs/ProductionSetup.md](docs/ProductionSetup.md): Detailed production setup guide, including how to obtain and configure every production environment variable.
+- [docs/API.md](docs/API.md): Internal, public, webhook, and download route map with auth expectations.
 - [docs/DataModel.md](docs/DataModel.md): Mongoose model groups, relationships, ownership fields, indexes, and data integrity rules.
-- [docs/API.md](docs/API.md): Internal, public, webhook, cron, and download route map with auth expectations.
+- [docs/Integrations.md](docs/Integrations.md): Stripe, OpenAI, signature provider, and future integration conventions.
+- [docs/Deployment.md](docs/Deployment.md): Vercel deployment, environment variables, MongoDB Atlas, Stripe/signature webhooks, and production checklist.
+- [docs/ProductionSetup.md](docs/ProductionSetup.md): Detailed production setup guide.
+- [docs/Security.md](docs/Security.md): Authentication, tenant isolation, public routes, webhook verification, rate limiting, sanitization, and security checklists.
 - [docs/Testing.md](docs/Testing.md): Test commands, test structure, integration patterns, MongoMemoryServer cleanup rules, and E2E notes.
-- [docs/Integrations.md](docs/Integrations.md): Mailgun, Stripe, OpenAI, signature provider, and future integration conventions.
-- [docs/Runbook.md](docs/Runbook.md): Operational procedures for incidents, cron, webhooks, email sending, secrets, and common debugging paths.
-- [docs/ImplementedStages.md](docs/ImplementedStages.md): Completed phase history through Phase 21, including command center and warmup governance.
-- [docs/ImplementedStages.md](docs/ImplementedStages.md#post-phase-21-outreach-personalisation): Latest post-Phase 21 outreach enhancements, including global lead fields, spintax, signatures, and positive-reply automation.
+- [docs/Runbook.md](docs/Runbook.md): Operational debugging guide.
 - [docs/Roadmap.md](docs/Roadmap.md): Future work, technical debt, hardening priorities, and likely next phases.
 - [docs/Phase20CommandCenter.md](docs/Phase20CommandCenter.md): Command center aggregate, next-best-action rules, and verification coverage.
-- [docs/Phase21WarmupGovernance.md](docs/Phase21WarmupGovernance.md): Email warmup safeguards, readiness rules, domain caps, and deliverability verification.
+- [docs/ImplementedStages.md](docs/ImplementedStages.md): Historical implementation notes, including the outreach removal.
 
 ## Quick Lookup
 
 - Need to add a model? Read [Architecture.md](Architecture.md), then [docs/DataModel.md](docs/DataModel.md), then [docs/Testing.md](docs/Testing.md).
 - Need to add an API route? Read [docs/API.md](docs/API.md) and [docs/Security.md](docs/Security.md).
 - Need to deploy or configure Vercel? Read [docs/ProductionSetup.md](docs/ProductionSetup.md), then [docs/Deployment.md](docs/Deployment.md).
-- Need to work on Mailgun, Stripe, OpenAI, or signatures? Read [docs/Integrations.md](docs/Integrations.md).
+- Need to work on Stripe, OpenAI, or signatures? Read [docs/Integrations.md](docs/Integrations.md).
 - Need to fix production behavior? Read [docs/Runbook.md](docs/Runbook.md).
-- Need to know what has already been built? Read [docs/ImplementedStages.md](docs/ImplementedStages.md).
 - Need to understand future plans? Read [docs/Roadmap.md](docs/Roadmap.md).
 - Need security guidance before changing public routes, HTML rendering, auth, or webhooks? Read [docs/Security.md](docs/Security.md).
 - Need to change command-center actions? Read [docs/Phase20CommandCenter.md](docs/Phase20CommandCenter.md), then [Architecture.md](Architecture.md).
-- Need to change email warmup or deliverability controls? Read [docs/Phase21WarmupGovernance.md](docs/Phase21WarmupGovernance.md), then [docs/Security.md](docs/Security.md) and [docs/Integrations.md](docs/Integrations.md).
-- Need to change campaign variables, custom lead fields, spintax, signatures, or positive-reply booking automation? Read [docs/ImplementedStages.md](docs/ImplementedStages.md#post-phase-21-outreach-personalisation), [docs/DataModel.md](docs/DataModel.md), and [docs/Integrations.md](docs/Integrations.md).

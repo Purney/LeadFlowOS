@@ -27,7 +27,6 @@ function formatDate(value?: string) {
 function stageTone(stage: LifecycleStage) {
   const tones: Record<LifecycleStage, string> = {
     client_research: "border-sky-200 bg-sky-50 text-sky-900",
-    cold_outreach: "border-emerald-200 bg-emerald-50 text-emerald-900",
     proposal_sales: "border-violet-200 bg-violet-50 text-violet-900",
     onboarding_payment: "border-amber-200 bg-amber-50 text-amber-900",
     solution_execution: "border-rose-200 bg-rose-50 text-rose-900",
@@ -50,8 +49,8 @@ export default async function AccountsPage() {
           <p className="text-sm font-medium text-muted-foreground">Phase 14</p>
           <h1 className="text-3xl font-semibold tracking-tight">Account Lifecycle</h1>
           <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
-            One operating view from research through outreach, sales, onboarding,
-            delivery, and maintenance.
+            One operating view from research through sales, onboarding, delivery,
+            and maintenance.
           </p>
         </div>
         <div className="grid grid-cols-3 gap-2 text-sm">

@@ -16,8 +16,6 @@ const aiDraftSchema = new Schema(
       index: true,
     },
     leadId: { type: Schema.Types.ObjectId, ref: "Lead", index: true },
-    campaignId: { type: Schema.Types.ObjectId, ref: "Campaign", index: true },
-    emailMessageId: { type: Schema.Types.ObjectId, ref: "EmailMessage", index: true },
     type: { type: String, enum: aiDraftTypes, required: true, index: true },
     status: {
       type: String,

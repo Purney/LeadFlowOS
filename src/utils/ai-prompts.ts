@@ -10,13 +10,6 @@ type LeadPromptData = {
   customFields?: Record<string, unknown>;
 };
 
-type MessagePromptData = {
-  direction: "inbound" | "outbound";
-  subject: string;
-  body: string;
-  createdAt?: Date;
-};
-
 function leadBlock(lead: LeadPromptData) {
   const customFields = Object.entries(lead.customFields ?? {})
     .map(([key, value]) => `${key}: ${String(value ?? "")}`)
@@ -31,49 +24,6 @@ function leadBlock(lead: LeadPromptData) {
     `Source: ${lead.source ?? "Unknown"}`,
     `Notes: ${lead.notes ?? "None"}`,
     customFields ? `Custom fields:\n${customFields}` : "Custom fields: None",
-  ].join("\n");
-}
-
-export function buildColdEmailPrompt(input: {
-  lead: LeadPromptData;
-  serviceOffer: string;
-  campaignGoal: string;
-}) {
-  return [
-    "Generate concise B2B cold email copy for a freelance software engineering, AI, and automation business.",
-    "Return JSON only with keys: subjects (array of 3 strings), body (string), followUps (array of 2 strings).",
-    "Keep the body under 130 words, specific to the lead, low hype, and suitable for manual review.",
-    "Do not claim prior contact or invented facts.",
-    "",
-    "Lead:",
-    leadBlock(input.lead),
-    "",
-    `Service offered: ${input.serviceOffer}`,
-    `Campaign goal: ${input.campaignGoal}`,
-  ].join("\n");
-}
-
-export function buildReplyDraftPrompt(input: {
-  lead: LeadPromptData;
-  messages: MessagePromptData[];
-}) {
-  const conversation = input.messages
-    .map(
-      (message) =>
-        `[${message.direction}] ${message.subject}\n${message.body}`,
-    )
-    .join("\n\n");
-
-  return [
-    "Draft a manual reply for a freelance software engineering, AI, and automation business.",
-    "Return JSON only with keys: summary (string), suggestedResponse (string).",
-    "The response must be helpful, specific, concise, and must not promise unavailable dates or pricing.",
-    "",
-    "Lead:",
-    leadBlock(input.lead),
-    "",
-    "Conversation:",
-    conversation || "No conversation history found.",
   ].join("\n");
 }
 
@@ -136,12 +86,12 @@ export function buildResearchSummaryPrompt(input: {
   positiveSignals: string[];
   negativeSignals: string[];
   notes?: string;
-  outreachAngle?: string;
+  opportunityAngle?: string;
   fitScore: number;
 }) {
   return [
     "Summarise client research for a freelance software engineering, AI, and automation business.",
-    "Return JSON only with keys: fitSummary (string), likelyPainPoints (array), outreachAngles (array), risks (array), recommendedNextSteps (array).",
+    "Return JSON only with keys: fitSummary (string), likelyPainPoints (array), opportunityAngles (array), risks (array), recommendedNextSteps (array).",
     "Use only the supplied research notes. Do not invent revenue, headcount, technologies, or relationships.",
     "",
     `Company: ${input.companyName}`,
@@ -158,7 +108,7 @@ export function buildResearchSummaryPrompt(input: {
     `Negative signals: ${input.negativeSignals.join("; ") || "None"}`,
     `Pain hypotheses: ${input.painHypotheses.join("; ") || "None"}`,
     `Opportunity ideas: ${input.opportunityIdeas.join("; ") || "None"}`,
-    `Outreach angle: ${input.outreachAngle ?? "None"}`,
+    `Opportunity angle: ${input.opportunityAngle ?? "None"}`,
     `Notes: ${input.notes ?? "None"}`,
   ].join("\n");
 }

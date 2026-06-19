@@ -69,9 +69,9 @@ describe("lead service", () => {
       lastName: "Hopper",
       company: "Compiler Labs",
       tags: ["ai", "navy", "ai"],
-      status: "new",
       customFields: {},
     });
+    expect(lead.status).toBe("discovery_booked");
 
     const listed = await listLeads(context, { search: "compiler", tag: "ai" });
     expect(listed).toHaveLength(1);
@@ -97,7 +97,6 @@ describe("lead service", () => {
     await createLead(context, {
       email: "existing@example.com",
       tags: [],
-      status: "new",
       customFields: {},
     });
 

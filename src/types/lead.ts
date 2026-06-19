@@ -1,8 +1,6 @@
 export const leadStatuses = [
-  "new",
+  "discovery_booked",
   "imported",
-  "contacted",
-  "replied",
   "qualified",
   "discovery_sent",
   "proposal_sent",

@@ -1,42 +1,40 @@
 import { describe, expect, it } from "vitest";
 import {
-  buildColdEmailPrompt,
-  buildReplyDraftPrompt,
+  buildDiscoverySummaryPrompt,
+  buildResearchSummaryPrompt,
   parseJsonObject,
 } from "@/utils/ai-prompts";
 
 describe("AI prompts", () => {
-  it("builds cold email prompts with lead and offer context", () => {
-    const prompt = buildColdEmailPrompt({
-      lead: {
-        firstName: "Ada",
-        email: "ada@example.com",
-        company: "Analytical Engines",
-        website: "https://example.com",
-      },
-      serviceOffer: "AI automation audit",
-      campaignGoal: "Book discovery calls",
-    });
-
-    expect(prompt).toContain("Analytical Engines");
-    expect(prompt).toContain("AI automation audit");
-    expect(prompt).toContain("Return JSON only");
-  });
-
-  it("builds reply prompts with conversation history", () => {
-    const prompt = buildReplyDraftPrompt({
-      lead: { email: "grace@example.com", firstName: "Grace" },
-      messages: [
-        {
-          direction: "inbound",
-          subject: "Re: Idea",
-          body: "Interested.",
-        },
+  it("builds discovery summary prompts with lead and answer context", () => {
+    const prompt = buildDiscoverySummaryPrompt({
+      formName: "Discovery",
+      lead: { firstName: "Ada", email: "ada@example.com", company: "Analytical Engines" },
+      answers: [
+        { label: "Goal", answer: "Automate reporting" },
       ],
     });
 
-    expect(prompt).toContain("[inbound] Re: Idea");
-    expect(prompt).toContain("suggestedResponse");
+    expect(prompt).toContain("Analytical Engines");
+    expect(prompt).toContain("Automate reporting");
+    expect(prompt).toContain("Return JSON only");
+  });
+
+  it("builds research summary prompts with opportunity context", () => {
+    const prompt = buildResearchSummaryPrompt({
+      companyName: "Compiler Labs",
+      competitors: [],
+      painHypotheses: ["Manual reporting"],
+      opportunityIdeas: ["Automated qualification"],
+      positiveSignals: ["Sales team growth"],
+      negativeSignals: [],
+      opportunityAngle: "Reporting workflow audit",
+      fitScore: 82,
+    });
+
+    expect(prompt).toContain("Compiler Labs");
+    expect(prompt).toContain("opportunityAngles");
+    expect(prompt).toContain("Reporting workflow audit");
   });
 
   it("parses JSON from model text", () => {

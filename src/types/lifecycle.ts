@@ -1,6 +1,5 @@
 export const lifecycleStages = [
   "client_research",
-  "cold_outreach",
   "proposal_sales",
   "onboarding_payment",
   "solution_execution",
@@ -22,7 +21,6 @@ export type LifecycleStatus = (typeof lifecycleStatuses)[number];
 
 export const lifecycleStageLabels: Record<LifecycleStage, string> = {
   client_research: "Client Research",
-  cold_outreach: "Cold Outreach",
   proposal_sales: "Proposal & Sales",
   onboarding_payment: "Onboarding & Payment",
   solution_execution: "Solution Execution",
@@ -31,8 +29,7 @@ export const lifecycleStageLabels: Record<LifecycleStage, string> = {
 
 export const lifecycleStageDescriptions: Record<LifecycleStage, string> = {
   client_research: "Research, ICP fit, hypotheses, and target account context.",
-  cold_outreach: "Campaign enrollment, sending activity, replies, and suppression checks.",
-  proposal_sales: "Discovery, proposal drafting, sales follow-up, and decision tracking.",
+  proposal_sales: "Booked calls, discovery, proposal drafting, sales follow-up, and decision tracking.",
   onboarding_payment: "Client conversion, payment, signatures, onboarding tasks, and handoff.",
   solution_execution: "Projects, delivery status, deliverables, time, and client collaboration.",
   maintenance: "Ongoing support, renewals, retainers, check-ins, and expansion opportunities.",

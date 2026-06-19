@@ -37,7 +37,7 @@ describe("client research validation and prompts", () => {
       positiveSignals: ["Growing sales team"],
       negativeSignals: ["No visible engineering team"],
       notes: "Public website mentions operations bottlenecks.",
-      outreachAngle: "Offer a workflow audit.",
+      opportunityAngle: "Offer a workflow audit.",
       fitScore: 82,
     });
 

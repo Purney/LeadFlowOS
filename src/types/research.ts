@@ -17,5 +17,5 @@ export const defaultResearchChecklist = [
   "Identify likely pain points",
   "Find decision maker",
   "Check current provider or competitors",
-  "Define outreach angle",
+  "Define opportunity angle",
 ] as const;

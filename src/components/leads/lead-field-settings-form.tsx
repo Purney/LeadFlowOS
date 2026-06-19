@@ -6,7 +6,7 @@ import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toPersonalisationToken } from "@/utils/personalisation";
+import { toFieldKey } from "@/utils/field-key";
 
 type FieldDefinition = {
   id: number;
@@ -20,10 +20,8 @@ function createDefinition(id: number, name = "", key = ""): FieldDefinition {
 
 export function LeadFieldSettingsForm({
   leadCustomFields,
-  outboundSettings,
 }: {
   leadCustomFields: { name: string; key: string }[];
-  outboundSettings: Record<string, unknown>;
 }) {
   const router = useRouter();
   const [fields, setFields] = useState<FieldDefinition[]>(
@@ -69,10 +67,9 @@ export function LeadFieldSettingsForm({
           leadCustomFields: fields
             .map((field) => ({
               name: field.name,
-              key: field.key || toPersonalisationToken(field.name),
+              key: field.key || toFieldKey(field.name),
             }))
             .filter((field) => field.name.trim()),
-          outboundSettings,
         }),
       });
 
@@ -93,7 +90,7 @@ export function LeadFieldSettingsForm({
     <div className="space-y-4">
       <div className="space-y-3">
         {fields.map((field, index) => {
-          const token = toPersonalisationToken(field.key || field.name);
+          const key = toFieldKey(field.key || field.name);
 
           return (
             <div className="rounded-md border border-border p-3" key={field.id}>
@@ -112,7 +109,7 @@ export function LeadFieldSettingsForm({
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor={`lead-field-key-${field.id}`}>Token key</Label>
+                  <Label htmlFor={`lead-field-key-${field.id}`}>Field key</Label>
                   <Input
                     id={`lead-field-key-${field.id}`}
                     placeholder="PROJECT_TYPE"
@@ -133,9 +130,9 @@ export function LeadFieldSettingsForm({
                   </Button>
                 </div>
               </div>
-              {token ? (
+              {key ? (
                 <p className="mt-2 text-xs text-muted-foreground">
-                  Campaign token: <code>{`{${token}}`}</code>
+                  Stored as <code>{key}</code>
                 </p>
               ) : null}
             </div>

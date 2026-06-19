@@ -75,7 +75,7 @@ const clientResearchSchema = new Schema(
       index: true,
     },
     notes: { type: String, trim: true },
-    outreachAngle: { type: String, trim: true },
+    opportunityAngle: { type: String, trim: true },
     aiSummary: { type: Schema.Types.Mixed },
     nextAction: { type: String, trim: true },
     researchedAt: { type: Date },

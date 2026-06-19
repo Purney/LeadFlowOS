@@ -7,18 +7,6 @@ import {
   type OrganisationSettingsInput,
 } from "@/validation/organisation";
 
-const defaultPositiveReplyBody =
-  "Thanks {FIRST_NAME}, glad this is relevant.\n\nThe easiest next step is to book a short call so I can understand the workflow and show where automation would fit.\n\nYou can book a time here: {BOOKING_LINK}\n\n{GLOBAL_SIGNATURE}";
-
-type OutboundSettingsView = {
-  positiveAutoReplyEnabled?: boolean;
-  positiveAutoReplyDelayMinutes?: number;
-  positiveAutoReplySubject?: string;
-  positiveAutoReplyBody?: string;
-  bookingLink?: string;
-  globalSignature?: string;
-};
-
 export async function hasAnyUser() {
   await connectToDatabase();
   return (await User.exists({})) !== null;
@@ -49,25 +37,11 @@ export async function getOrganisationSettings(organisationId: string) {
   await connectToDatabase();
 
   const organisation = await Organisation.findById(organisationId)
-    .select("leadCustomFields outboundSettings")
+    .select("leadCustomFields")
     .lean();
-  const outboundSettings =
-    (organisation?.outboundSettings as OutboundSettingsView | undefined) ?? {};
 
   return {
     leadCustomFields: organisation?.leadCustomFields ?? [],
-    outboundSettings: {
-      positiveAutoReplyEnabled:
-        outboundSettings.positiveAutoReplyEnabled ?? false,
-      positiveAutoReplyDelayMinutes:
-        outboundSettings.positiveAutoReplyDelayMinutes ?? 60,
-      positiveAutoReplySubject:
-        outboundSettings.positiveAutoReplySubject ?? "Re: {NORMALISED_COMPANY}",
-      positiveAutoReplyBody:
-        outboundSettings.positiveAutoReplyBody ?? defaultPositiveReplyBody,
-      bookingLink: outboundSettings.bookingLink,
-      globalSignature: outboundSettings.globalSignature,
-    },
   };
 }
 
@@ -83,7 +57,6 @@ export async function updateOrganisationSettings(
     {
       $set: {
         leadCustomFields: data.leadCustomFields,
-        outboundSettings: data.outboundSettings,
       },
     },
     { returnDocument: "after" },

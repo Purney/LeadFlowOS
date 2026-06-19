@@ -9,7 +9,6 @@ import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { leadStatuses } from "@/types/lead";
-import { toPersonalisationToken } from "@/utils/personalisation";
 
 type LeadCustomFieldDefinition = {
   name: string;
@@ -69,11 +68,6 @@ export function CreateLeadForm({
       company: form.get("company"),
       website: form.get("website"),
       role: form.get("role"),
-      specificDataPoint: form.get("specificDataPoint"),
-      normalisedCompany: form.get("normalisedCompany"),
-      magnetName: form.get("magnetName"),
-      personalisedWorkflowValue: form.get("personalisedWorkflowValue"),
-      senderEmailSignature: form.get("senderEmailSignature"),
       tags: String(form.get("tags") ?? "")
         .split(",")
         .map((tag) => tag.trim())
@@ -154,7 +148,7 @@ export function CreateLeadForm({
         </div>
         <div className="space-y-2">
           <Label htmlFor="status">Status</Label>
-          <Select id="status" name="status" defaultValue="new">
+          <Select id="status" name="status" defaultValue="discovery_booked">
             {leadStatuses.map((status) => (
               <option key={status} value={status}>
                 {status.replace("_", " ")}
@@ -168,52 +162,11 @@ export function CreateLeadForm({
         <Textarea id="notes" name="notes" />
       </div>
       <div className="rounded-md border border-border p-4">
-        <p className="mb-3 text-sm font-semibold">Outreach personalisation</p>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="specificDataPoint">Specific data point</Label>
-            <Textarea
-              id="specificDataPoint"
-              name="specificDataPoint"
-              placeholder="Recent project, hiring signal, article, planning application..."
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="normalisedCompany">Normalised company</Label>
-            <Input id="normalisedCompany" name="normalisedCompany" />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="magnetName">Magnet name</Label>
-            <Input
-              id="magnetName"
-              name="magnetName"
-              placeholder="automation opportunity map"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="personalisedWorkflowValue">Workflow value</Label>
-            <Textarea
-              id="personalisedWorkflowValue"
-              name="personalisedWorkflowValue"
-              placeholder="reduce manual markups, repetitive drawing updates, and document admin"
-            />
-          </div>
-          <div className="space-y-2 sm:col-span-2">
-            <Label htmlFor="senderEmailSignature">Sender email signature</Label>
-            <Textarea
-              id="senderEmailSignature"
-              name="senderEmailSignature"
-              placeholder="Best,\nYour Name"
-            />
-          </div>
-        </div>
-      </div>
-      <div className="rounded-md border border-border p-4">
         <div className="mb-3 flex items-center justify-between gap-3">
           <div>
             <p className="text-sm font-semibold">Custom fields</p>
             <p className="text-xs text-muted-foreground">
-              Add extra lead data for campaign variables and research notes.
+              Add extra CRM context for qualification, proposals, and handoff notes.
             </p>
           </div>
           <Button onClick={addCustomField} type="button" variant="secondary">
@@ -240,7 +193,7 @@ export function CreateLeadForm({
                 <Input
                   id={`globalCustomFieldValue-${field.key}`}
                   name="customFieldValue"
-                  placeholder={`Use {${toPersonalisationToken(field.key)}} in campaigns`}
+                  placeholder="Add a value for this lead"
                 />
               </div>
             </div>

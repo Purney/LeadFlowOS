@@ -1,4 +1,3 @@
-import { getCampaignMetrics } from "@/services/campaign-service";
 import { getExecutionMetrics } from "@/services/execution-service";
 import { getHandoffMetrics } from "@/services/handoff-service";
 import { getLifecycleMetrics } from "@/services/lifecycle-service";
@@ -7,7 +6,6 @@ import { getPortalMetrics } from "@/services/portal-service";
 import { getResearchMetrics } from "@/services/research-service";
 import { getRevenueMetrics } from "@/services/revenue-service";
 import { getSalesMetrics } from "@/services/sales-service";
-import { getSendingMetrics } from "@/services/sending-service";
 import type { CommandAction, CommandArea, CommandSeverity } from "@/types/command";
 
 function action(
@@ -31,8 +29,6 @@ export async function getCommandCenter(organisationId: string) {
   const [
     lifecycle,
     research,
-    campaigns,
-    sending,
     sales,
     handoffs,
     execution,
@@ -42,8 +38,6 @@ export async function getCommandCenter(organisationId: string) {
   ] = await Promise.all([
     getLifecycleMetrics(organisationId),
     getResearchMetrics(organisationId),
-    getCampaignMetrics(organisationId),
-    getSendingMetrics(organisationId),
     getSalesMetrics(organisationId),
     getHandoffMetrics(organisationId),
     getExecutionMetrics(organisationId),
@@ -75,18 +69,6 @@ export async function getCommandCenter(organisationId: string) {
         "Research checklists need completion",
         `${research.incompleteChecklist} target accounts still have open checklist work.`,
         "/research",
-      ),
-    );
-  }
-  if (sending.pendingApprovals > 0) {
-    actions.push(
-      action(
-        "send-approvals",
-        "outreach",
-        "critical",
-        "Outbound batches need approval",
-        `${sending.pendingApprovals} send batches are waiting for manual approval.`,
-        "/sending",
       ),
     );
   }
@@ -169,8 +151,6 @@ export async function getCommandCenter(organisationId: string) {
     metrics: {
       lifecycleAccounts: lifecycle.total,
       researchRecords: research.total,
-      activeCampaigns: campaigns.active,
-      pendingApprovals: sending.pendingApprovals,
       activeDeals: sales.activeDeals,
       weightedPipelineCents: sales.weightedValueCents,
       onboardingHandoffs: handoffs.total,

@@ -11,7 +11,6 @@ describe("lifecycle helpers", () => {
   it("contains the full business operating sequence", () => {
     expect(lifecycleStages).toEqual([
       "client_research",
-      "cold_outreach",
       "proposal_sales",
       "onboarding_payment",
       "solution_execution",
@@ -21,8 +20,9 @@ describe("lifecycle helpers", () => {
   });
 
   it("validates stages and next-stage transitions", () => {
-    expect(isLifecycleStage("cold_outreach")).toBe(true);
+    expect(isLifecycleStage("proposal_sales")).toBe(true);
     expect(isLifecycleStage("unknown")).toBe(false);
+    expect(getNextLifecycleStage("client_research")).toBe("proposal_sales");
     expect(getNextLifecycleStage("proposal_sales")).toBe("onboarding_payment");
     expect(getNextLifecycleStage("maintenance")).toBeNull();
   });

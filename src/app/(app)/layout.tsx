@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { BarChart3, Bot, BriefcaseBusiness, Clock3, Command, CreditCard, FileQuestion, FileText, Hammer, HeartPulse, Inbox, Rocket, Route, Search, Send, Settings, Share2, Users } from "lucide-react";
+import { BarChart3, Bot, BriefcaseBusiness, Clock3, Command, CreditCard, FileQuestion, FileText, Hammer, HeartPulse, Rocket, Route, Search, Settings, Share2, Users } from "lucide-react";
 import { auth, signOut } from "@/auth";
 import { Button } from "@/components/ui/button";
 
@@ -14,8 +14,6 @@ const navItems = [
   { href: "/onboarding", label: "Onboarding", icon: Rocket },
   { href: "/execution", label: "Execution", icon: Hammer },
   { href: "/maintenance", label: "Maintenance", icon: HeartPulse },
-  { href: "/campaigns", label: "Campaigns", icon: Inbox },
-  { href: "/sending", label: "Sending", icon: Send },
   { href: "/ai", label: "AI", icon: Bot },
   { href: "/discovery", label: "Discovery", icon: FileQuestion },
   { href: "/proposals", label: "Proposals", icon: FileText },

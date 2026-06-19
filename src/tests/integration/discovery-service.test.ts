@@ -67,7 +67,6 @@ describe("discovery service", () => {
       email: "grace@example.com",
       firstName: "Grace",
       tags: [],
-      status: "new",
       customFields: {},
     });
     const form = await createDiscoveryForm(context, {

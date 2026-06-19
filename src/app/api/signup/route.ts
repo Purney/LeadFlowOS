@@ -7,8 +7,6 @@ const envKeys = new Set([
   "MONGODB_URI",
   "AUTH_SECRET",
   "AUTH_URL",
-  "CRON_SECRET",
-  "MAILGUN_API_BASE_URL",
 ]);
 
 function isDuplicateKeyError(error: unknown) {

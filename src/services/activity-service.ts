@@ -41,16 +41,6 @@ export async function listRecentActivity(organisationId: string, limit = 8) {
 
 function notificationForAction(action: string) {
   const map: Record<string, { type: string; title: string; body?: string }> = {
-    "send_batch.generated": {
-      type: "pending_send_approval",
-      title: "Send batch awaiting approval",
-      body: "A generated send batch needs manual approval before processing.",
-    },
-    "email.reply_received": {
-      type: "reply_received",
-      title: "Reply received",
-      body: "A lead replied and the related campaign enrollment was paused.",
-    },
     "discovery_response.submitted": {
       type: "discovery_submitted",
       title: "Discovery response submitted",

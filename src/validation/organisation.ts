@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { toPersonalisationToken } from "@/utils/personalisation";
+import { toFieldKey } from "@/utils/field-key";
 
 const optionalText = z
   .string()
@@ -22,7 +22,7 @@ export const organisationSettingsSchema = z.object({
 
       return fields
         .map((field) => {
-          const key = toPersonalisationToken(field.key ?? field.name);
+          const key = toFieldKey(field.key ?? field.name);
           return { name: field.name.trim(), key };
         })
         .filter((field) => {
@@ -31,14 +31,6 @@ export const organisationSettingsSchema = z.object({
           return true;
         });
     }),
-  outboundSettings: z.object({
-    globalSignature: optionalText,
-    positiveAutoReplyEnabled: z.boolean().default(false),
-    positiveAutoReplyDelayMinutes: z.coerce.number().int().min(0).max(60).default(60),
-    positiveAutoReplySubject: optionalText,
-    positiveAutoReplyBody: optionalText,
-    bookingLink: optionalText,
-  }),
 });
 
 export type OrganisationSettingsInput = z.infer<typeof organisationSettingsSchema>;

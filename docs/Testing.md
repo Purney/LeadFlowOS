@@ -25,20 +25,9 @@ src/tests/
 
 ## Unit Tests
 
-Unit tests cover pure helpers and validation:
+Use unit tests for deterministic helpers and validation.
 
-- Zod validation.
-- CSV parsing.
-- Personalisation.
-- Spintax rendering.
-- Campaign scheduling.
-- Deliverability.
-- AI prompts.
-- PDF rendering.
-- HTML sanitization.
-- Rate-limit helper behavior.
-
-Prefer unit tests for deterministic logic that does not need MongoDB.
+Current examples include lifecycle helpers, lead validation, research prompts, command center areas, PDF rendering, HTML sanitization, and rate limiting.
 
 ## Integration Tests
 
@@ -53,39 +42,6 @@ Common pattern:
 5. Delete all touched models in `afterEach`.
 6. Disconnect and stop Mongo in `afterAll`.
 
-Important cleanup:
+## Removed Outreach Tests
 
-- If a test calls `createFirstOwner`, clean up `SetupLock`, `Organisation`, and `User`.
-- Clean up all related models touched by the test.
-- Reset `ALLOW_ADDITIONAL_ORG_SIGNUPS=false`.
-- Use `vi.useRealTimers()` after fake timers.
-
-## E2E Tests
-
-Playwright currently has a smoke test that reaches the app entrypoint.
-
-Future E2E coverage should include:
-
-- Signup/login.
-- Lead import.
-- Campaign creation.
-- Send batch generation/approval.
-- Discovery submission.
-- Proposal creation.
-- Client conversion.
-- Time logging.
-- Portal access and signing.
-
-## Test Writing Rules
-
-- Prefer service-level integration tests for business rules.
-- Add tests when changing security-sensitive code.
-- Add tests when changing tenant-scoped reference validation.
-- Add tests when expanding rich HTML allowlists.
-- Keep tests deterministic; pass explicit `now` values to job helpers.
-- For spintax, pass explicit seeds so rendered variants are deterministic.
-- For positive-reply automation, mock provider sending or assert failed provider attempts are recorded without crashing inbound processing.
-
-## Known Test Caveat
-
-Several integration suites start their own MongoMemoryServer. If the machine is under heavy load, startup contention can cause timeouts. Rerun the suite once before assuming a product failure.
+Campaign, sending, warmup, Mailgun, positive-reply automation, cold email, reply draft, spintax, and email-personalisation tests have been removed with the feature.

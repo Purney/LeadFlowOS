@@ -1,26 +1,17 @@
 import { redirect } from "next/navigation";
-import { Bot, Mail, MessageSquareText } from "lucide-react";
+import { Bot, FileQuestion, Search } from "lucide-react";
 import { auth } from "@/auth";
-import { ColdEmailForm } from "@/components/ai/cold-email-form";
-import { ReplyDraftForm } from "@/components/ai/reply-draft-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { listAiDrafts } from "@/services/ai-service";
-import { listLeads } from "@/services/lead-service";
 import type {
-  ColdEmailDraftContent,
   DiscoverySummaryContent,
-  ReplyDraftContent,
   ResearchSummaryContent,
 } from "@/types/ai";
 
 type DraftView = {
   _id: { toString(): string };
-  type: "cold_email" | "reply" | "discovery_summary" | "research_summary";
-  content:
-    | ColdEmailDraftContent
-    | ReplyDraftContent
-    | DiscoverySummaryContent
-    | ResearchSummaryContent;
+  type: "discovery_summary" | "research_summary";
+  content: DiscoverySummaryContent | ResearchSummaryContent;
   createdAt: Date;
 };
 
@@ -31,16 +22,7 @@ export default async function AiPage() {
     redirect("/login");
   }
 
-  const [leads, drafts] = await Promise.all([
-    listLeads({ organisationId: session.user.organisationId }),
-    listAiDrafts(session.user.organisationId),
-  ]);
-  const leadOptions = leads.map((lead) => ({
-    id: lead._id.toString(),
-    label:
-      [lead.firstName, lead.lastName].filter(Boolean).join(" ") ||
-      lead.email,
-  }));
+  const drafts = await listAiDrafts(session.user.organisationId);
   const draftViews = drafts as DraftView[];
 
   return (
@@ -48,8 +30,7 @@ export default async function AiPage() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">AI drafts</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Generate cold email copy and reply drafts for manual review. Drafts are
-          never sent automatically.
+          Review AI summaries created from research and discovery workflows.
         </p>
       </div>
 
@@ -65,43 +46,24 @@ export default async function AiPage() {
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm text-muted-foreground">Cold email</CardTitle>
+            <CardTitle className="text-sm text-muted-foreground">Research summaries</CardTitle>
           </CardHeader>
           <CardContent className="flex items-center gap-3">
-            <Mail className="h-5 w-5 text-muted-foreground" />
+            <Search className="h-5 w-5 text-muted-foreground" />
             <p className="text-2xl font-semibold">
-              {draftViews.filter((draft) => draft.type === "cold_email").length}
+              {draftViews.filter((draft) => draft.type === "research_summary").length}
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm text-muted-foreground">Replies</CardTitle>
+            <CardTitle className="text-sm text-muted-foreground">Discovery summaries</CardTitle>
           </CardHeader>
           <CardContent className="flex items-center gap-3">
-            <MessageSquareText className="h-5 w-5 text-muted-foreground" />
+            <FileQuestion className="h-5 w-5 text-muted-foreground" />
             <p className="text-2xl font-semibold">
-              {draftViews.filter((draft) => draft.type === "reply").length}
+              {draftViews.filter((draft) => draft.type === "discovery_summary").length}
             </p>
-          </CardContent>
-        </Card>
-      </section>
-
-      <section className="grid gap-4 xl:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>AI cold email generation</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ColdEmailForm leads={leadOptions} />
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>AI reply drafting</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ReplyDraftForm leads={leadOptions} />
           </CardContent>
         </Card>
       </section>
@@ -113,43 +75,16 @@ export default async function AiPage() {
             <Card key={draft._id.toString()}>
               <CardHeader>
                 <CardTitle>
-                  {draft.type === "cold_email"
-                    ? "Cold email"
-                    : draft.type === "reply"
-                      ? "Reply draft"
-                      : draft.type === "research_summary"
-                        ? "Research summary"
-                        : "Discovery summary"}
+                  {draft.type === "research_summary"
+                    ? "Research summary"
+                    : "Discovery summary"}
                 </CardTitle>
                 <p className="text-sm text-muted-foreground">
                   {new Date(draft.createdAt).toLocaleString()}
                 </p>
               </CardHeader>
               <CardContent className="space-y-3">
-                {draft.type === "cold_email" ? (
-                  <>
-                    <div>
-                      <p className="text-xs font-medium uppercase text-muted-foreground">Subjects</p>
-                      <ul className="mt-2 space-y-1 text-sm">
-                        {(draft.content as ColdEmailDraftContent).subjects.map((subject) => (
-                          <li key={subject}>{subject}</li>
-                        ))}
-                      </ul>
-                    </div>
-                    <p className="whitespace-pre-wrap rounded-md bg-muted p-4 text-sm">
-                      {(draft.content as ColdEmailDraftContent).body}
-                    </p>
-                  </>
-                ) : draft.type === "reply" ? (
-                  <>
-                    <p className="rounded-md bg-muted p-4 text-sm">
-                      {(draft.content as ReplyDraftContent).summary}
-                    </p>
-                    <p className="whitespace-pre-wrap rounded-md bg-muted p-4 text-sm">
-                      {(draft.content as ReplyDraftContent).suggestedResponse}
-                    </p>
-                  </>
-                ) : draft.type === "research_summary" ? (
+                {draft.type === "research_summary" ? (
                   <p className="rounded-md bg-muted p-4 text-sm">
                     {(draft.content as ResearchSummaryContent).fitSummary}
                   </p>
@@ -165,7 +100,7 @@ export default async function AiPage() {
         ) : (
           <Card>
             <CardContent className="p-8 text-center text-sm text-muted-foreground">
-              No AI drafts yet. Generate one from an existing lead.
+              No AI drafts yet. Generate one from research or discovery.
             </CardContent>
           </Card>
         )}

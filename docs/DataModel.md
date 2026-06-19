@@ -1,275 +1,82 @@
 # Data Model
 
-LeadFlow OS uses Mongoose models in `src/models`.
+All tenant-owned records include `organisationId`. User-created records generally include `createdByUserId`.
 
-## Model Conventions
-
-Tenant-owned models should include:
-
-- `organisationId`
-- `createdAt`
-- `updatedAt`
-- `createdByUserId` where an internal user caused the record
-
-Queries should generally include `organisationId` unless the model is infrastructure-only or a public-token lookup.
-
-## Identity And Audit
+## Organisation And Users
 
 `Organisation`
 
-- Business account container.
-- Created during first-owner signup.
-- Stores organisation-wide lead custom field definitions and outbound email settings.
-- Outbound settings include global signature, booking link, positive-reply auto-response toggle, delay window, subject, and body template.
+- Stores organisation name, slug, and reusable lead custom field definitions.
+- No outbound email settings are stored.
 
 `User`
 
-- Belongs to an organisation.
-- Includes name, email, password hash, and role.
+- Stores name, email, password hash, role, and organisation membership.
 
-`SetupLock`
-
-- Singleton lock for safe first-owner setup.
-
-`ActivityLog`
-
-- Append-only audit/activity feed.
-- Important actions create activity records.
-
-`Notification`
-
-- Internal notification records created from selected activity events.
-
-## CRM
-
-`ClientResearch`
-
-- Target account research before cold outreach.
-- Stores firmographics, decision-maker notes, current provider, competitors, ICP fit score, priority, status, positive/negative signals, pain hypotheses, opportunity ideas, outreach angle, checklist progress, and AI summary.
-- Links to `LifecycleAccount` so research appears in the unified account timeline.
-
-`LifecycleAccount`
-
-- Unified account spine for the whole business lifecycle.
-- Stages: client research, cold outreach, proposal and sales, onboarding and payment, solution execution, and maintenance.
-- Can link to lead, client, proposal, Stripe customer, owner, next action, fit score, tags, and timestamps.
-
-`LifecycleTimelineEvent`
-
-- Cross-module timeline for lifecycle accounts.
-- Records stage, entity reference, action, title/body, metadata, and occurrence time.
+## CRM Spine
 
 `Lead`
 
-- Prospect record.
-- Unique email per organisation.
-- Tracks lifecycle status, source, tags, notes, outreach personalisation fields, and custom fields.
-- Custom fields are stored as a bounded text key/value map. Organisation-level custom field definitions make the same custom field appear on every lead and expose campaign tokens such as `{PROJECT_TYPE}`.
-- Lead create, update, and import workflows sync into `LifecycleAccount`.
+- Stores contact details, company, website, role, tags, notes, source, lifecycle status, and custom fields.
+- Manual leads default to `discovery_booked`.
+- Statuses are `discovery_booked`, `imported`, `qualified`, `discovery_sent`, `proposal_sent`, `won`, and `lost`.
+- Email is unique per organisation.
 
-`Client`
+`LifecycleAccount`
 
-- Converted customer record.
-- May reference original `leadId`.
-- Stores contacts, notes, and optional Stripe customer ID.
-- Client creation/conversion links or advances the lifecycle account into onboarding and payment.
+- Links leads, clients, proposals, owners, Stripe customers, next actions, tags, and account state.
+- Stages are `client_research`, `proposal_sales`, `onboarding_payment`, `solution_execution`, and `maintenance`.
+- `discovery_booked`, `qualified`, `discovery_sent`, and `proposal_sent` leads map to `proposal_sales`.
 
-`Deal`
+`LifecycleTimelineEvent`
 
-- Sales opportunity linked to a lifecycle account.
-- Can reference lead, proposal, and client records.
-- Tracks sales stage, status, value, probability, expected close date, next action, notes, and won/lost reasons.
+- Records lifecycle movement and notable account events.
 
-`SalesTask`
+## Research, Sales, Discovery, And Proposals
 
-- Follow-up task linked to a deal.
-- Tracks due date, status, and completion timestamp.
+`ClientResearch`
 
-`OnboardingHandoff`
+- Stores target-account context, fit score, checklist progress, pain hypotheses, opportunity ideas, opportunity angle, and AI summary.
 
-- Won-deal handoff into onboarding and payment.
-- Links deal, client, optional project, optional portal access, optional signature request, payment gate, onboarding task count, status, and kickoff notes.
+`Deal` and `SalesTask`
 
-## Campaigns And Sending
+- Store sales pipeline state, values, probabilities, next actions, and follow-up work.
 
-`Campaign`
+`DiscoveryForm` and `DiscoveryResponse`
 
-- Contains campaign metadata and embedded sequence steps.
-- Step fields include delays, subject variants, and body variants.
-- Subject and body variants support A/B testing, personalisation tokens, custom lead-field tokens, and spintax syntax such as `{{RANDOM | Hey | Hi | Hello}}`.
-
-`CampaignEnrollment`
-
-- Links campaigns to leads.
-- Tracks current step, status, next scheduled time, and assigned A/B variants.
-
-`EmailAccount`
-
-- Sending identity and deliverability state.
-- Tracks provider, domain, verification status, daily limit, per-domain cap, target warmup volume, warm-up status, reputation status, active flag, and deliverability review timestamp.
-- Health fields cover SPF, DKIM, DMARC policy, forward/reverse DNS, TLS, tracking domain, unsubscribe support, one-click unsubscribe support, blocklist status, bounce rate, spam complaint rate, and deferral rate.
-
-`SendBatch`
-
-- Manual approval unit for outbound sending.
-- Stores recipients, rendered sample subject/body, original subject/body templates, scheduled time, risk warnings, and status.
-- Template fields allow send-time per-recipient rendering of custom fields and spintax while preserving an approval preview.
-
-`Suppression`
-
-- Email suppression list.
-- Reasons include unsubscribed, bounced, spam report, manual suppression, existing client, and competitor.
-
-## Email History
-
-`EmailMessage`
-
-- Outbound and inbound email records.
-- Links to lead, campaign, send batch, and email account where known.
-- Positive-reply auto-response attempts are stored as outbound messages with automation metadata.
-
-`EmailEvent`
-
-- Provider event history from Mailgun.
-- Tracks delivery, open, click, bounce, unsubscribe, spam reports, and raw event payload.
-
-## AI
-
-`AiDraft`
-
-- Stores AI-generated cold emails, replies, discovery summaries, and proposal-related drafts.
-- Also stores client research summaries.
-- Drafts require manual review and are not automatically sent.
-
-## Discovery And Proposals
-
-`DiscoveryForm`
-
-- Internal form definition.
-- Public link is served by slug.
-
-`DiscoveryResponse`
-
-- Submitted answers for a discovery form.
-- Can link to a lead.
+- Store configurable discovery forms and submitted responses.
 
 `Proposal`
 
-- Structured proposal document.
-- Tracks status and content versions.
+- Stores proposal content, status, public token/slug, linked lead/client, and acceptance state.
 
-## Revenue
+`AiDraft`
 
-`StripeCustomer`
+- Stores AI-generated `research_summary` and `discovery_summary` drafts.
+- Legacy `cold_email` and `reply` draft records are removed by `npm run purge:outreach`.
 
-- Stripe customer mirror.
+## Delivery, Revenue, And Portal
 
-`StripeInvoice`
+`Client`
 
-- Stripe invoice mirror.
-- Used for revenue metrics.
+- Stores converted clients, contacts, notes, and optional Stripe linkage.
 
-`StripeCheckoutSession`
+`Project`, `Deliverable`, `TimeEntry`
 
-- Stripe checkout session mirror.
+- Store delivery work, milestones, deliverables, and tracked time.
 
-`StripePaymentIntent`
+`MaintenancePlan`, `MaintenanceTask`, `SupportTicket`
 
-- Stripe payment intent mirror.
+- Store retainers, recurring maintenance, support issues, renewal dates, and risk.
 
-## Delivery
+`Invoice`, `Payment`
 
-`Project`
+- Store Stripe-backed revenue data.
 
-- Linked to client.
-- Tracks type, status, estimated value, actual revenue, and dates.
-- Project creation advances the linked lifecycle account into solution execution.
-- Also tracks execution health, progress percentage, client-visible summary, and internal status note.
+`PortalAccess`, `PortalMessage`, `SignatureRequest`, `PdfExport`
 
-`ExecutionMilestone`
+- Store client portal access, collaboration, signing, and downloadable exports.
 
-- Project milestone with status, due date, order, and completion timestamp.
+## Removed Outreach Collections
 
-`ExecutionTask`
-
-- Internal delivery task linked to a project and optionally a milestone.
-- Tracks assignee, status, due date, and completion timestamp.
-
-`Deliverable`
-
-- Client-facing project deliverable.
-- Tracks status, optional URL, description, and delivered timestamp.
-
-`MaintenancePlan`
-
-- Post-delivery retainer or support plan.
-- Tracks cadence, monthly fee, included hours, renewal date, next check-in, status, health, and notes.
-
-`SupportTicket`
-
-- Client support issue after delivery.
-- Tracks priority, status, due date, and resolution timestamp.
-
-`MaintenanceTask`
-
-- Recurring maintenance work linked to a maintenance plan.
-- Tracks due date, status, and completion timestamp.
-
-`TimeEntry`
-
-- Manual time entry linked to client and project.
-- Used for time and effective hourly revenue metrics.
-
-## Portal
-
-`PortalAccess`
-
-- Hashed public portal token.
-- Links to a client.
-- Supports expiry, revocation, and last viewed timestamp.
-
-`PortalMessage`
-
-- Internal/client-authored portal collaboration message.
-
-`OnboardingTask`
-
-- Client/project onboarding task.
-
-`SignatureRequest`
-
-- Internal or public signature request.
-- Can be signed through the public portal.
-- Prepared for external provider metadata.
-
-`PdfExport`
-
-- Sanitized HTML document snapshot.
-- Used for public/internal portal display and lightweight PDF downloads.
-
-## Infrastructure
-
-`RateLimitBucket`
-
-- Shared persistent rate-limit bucket.
-- TTL index expires old buckets.
-
-## Data Integrity Rules
-
-When adding or updating references:
-
-- Check referenced records belong to the current organisation.
-- For project-scoped data, check `projectId` belongs to the same client when `clientId` is also present.
-- Do not trust raw IDs from request bodies.
-- Prefer service-layer validation before writes.
-
-## Metric Rules
-
-Dashboards should use MongoDB aggregations for large collections.
-
-Avoid loading all documents for:
-
-- Revenue metrics.
-- Time/project metrics.
-- Notification counts.
-- Campaign/send metrics.
+Legacy campaign, campaign enrollment, sending account, send batch, email message, email event, and suppression collections are no longer used. The purge script deletes them and removes old outreach fields from leads and organisations.

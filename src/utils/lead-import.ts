@@ -9,17 +9,6 @@ const headerAliases = {
   company: ["company", "organisation", "organization", "account"],
   website: ["website", "url", "domain"],
   role: ["role", "title", "jobtitle"],
-  specificDataPoint: ["specificdatapoint", "specific_data_point", "datapoint"],
-  normalisedCompany: ["normalisedcompany", "normalizedcompany", "normalised_company", "normalized_company"],
-  magnetName: ["magnetname", "magnet_name"],
-  personalisedWorkflowValue: [
-    "personalisedworkflowvalue",
-    "personalizedworkflowvalue",
-    "personalised_workflow_value",
-    "personalized_workflow_value",
-    "workflowvalue",
-  ],
-  senderEmailSignature: ["senderemailsignature", "sender_email_signature", "signature"],
   tags: ["tags", "tag"],
   notes: ["notes", "note"],
   source: ["source", "leadsource"],
@@ -54,11 +43,6 @@ export function parseLeadCsv(csv: string, source?: string) {
     company: getValue(row, headerAliases.company),
     website: getValue(row, headerAliases.website),
     role: getValue(row, headerAliases.role),
-    specificDataPoint: getValue(row, headerAliases.specificDataPoint),
-    normalisedCompany: getValue(row, headerAliases.normalisedCompany),
-    magnetName: getValue(row, headerAliases.magnetName),
-    personalisedWorkflowValue: getValue(row, headerAliases.personalisedWorkflowValue),
-    senderEmailSignature: getValue(row, headerAliases.senderEmailSignature),
     tags: (getValue(row, headerAliases.tags) ?? "")
       .split(/[;|]/)
       .map((tag) => tag.trim())

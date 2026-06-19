@@ -6,7 +6,6 @@ import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toPersonalisationToken } from "@/utils/personalisation";
 
 type CustomFieldRow = {
   id: number;
@@ -172,11 +171,6 @@ export function LeadCustomFields({
                 </Button>
               </div>
             </div>
-            {row.name.trim() ? (
-              <p className="text-xs text-muted-foreground">
-                Token: <code>{`{${toPersonalisationToken(row.name)}}`}</code>
-              </p>
-            ) : null}
           </div>
         ))}
       </div>

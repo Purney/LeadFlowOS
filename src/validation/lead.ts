@@ -43,15 +43,10 @@ export const leadInputSchema = z.object({
   company: optionalText,
   website: optionalText,
   role: optionalText,
-  specificDataPoint: optionalText,
-  normalisedCompany: optionalText,
-  magnetName: optionalText,
-  personalisedWorkflowValue: optionalText,
-  senderEmailSignature: optionalText,
   tags: z.array(z.string().trim().min(1)).default([]),
   notes: optionalText,
   source: optionalText,
-  status: leadStatusSchema.default("new"),
+  status: leadStatusSchema.default("discovery_booked"),
   customFields: customFieldsSchema,
 });
 

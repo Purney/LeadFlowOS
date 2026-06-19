@@ -88,8 +88,14 @@ function accountNameForLead(lead: AccountSource) {
 
 function stageForLeadStatus(status?: string): LifecycleStage {
   if (status === "won") return "onboarding_payment";
-  if (status === "qualified" || status === "replied") return "proposal_sales";
-  if (status === "contacted") return "cold_outreach";
+  if (
+    status === "discovery_booked" ||
+    status === "qualified" ||
+    status === "discovery_sent" ||
+    status === "proposal_sent"
+  ) {
+    return "proposal_sales";
+  }
   return "client_research";
 }
 

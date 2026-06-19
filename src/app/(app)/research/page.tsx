@@ -30,7 +30,7 @@ export default async function ResearchPage() {
         <p className="text-sm font-medium text-muted-foreground">Phase 15</p>
         <h1 className="text-3xl font-semibold tracking-tight">Client Research</h1>
         <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
-          Qualify target accounts before outreach with ICP scoring, research
+          Qualify target accounts with ICP scoring, research
           checklists, pain hypotheses, opportunity angles, and AI summaries.
         </p>
       </div>
@@ -91,7 +91,7 @@ export default async function ResearchPage() {
                 <Search aria-hidden className="mb-3 h-8 w-8 text-muted-foreground" />
                 <p className="font-medium">No client research yet</p>
                 <p className="mt-1 max-w-md text-sm text-muted-foreground">
-                  Add target accounts here before moving them into cold outreach.
+                  Add target accounts here before moving them into the sales workflow.
                 </p>
               </CardContent>
             </Card>
@@ -141,10 +141,10 @@ export default async function ResearchPage() {
                       </div>
                       <div>
                         <p className="text-xs font-medium uppercase text-muted-foreground">
-                          Outreach angle
+                          Opportunity angle
                         </p>
                         <p className="mt-2 text-sm">
-                          {item.outreachAngle || "No outreach angle yet"}
+                          {item.opportunityAngle || "No opportunity angle yet"}
                         </p>
                       </div>
                     </div>
